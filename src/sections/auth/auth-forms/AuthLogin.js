@@ -3,12 +3,13 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Button, Checkbox, FormControlLabel, FormHelperText, Grid, Link, InputAdornment, InputLabel, OutlinedInput, Stack, Typography } from '@mui/material';
 import * as Joi from 'joi';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import useAuth from 'hooks/useAuth';
 import useScriptRef from 'hooks/useScriptRef';
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 // Validation schema using Joi
 const schema = Joi.object({
@@ -22,7 +23,12 @@ const AuthLogin = () => {
   // const toast = usetoast();
   const { login } = useAuth();
   const scriptedRef = useScriptRef();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: {
+      email: 'sakthiveltofficial@gmail.com',  // Set the default value here
+      password : 'b72uvl6k7m' 
+    }
+  });
 
   const onSubmit = async (data) => {
     try {
@@ -31,9 +37,7 @@ const AuthLogin = () => {
       if (scriptedRef.current) {
         toast.success('Login successful');
       }
-    } catch (err) {
-      console.error(err);
-      toast.error(err)
+    } catch (err) { 
       if (scriptedRef.current) {
         toast.error(err.message);
       }
@@ -51,6 +55,7 @@ const AuthLogin = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
+        <Toaster />
         <Grid item xs={12}>
           <Stack spacing={1}>
             <InputLabel htmlFor="email-login">Email Address</InputLabel>

@@ -24,11 +24,12 @@ import {
 } from '@mui/material';
 import LinearWithLabel from 'components/@extended/progress/LinearWithLabel';
 import MainCard from 'components/MainCard';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { unstable_HistoryRouter, useNavigate } from 'react-router-dom';
 import { IoReturnDownBackOutline } from 'react-icons/io5';
 import instructorImage from '../../assets/images/users/avatar-9.png';
 import instructorCar from '../../assets/images/cars/City-Desktop.png';
+import axios from 'axios';
 
 const Profile = () => {
   const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
@@ -39,9 +40,55 @@ const Profile = () => {
     return navigate(-1);
   };
 
+  // user details
+
+  const [userDetails, setUserDetails] = useState([]);
+
+  const [branches, setBranches] = useState([]);
+
+  const [zones, setZones] = useState([]);
+
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    handleUserFetch();
+    // setBranches(userDetails.branch)
+  }, []);
+
+  const handleUserFetch = async () => {
+    try {
+      let id = 1;
+      const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${id}`);
+      let user = response.data;
+      setUserDetails(user.data[0]);
+      setBranches(user.data[0].branch);
+      setZones(user.data[0].zones);
+      setCourses(user.data[0].courses);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // calculate age of user
+  var dob = userDetails.dob; // 2033-03-03
+  var arrayDob = dob?.split('-'); // ['2033','03','03']
+  var userAge;
+  if (arrayDob) {
+    var [userYear] = arrayDob;
+    userAge = userYear; // Assuming userAge is the year part of the date of birth
+  } else {
+    // Handle the case where dob is not set or doesn't have the expected format
+  }
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+
+  console.log(courses);
+
+  // user details
+
   return (
     <>
-      <Tooltip sx={{marginBottom:'10px'}} title="back">
+      <Tooltip sx={{ marginBottom: '10px' }} title="back">
         <IconButton onClick={handleBack}>
           <IoReturnDownBackOutline size={40} />
         </IconButton>
@@ -54,13 +101,13 @@ const Profile = () => {
                 <Grid container spacing={3}>
                   <Grid item xs={12}>
                     <Stack direction="row" justifyContent="flex-end">
-                      <Chip label="Active" size="medium" color="primary" />
+                      <Chip label={userDetails.status} size="medium" color={userDetails.status === 'Active' ? 'success' : 'error'} />
                     </Stack>
                     <Stack spacing={2.5} alignItems="center">
-                      <Avatar alt="instructorImage" sx={{ width: 80, height: 80 }} src={instructorImage} />
+                      <Avatar alt="instructorImage" sx={{ width: 80, height: 80 }} src={userDetails.partnerimage} />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">Anshan H.</Typography>
-                        <Typography color="secondary">Minor</Typography>
+                        <Typography variant="h5">{userDetails.firstname + ' ' + userDetails.lastname}</Typography>
+                        <Typography color="secondary">{userDetails.rolename}</Typography>
                       </Stack>
                     </Stack>
                   </Grid>
@@ -70,12 +117,12 @@ const Profile = () => {
                   <Grid item xs={12}>
                     <Stack direction="row" justifyContent="space-around" alignItems="center">
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">20</Typography>
+                        <Typography variant="h5">{currentYear - userAge}</Typography>
                         <Typography color="secondary">Age</Typography>
                       </Stack>
                       <Divider orientation="vertical" flexItem />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">Male</Typography>
+                        <Typography variant="h5">{userDetails.gender}</Typography>
                         <Typography color="secondary">Gender</Typography>
                       </Stack>
                       <Divider orientation="vertical" flexItem />
@@ -97,7 +144,7 @@ const Profile = () => {
                           <MailOutlined />
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">anshan.dh81@gmail.com</Typography>
+                          <Typography align="right">{userDetails.primaryemail}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
@@ -105,7 +152,7 @@ const Profile = () => {
                           <PhoneOutlined />
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">(+1-876) 8654 239 581</Typography>
+                          <Typography align="right">{userDetails.primarycontact}</Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
@@ -113,17 +160,12 @@ const Profile = () => {
                           <AimOutlined />
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">New York</Typography>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      <ListItem>
-                        <ListItemIcon>
-                          <EnvironmentOutlined />
-                        </ListItemIcon>
-                        <ListItemSecondaryAction>
-                          <Link align="right" href="https://google.com" target="_blank">
-                            https://anshan.dh.url
-                          </Link>
+                          <Typography align="right">
+                            {!_.isEmpty(branches) &&
+                              branches.map((val) => {
+                                return val.locationname;
+                              })}
+                          </Typography>
                         </ListItemSecondaryAction>
                       </ListItem>
                     </List>
@@ -132,27 +174,29 @@ const Profile = () => {
               </MainCard>
             </Grid>
             <Grid item xs={12}>
+              <MainCard title="Zones">
+              <Grid container  gap={2}>
+                  {!_.isEmpty(zones) &&
+                    zones.map((val) => {
+                      return <Chip label={val.zonename} sx={{width:'fit-content'}} />
+                    })}
+                </Grid>
+              </MainCard>
+            </Grid>
+            <Grid item xs={12}>
               <MainCard title="Courses">
-                <Stack gap={2}>
-                  <Typography variant="subtitle-1">Drivers Education</Typography>
-                  <Typography variant="subtitle-1">BTW (2/4 hrs)</Typography>
-                  <Typography variant="subtitle-1">DUI</Typography>
-                  <Typography variant="subtitle-1">Road Test</Typography>
-                </Stack>
+                <Grid container  gap={2}>
+                  {!_.isEmpty(courses) &&
+                    courses.map((val) => {
+                      return <Chip label={val.productname} sx={{width:'fit-content'}} />
+                    })}
+                </Grid>
               </MainCard>
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12} sm={7} md={8} xl={9}>
           <Grid container spacing={3}>
-            {/* <Grid item xs={12}>
-              <MainCard title="About me">
-                <Typography color="secondary">
-                  Hello, I’m Anshan Handgun Creative Graphic Designer & User Experience Designer based in Website, I create digital Products
-                  a more Beautiful and usable place. Morbid accusant ipsum. Nam nec tellus at.
-                </Typography>
-              </MainCard>
-            </Grid> */}
             <Grid item xs={12}>
               <MainCard title="Personal Details">
                 <List sx={{ py: 0 }}>
@@ -160,14 +204,14 @@ const Profile = () => {
                     <Grid container spacing={3}>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">Full Name</Typography>
-                          <Typography>Anshan Handgun</Typography>
+                          <Typography color="secondary">First Name</Typography>
+                          <Typography>{userDetails.firstname}</Typography>
                         </Stack>
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">Father Name</Typography>
-                          <Typography>Mr. Deepen Handgun</Typography>
+                          <Typography color="secondary">Last Name</Typography>
+                          <Typography>{userDetails.lastname}</Typography>
                         </Stack>
                       </Grid>
                     </Grid>
@@ -177,13 +221,13 @@ const Profile = () => {
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
                           <Typography color="secondary">Phone</Typography>
-                          <Typography>(+1-876) 8654 239 581</Typography>
+                          <Typography>{userDetails.primarycontact}</Typography>
                         </Stack>
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
                           <Typography color="secondary">Country</Typography>
-                          <Typography>New York</Typography>
+                          <Typography>{userDetails.country}</Typography>
                         </Stack>
                       </Grid>
                     </Grid>
@@ -193,13 +237,13 @@ const Profile = () => {
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
                           <Typography color="secondary">Email</Typography>
-                          <Typography>anshan.dh81@gmail.com</Typography>
+                          <Typography>{userDetails.primaryemail}</Typography>
                         </Stack>
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
                           <Typography color="secondary">Zip Code</Typography>
-                          <Typography>956 754</Typography>
+                          <Typography>{userDetails.postcode}</Typography>
                         </Stack>
                       </Grid>
                     </Grid>
@@ -207,137 +251,48 @@ const Profile = () => {
                   <ListItem>
                     <Stack spacing={0.5}>
                       <Typography color="secondary">Address</Typography>
-                      <Typography>Street 110-B Kalians Bag, Dewan, M.P. New York</Typography>
+                      <Typography>
+                        {userDetails.address + ' , ' + userDetails.city + ' , ' + userDetails.state + ' , ' + userDetails.country}
+                      </Typography>
                     </Stack>
                   </ListItem>
                 </List>
               </MainCard>
             </Grid>
-            {/* <Grid item xs={12}>
-              <MainCard title="Education">
-                <List sx={{ py: 0 }}>
-                  <ListItem divider>
-                    <Grid container spacing={matchDownMD ? 0.5 : 3}>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Master Degree (Year)</Typography>
-                          <Typography>2014-2017</Typography>
-                        </Stack>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Institute</Typography>
-                          <Typography>-</Typography>
-                        </Stack>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                  <ListItem divider>
-                    <Grid container spacing={matchDownMD ? 0.5 : 3}>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Bachelor (Year)</Typography>
-                          <Typography>2011-2013</Typography>
-                        </Stack>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Institute</Typography>
-                          <Typography>Imperial College London</Typography>
-                        </Stack>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                  <ListItem>
-                    <Grid container spacing={matchDownMD ? 0.5 : 3}>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">School (Year)</Typography>
-                          <Typography>2009-2011</Typography>
-                        </Stack>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Institute</Typography>
-                          <Typography>School of London, England</Typography>
-                        </Stack>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                </List>
-              </MainCard>
-            </Grid> */}
             <Grid item xs={12}>
               <MainCard title="Vehicle Detials">
-                {/* <List sx={{ py: 0 }}>
-                  <ListItem divider>
-                    <Grid container spacing={matchDownMD ? 0.5 : 3}>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Senior</Typography>
-                          <Typography color="secondary">Senior UI/UX designer (Year)</Typography>
-                        </Stack>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Job Responsibility</Typography>
-                          <Typography>
-                            Perform task related to project manager with the 100+ team under my observation. Team management is key role in
-                            this company.
-                          </Typography>
-                        </Stack>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                  <ListItem>
-                    <Grid container spacing={matchDownMD ? 0.5 : 3}>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Trainee cum Project Manager (Year)</Typography>
-                          <Typography>2017-2019</Typography>
-                        </Stack>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary">Job Responsibility</Typography>
-                          <Typography>Team management is key role in this company.</Typography>
-                        </Stack>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                </List> */}
                 <Grid container alignItems={'center'}>
                   <Grid item lg={6}>
                     <img style={{ width: '100%' }} src={instructorCar} alt="instructorCar" />
                   </Grid>
                   <Grid item lg={6}>
                     <MainCard title="Basic info">
-                      <TableContainer sx={{ width:'100%' }} component={Paper}>
+                      <TableContainer sx={{ width: '100%' }} component={Paper}>
                         <Table sx={{ width: '100%', position: 'relative' }} aria-label="simple table">
                           <TableBody sx={{ overflowY: 'scroll' }}>
                             <TableRow>
-                                <TableCell>
-                                        <Typography sx={{fontWeight:'bold'}}>Make</Typography>
-                                </TableCell>
-                                <TableCell align='right'>
-                                        <Typography>Hyndai</Typography>
-                                </TableCell>
+                              <TableCell>
+                                <Typography sx={{ fontWeight: 'bold' }}>Make</Typography>
+                              </TableCell>
+                              <TableCell align="right">
+                                <Typography>Hyndai</Typography>
+                              </TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell>
-                                        <Typography sx={{fontWeight:'bold'}}>Model</Typography>
-                                </TableCell>
-                                <TableCell align='right'>
-                                        <Typography>Base Model</Typography>
-                                </TableCell>
+                              <TableCell>
+                                <Typography sx={{ fontWeight: 'bold' }}>Model</Typography>
+                              </TableCell>
+                              <TableCell align="right">
+                                <Typography>Base Model</Typography>
+                              </TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell>
-                                        <Typography sx={{fontWeight:'bold'}}>Name</Typography>
-                                </TableCell>
-                                <TableCell align='right'>
-                                        <Typography>Verna EX</Typography>
-                                </TableCell>
+                              <TableCell>
+                                <Typography sx={{ fontWeight: 'bold' }}>Name</Typography>
+                              </TableCell>
+                              <TableCell align="right">
+                                <Typography>Verna EX</Typography>
+                              </TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>

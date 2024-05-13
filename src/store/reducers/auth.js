@@ -8,6 +8,7 @@ export const initialState = {
   user: null
 };
 
+
 // ==============================|| AUTH REDUCER ||============================== //
 
 const auth = (state = initialState, action) => {

@@ -29,6 +29,8 @@ import CalendarStyled from 'sections/apps/calendar/CalendarStyled';
 import Toolbar from 'sections/apps/calendar/Toolbar';
 import AddEventForm from 'sections/apps/calendar/AddEventForm';
 import MainCard from 'components/MainCard';
+import axios from 'axios';
+import { Toaster, toast } from 'react-hot-toast';
 
 // ==============================|| CALENDAR - MAIN ||============================== //
 
@@ -86,27 +88,26 @@ const AvailabilityCalendar = () => {
     setSelectedEvent(null);
   };
 
-
-  const handleDynamicColor = (data)=> {
-    switch(data ? data : selectedCourse){
+  const handleDynamicColor = (data) => {
+    switch (data ? data : selectedCourse) {
       case 'DUI':
-        return '#dc2626'
+        return '#dc2626';
       case 'Road Test':
-        return '#22c55e'
+        return '#22c55e';
       case 'Defensive':
-        return '#0f172a'
+        return '#0f172a';
       case 'Behind the Wheels':
-        return '#d97706'
+        return '#d97706';
       case 'Drivers Education':
-        return '#c026d3'
-      default : '#7e22ce'
+        return '#c026d3';
+      default:
+        '#7e22ce';
     }
-  }
-   const [selectColor, setSelectedColor] =useState("")
+  };
 
   // event data
 
-  let [eventData , setEventData] = useState( [
+  let [eventData, setEventData] = useState([
     {
       id: 1,
       title: 'DUI',
@@ -283,55 +284,38 @@ const AvailabilityCalendar = () => {
       end: '2024-05-12',
       status: 'NotYetStarted'
     }
-  ])
+  ]);
 
-eventData.forEach((event)=>{
-  event.color = handleDynamicColor(event.title)
-})
-  
-
-  const exactEvents = eventData.map(event => {
-    const startDate = new Date(event.start);
-    const endDate = new Date(event.end);
-    
-    // Calculate the difference in days between start and end dates
-    const differenceInTime = endDate.getTime() - startDate.getTime();
-    const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
-    
-    // Append period to event title
-    const titleWithPeriod = differenceInDays > 1 ? `${event.title} ( ${differenceInDays} days )`: `${event.title} ( ${differenceInDays} day )` 
-  
-    // Return a new object for each event with the updated title
-    return {
-      ...event,
-      title: titleWithPeriod,
-      period: differenceInDays // Optionally, you can include period as a separate property
-    };
+  eventData.forEach((event) => {
+    event.color = handleDynamicColor(event.title);
   });
-  
 
-  const [filteredEventData, setfilteredEventData] = useState(eventData);
+  const [searchResults, setSearchResults] = useState([]);
 
-  const [finalEventData, setFinalEventData] = useState(eventData);
-
-  useEffect(() => {
-    setFilteredCourse(_.uniqBy(eventData, (e) => e.value));
-  }, []);
+  const [submittedData,setSubmittedData] = useState([])
 
   const [selectedCourse, setSelectedCourse] = useState('DUI');
 
   const [filteredCourse, setFilteredCourse] = useState([]);
 
 
-  console.log(`selectedCourse`,selectedCourse);
+  useEffect(() => {
+    setFilteredCourse(_.uniqBy(eventData, (e) => e.value));
+  }, []);
 
-
-  // global search
-
+ 
   // custom1
 
-  // const [selectedCourse, setSelectedCourse] = useState('DUI');
-  const [searchResults, setSearchResults] = useState([]);
+  useEffect(() => {
+    const filteredResults = searchResults.filter(val => val.color === '#1d4ed8');
+    setSubmittedData(filteredResults);
+  }, [searchResults]);
+
+
+  useEffect(() => {
+    // Initialize searchResults with DUI course data when component mounts
+    setSearchResults(globalSearch(eventData, 'DUI'));
+  }, []); // Empty dependency array ensures this effect runs only once when the component mounts
 
   // Function to perform global search
   const globalSearch = (dataArray, pattern) => {
@@ -340,24 +324,6 @@ eventData.forEach((event)=>{
       return values.includes(pattern.toLowerCase());
     });
   };
-
-  // Function to dynamically set color based on course
-  // const handleDynamicColor = (data) => {
-  //   switch(data ? data : selectedCourse){
-  //     case 'DUI':
-  //       return '#dc2626';
-  //     case 'Road Test':
-  //       return '#22c55e';
-  //     case 'Defensive':
-  //       return '#0f172a';
-  //     case 'Behind the Wheels':
-  //       return '#d97706';
-  //     case 'Drivers Education':
-  //       return '#c026d3';
-  //     default:
-  //       return '#7e22ce';
-  //   }
-  // };
 
   // Function to handle event selection
   const handleEventSelect = (arg) => {
@@ -384,119 +350,19 @@ eventData.forEach((event)=>{
   };
 
 
+  const handleSubmittedData = ()=>{
+    axios.post(`http://localhost:8000/availability`,submittedData)
+      .then(()=>{
+        console.log(`data sent to server successfully`);
+        toast.success(`submitted Successfully`)
+      })
+      .catch(()=>{
+        console.log(`error while send submitted data to server`);
+        toast.error(`failed to submit`)
+      })
+  }
+
   // custom1
-
-
-// Function to perform global search based on pattern
-// const globalSearch = (dataArray, pattern) => {
-//   // Use lodash filter to search for objects matching the pattern
-//   return _.filter(dataArray, (item) => {
-//     // Convert each object's values to a string and perform case-insensitive search
-//     const values = _.values(item).join('').toLowerCase();
-//     return values.includes(pattern.toLowerCase());
-//   });
-// };
-
-// let [searchResults, setSearchResults] = useState(globalSearch(exactEvents, selectedCourse))
-// let [searchResults, setSearchResults] = useState(() => globalSearch(exactEvents, selectedCourse));
-
-
-
-console.log('searchResults',searchResults)
-
-// const [searchResultAfter,setSearchResultAfter] = useState(searchResults ? searchResults : [])
-
-// Example usage
-
-
-
-
-  // handle event select
-  // const handleEventSelect = (arg) => {
-  //   const data = arg.event._def;
-  //   setModelData(data);
-  //   console.log('event clicked',data);
-  //   const publicId = data.publicId
-    
-  //   // setEventData(...eventData, eventData.map((item) => item.id === data.publicId ? ))
-  //   // eventData.filter((item) => item.id === data.publicId)
-  //   const updatedRows = searchResults.map((row) =>
-  //     row.id === parseInt(data.publicId)
-  //       ? {
-  //           ...row,
-  //           color: "#1d4ed8"
-  //         }
-  //       : row
-  //   );
-  //   setSearchResults(updatedRows);
-  //   console.log('updatedRows',updatedRows);
-  //   // setSearchResultAfter(
-  //   //   searchResultAfter.forEach((val) => {
-        
-  //   //     if (publicId === val.id) {
-  //   //       return { ...val, color: '#5e9d01' }; 
-  //   //     } else {
-  //   //       return val; 
-  //   //     }
-  //   //   })
-  //   // )
-  // };
-
-  // console.log(`search result`,searchResults);
-
-
-
-// console.log(searchResults);
-
-  // const handleCourseSelect = (event, value) => {
-  //   event.preventDefault();
-  //   setSelectedCourse(value.title);
-  // };
-
-  // console.log(filteredEventData);
-
-  // useEffect(() => {
-  //   if (_.isEmpty(selectedCourse)) {
-  //     setFinalEventData(filteredEventData);
-  //   } else {
-  //     setFinalEventData(filteredEventData.filter((event) => selectedCourse.includes(event.title)));
-  //   }
-  // }, [filteredEventData, selectedCourse]);
-
-  // button group
-
-  const [activeButton, setActiveButton] = useState('All');
-
-  // const handleButtonClick = (buttonKey) => {
-  //   setActiveButton(buttonKey);
-  //   if (buttonKey === 'Completed') {
-  //     const data = eventData.filter((val) => {
-  //       return val.status === 'Completed';
-  //     });
-  //     setfilteredEventData(data);
-  //   }
-  //   if (buttonKey === 'OnGoing') {
-  //     const data = eventData.filter((val) => {
-  //       return val.status === 'OnGoing';
-  //     });
-  //     setfilteredEventData(data);
-  //   }
-  //   if (buttonKey === 'NotYetStarted') {
-  //     const data = eventData.filter((val) => {
-  //       return val.status === 'NotYetStarted';
-  //     });
-  //     setfilteredEventData(data);
-  //   }
-  //   if (buttonKey === 'All') {
-  //     setfilteredEventData(eventData);
-  //   }
-  // };
-
-
-  // dynamic color change
-
-  
-
 
   if (loading) return <Loader />;
 
@@ -514,7 +380,9 @@ console.log('searchResults',searchResults)
             <Divider orientation="vertical" flexItem />
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box sx={{ borderRadius: '10px', width: '30px', height: '30px', background: handleDynamicColor() , display: 'inline-block' }}></Box>
+                <Box
+                  sx={{ borderRadius: '10px', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
+                ></Box>
                 <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
               </Stack>
             </Stack>
@@ -528,7 +396,12 @@ console.log('searchResults',searchResults)
             </Stack> */}
           </Stack>
         </Grid>
+        <Toaster />
         <Box sx={{ position: 'relative', marginTop: '40px' }}>
+          {
+            !_.isEmpty(submittedData) && <Button onClick={handleSubmittedData} sx={{position:'fixed',right:'100px',top:'300px',color:'black',background:'gold',zIndex:"20",fontWeight:'bolder'}}>Submit - {submittedData.length} events </Button>
+        
+          }
           <CalendarStyled>
             <Toolbar
               data={eventData}
@@ -539,68 +412,7 @@ console.log('searchResults',searchResults)
               onChangeView={handleViewChange}
             >
               <Grid container gap={3} justifyContent={'center'} alignItems={'center'}>
-                {/* <Grid item>
-              <ButtonGroup color="secondary" aria-label="medium secondary button group">
-                <Button
-                  sx={{ height: 'fit-content' }}
-                  key="All"
-                  variant={activeButton === 'All' ? 'contained' : 'outlined'}
-                  onClick={() => handleButtonClick('All')}
-                >
-                  All
-                </Button>
-                <Button
-                  sx={{ height: 'fit-content' }}
-                  key="Completed"
-                  variant={activeButton === 'Completed' ? 'contained' : 'outlined'}
-                  onClick={() => handleButtonClick('Completed')}
-                >
-                  Completed
-                </Button>
-                <Button
-                  sx={{ height: 'fit-content' }}
-                  key="OnGoing"
-                  variant={activeButton === 'OnGoing' ? 'contained' : 'outlined'}
-                  onClick={() => handleButtonClick('OnGoing')}
-                >
-                  OnGoing
-                </Button>
-                <Button
-                  sx={{ height: 'fit-content' }}
-                  key="NotYetStarted"
-                  variant={activeButton === 'NotYetStarted' ? 'contained' : 'outlined'}
-                  onClick={() => handleButtonClick('NotYetStarted')}
-                >
-                  NotYetStarted
-                </Button>
-              </ButtonGroup>
-            </Grid> */}
-
                 <Grid item>
-                  {/* <Autocomplete
-                    id="tags-outlined"
-                    options={filteredCourse}
-                    getOptionLabel={(option) => option.title}
-                    onChange={handleCourseSelect}
-                    renderInput={(params) => <TextField {...params} placeholder="Courses" />}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        p: 1
-                      },
-                      '& .MuiAutocomplete-tag': {
-                        bgcolor: 'primary.lighter',
-                        border: '1px solid',
-                        borderColor: 'primary.light',
-                        '& .MuiSvgIcon-root': {
-                          color: 'primary.main',
-                          '&:hover': {
-                            color: 'primary.dark'
-                          }
-                        }
-                      },
-                      width: '300px'
-                    }}
-                  /> */}
                   <Autocomplete
                     sx={{ width: '250px' }}
                     fullWidth
@@ -608,7 +420,7 @@ console.log('searchResults',searchResults)
                     onChange={handleCourseSelect}
                     id="basic-autocomplete"
                     options={filteredCourse}
-                    getOptionLabel={(option) => option.title }
+                    getOptionLabel={(option) => option.title}
                     renderInput={(params) => <TextField {...params} placeholder="DUI,Road Test..." />}
                   />
                 </Grid>

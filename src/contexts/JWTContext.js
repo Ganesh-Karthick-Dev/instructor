@@ -85,7 +85,15 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post(`${baseUrl}/login`, { email, password , roleid : "3" });
-    const { serviceToken, user } = response.data;
+    const { accessToken, data , status } = response.data;
+    if(status === false){
+      throw new Error(`user not found`)
+    }
+    else {
+      const serviceToken = accessToken
+      const {email} = jwtDecode(serviceToken)
+      // console.log(email);
+      const user = email
     setSession(serviceToken);
     dispatch({
       type: LOGIN,
@@ -94,6 +102,7 @@ export const JWTProvider = ({ children }) => {
         user
       }
     });
+    }
   };
 
   const register = async (email, password, firstName, lastName) => {
