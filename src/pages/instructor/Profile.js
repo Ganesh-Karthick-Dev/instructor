@@ -29,7 +29,9 @@ import { unstable_HistoryRouter, useNavigate } from 'react-router-dom';
 import { IoReturnDownBackOutline } from 'react-icons/io5';
 import instructorImage from '../../assets/images/users/avatar-9.png';
 import instructorCar from '../../assets/images/cars/City-Desktop.png';
+import dummycar from '../../assets/images/cars/generic-car.png';
 import axios from 'axios';
+import _ from 'lodash';
 
 const Profile = () => {
   const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
@@ -50,6 +52,8 @@ const Profile = () => {
 
   const [courses, setCourses] = useState([]);
 
+  const [vehicleDetails, setVehicleDetails] = useState([]);
+
   useEffect(() => {
     handleUserFetch();
     // setBranches(userDetails.branch)
@@ -57,13 +61,14 @@ const Profile = () => {
 
   const handleUserFetch = async () => {
     try {
-      let id = 1;
+      let id = 11;
       const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${id}`);
       let user = response.data;
       setUserDetails(user.data[0]);
       setBranches(user.data[0].branch);
       setZones(user.data[0].zones);
       setCourses(user.data[0].courses);
+      setVehicleDetails(user.data[0].vehicle);
     } catch (error) {
       console.log(error);
     }
@@ -82,7 +87,24 @@ const Profile = () => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
 
-  console.log(courses);
+  // console.log(courses);
+
+  const [vehicle, setVehicle] = useState(null);
+
+  const globalSearch = (dataArray, pattern) => {
+    return _.filter(dataArray, (item) => {
+      const values = _.values(item).join('').toLowerCase();
+      return values.includes(pattern.toLowerCase());
+    });
+  };
+
+  useEffect(() => {
+    setVehicle(globalSearch(courses, 'Behind the Wheels'));
+  }, [courses]);
+
+  // console.log(vehicle);
+
+  // console.log(vehicleDetails);
 
   // user details
 
@@ -175,20 +197,20 @@ const Profile = () => {
             </Grid>
             <Grid item xs={12}>
               <MainCard title="Zones">
-              <Grid container  gap={2}>
+                <Grid container gap={2}>
                   {!_.isEmpty(zones) &&
                     zones.map((val) => {
-                      return <Chip label={val.zonename} sx={{width:'fit-content'}} />
+                      return <Chip label={val.zonename} sx={{ width: 'fit-content' }} />;
                     })}
                 </Grid>
               </MainCard>
             </Grid>
             <Grid item xs={12}>
               <MainCard title="Courses">
-                <Grid container  gap={2}>
+                <Grid container gap={2}>
                   {!_.isEmpty(courses) &&
                     courses.map((val) => {
-                      return <Chip label={val.productname} sx={{width:'fit-content'}} />
+                      return <Chip label={val.productname} sx={{ width: 'fit-content' }} />;
                     })}
                 </Grid>
               </MainCard>
@@ -260,47 +282,53 @@ const Profile = () => {
               </MainCard>
             </Grid>
             <Grid item xs={12}>
-              <MainCard title="Vehicle Detials">
-                <Grid container alignItems={'center'}>
-                  <Grid item lg={6}>
-                    <img style={{ width: '100%' }} src={instructorCar} alt="instructorCar" />
+              {!_.isEmpty(vehicle) && (
+                <MainCard title="Vehicle Detials">
+                  <Grid container alignItems={'center'}>
+                    <Grid item lg={6}>
+                      {_.isEmpty(vehicleDetails) ? (
+                        <img style={{ width: '100%' }} src={dummycar} alt="instructorCar" />
+                      ) : (
+                        <img style={{ width: '100%' }} src={instructorCar} alt="instructorCar" />
+                      )}
+                    </Grid>
+                    <Grid item lg={6}>
+                      <MainCard title="Basic info">
+                        <TableContainer sx={{ width: '100%' }} component={Paper}>
+                          <Table sx={{ width: '100%', position: 'relative' }} aria-label="simple table">
+                            <TableBody sx={{ overflowY: 'scroll' }}>
+                              <TableRow>
+                                <TableCell>
+                                  <Typography sx={{ fontWeight: 'bold' }}>Make</Typography>
+                                </TableCell>
+                                <TableCell align="right">
+                                  <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>
+                                  <Typography sx={{ fontWeight: 'bold' }}>Model</Typography>
+                                </TableCell>
+                                <TableCell align="right">
+                                  <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>
+                                  <Typography sx={{ fontWeight: 'bold' }}>Name</Typography>
+                                </TableCell>
+                                <TableCell align="right">
+                                  <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </MainCard>
+                    </Grid>
                   </Grid>
-                  <Grid item lg={6}>
-                    <MainCard title="Basic info">
-                      <TableContainer sx={{ width: '100%' }} component={Paper}>
-                        <Table sx={{ width: '100%', position: 'relative' }} aria-label="simple table">
-                          <TableBody sx={{ overflowY: 'scroll' }}>
-                            <TableRow>
-                              <TableCell>
-                                <Typography sx={{ fontWeight: 'bold' }}>Make</Typography>
-                              </TableCell>
-                              <TableCell align="right">
-                                <Typography>Hyndai</Typography>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>
-                                <Typography sx={{ fontWeight: 'bold' }}>Model</Typography>
-                              </TableCell>
-                              <TableCell align="right">
-                                <Typography>Base Model</Typography>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>
-                                <Typography sx={{ fontWeight: 'bold' }}>Name</Typography>
-                              </TableCell>
-                              <TableCell align="right">
-                                <Typography>Verna EX</Typography>
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </MainCard>
-                  </Grid>
-                </Grid>
-              </MainCard>
+                </MainCard>
+              )}
             </Grid>
           </Grid>
         </Grid>

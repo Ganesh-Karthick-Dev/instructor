@@ -142,7 +142,7 @@ const Profile = () => {
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard elevation={0} border={false} content={false}>
                   <CardContent sx={{ px: 2.5, pt: 3 }}>
-                    <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid container direction={'row'} justifyContent={'center'}  gap={2}>
                       <Grid item>
                         <Stack direction="row" spacing={1.25} alignItems="center">
                           <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
@@ -155,11 +155,11 @@ const Profile = () => {
                         </Stack>
                       </Grid>
                       <Grid item>
-                        <Tooltip title="Logout">
+                        {/* <Tooltip title="Logout">
                           <IconButton size="large" sx={{ color: 'text.primary' }} onClick={handleLogout}>
                             <LogoutOutlined />
                           </IconButton>
-                        </Tooltip>
+                        </Tooltip> */}
                       </Grid>
                     </Grid>
                   </CardContent>

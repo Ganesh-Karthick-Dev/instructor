@@ -16,6 +16,7 @@ import {
 
 import { MdOutlineDashboard } from "react-icons/md";
 import { MdOutlineEventAvailable } from "react-icons/md";
+import { FaMarker } from "react-icons/fa6";
 
 // icons
 const icons = {
@@ -29,7 +30,8 @@ const icons = {
   QuestionOutlined,
   DeploymentUnitOutlined,
   MdOutlineDashboard,
-  MdOutlineEventAvailable
+  MdOutlineEventAvailable,
+  FaMarker
 };
 
 // ==============================|| MENU ITEMS - SUPPORT ||============================== //
@@ -52,6 +54,13 @@ const Dashboard = {
       type: 'item',
       url: '/availability',
       icon: icons.MdOutlineEventAvailable
+    },
+    {
+      id: 'Attendance',
+      title: <FormattedMessage id="Attendance" />,
+      type: 'item',
+      url: '/attendance',
+      icon: icons.FaMarker
     }
   ]
 };

@@ -373,7 +373,7 @@ const AvailabilityCalendar = () => {
           <Stack direction="row" gap={3} justifyContent={'start'} alignItems="center">
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box sx={{ borderRadius: '10px', width: '30px', height: '30px', background: '#1d4ed8', display: 'inline-block' }}></Box>
+                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1d4ed8', display: 'inline-block' }}></Box>
                 <Typography sx={{ width: 'fit-content' }}>Selected</Typography>
               </Stack>
             </Stack>
@@ -381,7 +381,7 @@ const AvailabilityCalendar = () => {
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
                 <Box
-                  sx={{ borderRadius: '10px', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
+                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
                 ></Box>
                 <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
               </Stack>

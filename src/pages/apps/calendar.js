@@ -16,6 +16,7 @@ import CalendarStyled from 'sections/apps/calendar/CalendarStyled';
 import Toolbar from 'sections/apps/calendar/Toolbar';
 import AddEventForm from 'sections/apps/calendar/AddEventForm';
 import SheduleModel from 'components/SheduleModel';
+import MainCard from 'components/MainCard';
 
 // Assets
 // import { PlusOutlined } from '@ant-design/icons';
@@ -284,8 +285,6 @@ const eventData = [
 
 
 
-
-
   const [filteredEventData,setfilteredEventData] = useState(eventData) 
 
   const [finalEventData,setFinalEventData] = useState(eventData)
@@ -365,6 +364,7 @@ const eventData = [
   return (
 
     <>
+    <MainCard>
     <Box sx={{ position: 'relative',marginTop:'40px' }}>
       <CalendarStyled>
         <Toolbar
@@ -490,6 +490,7 @@ const eventData = [
       </Tooltip> */}
     </Box>
     <SheduleModel data={modelData} />
+    </MainCard>
     </>
 
 

@@ -9,7 +9,7 @@ const Statistics = () => {
 
   return (
     <>
-      <Grid container spacing={3}>
+      <Grid container sx={{marginBottom:'20px'}} spacing={3}>
         <Grid item xs={12} lg={3} sm={6}>
           <UserCountCard
             primary="Total class schedule"

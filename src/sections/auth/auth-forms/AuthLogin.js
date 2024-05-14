@@ -26,7 +26,7 @@ const AuthLogin = () => {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       email: 'sakthiveltofficial@gmail.com',  // Set the default value here
-      password : 'b72uvl6k7m' 
+      password : '7yj4pyayq2' 
     }
   });
 

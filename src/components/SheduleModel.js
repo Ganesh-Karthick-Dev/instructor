@@ -16,7 +16,7 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   height : '85vh',
-  width: '80%',
+  width: '100%',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -89,7 +89,7 @@ const SheduleModel = ({ data }) => {
   return (
     <>
       <div>
-        <Button onClick={handleOpen}>Open modal</Button>
+        {/* <Button onClick={handleOpen}>Open modal</Button> */}
         <Modal
           keepMounted
           open={open}

@@ -1,5 +1,5 @@
 // material-ui
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 // project import
 import MainCard from 'components/MainCard';
@@ -11,8 +11,10 @@ import Calendar from 'pages/apps/calendar';
 const SamplePage = () => (
   
     <>
+    
     <Statistics />
     <Calendar />
+    
     </>
  
 );

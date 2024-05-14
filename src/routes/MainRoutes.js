@@ -6,7 +6,8 @@ import CommonLayout from 'layout/CommonLayout';
 import Loadable from 'components/Loadable';
 import AuthGuard from 'utils/route-guard/AuthGuard';
 import Profile from '../pages/instructor/Profile';
-import Availability from 'pages/instructor/Availability';
+import Availability from '../pages/instructor/Availability';
+import Attendance from '../pages/instructor/Attendance'
 
 // pages routing
 const MaintenanceError = Loadable(lazy(() => import('pages/maintenance/404')));
@@ -41,6 +42,10 @@ const MainRoutes = {
         {
           path : 'availability',
           element : <Availability />
+        },
+        {
+          path : 'attendance',
+          element : <Attendance />
         }
       ]
     },
