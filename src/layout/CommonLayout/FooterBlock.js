@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import PropTypes from 'prop-types';
 
 // material-ui
@@ -13,6 +15,7 @@ import useConfig from 'hooks/useConfig';
 
 // assets
 import { SendOutlined } from '@ant-design/icons';
+import AnimateButton from 'components/@extended/AnimateButton';
 // import imgfooterlogo from 'assets/images/landing/codedthemes-logo.svg';
 // import imgfootersoc1 from 'assets/images/landing/img-soc1.svg';
 // import imgfootersoc2 from 'assets/images/landing/img-soc2.svg';

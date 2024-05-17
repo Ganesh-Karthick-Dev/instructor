@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import oneActLogo from '../../assets/images/oneActLogo/1actLogo.png'
@@ -23,7 +25,7 @@ const LogoIcon = () => {
      * <img src={theme.palette.mode === ThemeMode.DARK? logoIconDark : logoIcon} alt="Mantis" width="100" />
      *
      */
-    <img style={{width:'50px'}} src={oneActLogo} />
+    <img style={{width:'50px'}} alt='oneact-logo' src={oneActLogo} />
   );
 };
 

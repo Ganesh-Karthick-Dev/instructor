@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -18,7 +20,6 @@ const style = {
   height : '85vh',
   width: '95%',
   bgcolor: 'background.paper',
-  border: '2px solid #000',
   boxShadow: 24,
 
   overflowY: 'scroll',

@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+
+
 import { Typography } from '@mui/material'
 import UmbrellaTable from 'pages/tables/react-table/umbrella'
 import React from 'react'

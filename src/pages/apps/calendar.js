@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import { useEffect, useRef, useState } from 'react';
 import _ from 'lodash'
 
@@ -109,7 +111,7 @@ const eventData = [
     end: '2024-05-08',
     status : 'Completed',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1:10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -121,7 +123,7 @@ const eventData = [
     end: '2024-05-09',
     status : 'OnGoing',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1:10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -133,7 +135,7 @@ const eventData = [
     end: '2024-05-10',
     status : 'NotYetStarted',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -145,7 +147,7 @@ const eventData = [
     end: '2024-05-08',
     status : 'Completed',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -157,7 +159,7 @@ const eventData = [
     end: '2024-05-09',
     status : 'OnGoing',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -169,7 +171,7 @@ const eventData = [
     end: '2024-05-10',
     status : 'NotYetStarted',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -181,7 +183,7 @@ const eventData = [
     end: '2024-05-08',
     status : 'Completed',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -193,7 +195,7 @@ const eventData = [
     end: '2024-05-09',
     status : 'OnGoing',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -205,7 +207,7 @@ const eventData = [
     end: '2024-05-10',
     status : 'NotYetStarted',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -217,7 +219,7 @@ const eventData = [
     end: '2024-05-11',
     status : 'Completed',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -229,7 +231,7 @@ const eventData = [
     end: '2024-05-12',
     status : 'OnGoing',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -241,7 +243,7 @@ const eventData = [
     end: '2024-05-13',
     status : 'NotYetStarted',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -253,7 +255,7 @@ const eventData = [
     end: '2024-05-14',
     status : 'Completed',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -265,7 +267,7 @@ const eventData = [
     end: '2024-05-15',
     status : 'OnGoing',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1 : 10,id2:20,id3:30,id4:40}
     ]
   },
   {
@@ -277,7 +279,7 @@ const eventData = [
     end: '2024-05-16',
     status : 'NotYetStarted',
     studentDetails : [
-      {id : 10,id:20,id:30,id:40}
+      {id1: 10,id2:20,id3:30,id4:40}
     ]
   }
   

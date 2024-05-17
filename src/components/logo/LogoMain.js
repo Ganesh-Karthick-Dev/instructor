@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import PropTypes from 'prop-types';
 
 // material-ui
@@ -25,7 +27,7 @@ const LogoMain = ({ reverse }) => {
      *
      */
     <>
-      <img style={{width:'200px',paddingTop:'30px'}} src={oneActLogo} />
+      <img style={{width:'200px',paddingTop:'30px'}} alt='oneact-logo' src={oneActLogo} />
     </>
   );
 };

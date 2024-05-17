@@ -1,4 +1,6 @@
-import { AimOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+/* eslint-disable no-unused-vars */
+
+import { AimOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import {
   Avatar,
   Button,
@@ -61,7 +63,7 @@ const Profile = () => {
 
   const handleUserFetch = async () => {
     try {
-      let id = 11;
+      let id = 6;
       const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${id}`);
       let user = response.data;
       setUserDetails(user.data[0]);
@@ -199,8 +201,8 @@ const Profile = () => {
               <MainCard title="Zones">
                 <Grid container gap={2}>
                   {!_.isEmpty(zones) &&
-                    zones.map((val) => {
-                      return <Chip label={val.zonename} sx={{ width: 'fit-content' }} />;
+                    zones.map((val,index) => {
+                      return <Chip key={index} label={val.zonename} sx={{ width: 'fit-content' }} />;
                     })}
                 </Grid>
               </MainCard>
@@ -209,8 +211,8 @@ const Profile = () => {
               <MainCard title="Courses">
                 <Grid container gap={2}>
                   {!_.isEmpty(courses) &&
-                    courses.map((val) => {
-                      return <Chip label={val.productname} sx={{ width: 'fit-content' }} />;
+                    courses.map((val,index) => {
+                      return <Chip key={index} label={val.productname} sx={{ width: 'fit-content' }} />;
                     })}
                 </Grid>
               </MainCard>

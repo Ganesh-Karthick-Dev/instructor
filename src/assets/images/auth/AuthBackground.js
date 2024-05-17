@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+
+
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { Box, useMediaQuery } from '@mui/material';
@@ -25,7 +28,7 @@ const AuthBackground = () => {
         transform: theme.direction === ThemeDirection.RTL ? 'rotate(180deg)' : 'inherit'
       }}
     >
-     <img width="100%" style={{marginLeft:'-50px'}} height="calc(100vh - 175px)" src={oneActLogo} />
+     <img width="100%" style={{marginLeft:'-50px'}} height="calc(100vh - 175px)" alt='oneact-logo' src={oneActLogo} />
     </Box>
   );
 };

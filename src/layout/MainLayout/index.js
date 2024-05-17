@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+
+
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 

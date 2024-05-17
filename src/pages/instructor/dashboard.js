@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 // material-ui
 import { Box, Typography } from '@mui/material';
 
