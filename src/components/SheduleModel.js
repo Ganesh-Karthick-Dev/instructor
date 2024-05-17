@@ -16,7 +16,7 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   height : '85vh',
-  width: '100%',
+  width: '95%',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -45,8 +45,6 @@ const SheduleModel = ({ data }) => {
       id : 1,
       courseName : 'Behind the Wheels',
       instructorName : 'Stebin Ben',
-      date : '09-05-2024',
-      time : '12:00pm - 02:00pm',
       courseImage : '',
       studentDetails : [
         {id : 1,studentName :'student 1',course:'Defensive',status:'Completed'},
@@ -110,11 +108,11 @@ const SheduleModel = ({ data }) => {
                 </Grid>
                 
               </Grid>
-              <Grid container gap={2} sx={{display:'flex'}}>
-                <Grid item md={12} sm={12} xs={12} lg={4}>
+              <Grid container gap={1} sx={{display:'flex'}}>
+                <Grid sx={{marginBottom:'10px'}} item md={12} sm={12} xs={12} lg={3}>
                   <ProfileTab data={instructorData} />
                 </Grid>
-                <Grid item md={12} sm={12} xs={12} lg={7}>
+                <Grid item md={12} sm={12} xs={12} lg={8}>
                   <ColumnHiding />
                 </Grid>
                 </Grid>

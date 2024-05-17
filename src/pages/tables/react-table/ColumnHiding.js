@@ -76,7 +76,7 @@ function ReactTable({ columns, data }) {
 
   const handleAction = (row, e) => {
     setStatus(e.target.value);
-    console.log(row);
+    // console.log(row);
     console.log(`Status updated to:`, e.target.value);
     data.map((val)=>{
       return val.id === row.id ? val.status = e.target.value : val.status
@@ -99,7 +99,7 @@ function ReactTable({ columns, data }) {
           Student List
         </Typography>
 
-        <Button sx={{px:'5px',background:'gold',color:'black'}}>Submit</Button>
+        <Button sx={{px:'5px',background:'gold',color:'black',fontWeight:'bold'}}>Submit</Button>
 
         <form style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <OutlinedInput
@@ -112,7 +112,7 @@ function ReactTable({ columns, data }) {
         </form>
       </Stack>
 
-      <TableContainer sx={{ height: '350px' }} component={Paper}>
+      <TableContainer sx={{ height: '350px',overflowX:'hidden' }} component={Paper}>
         <Table sx={{ width: '100%', position: 'relative' }} aria-label="simple table">
           <TableHead sx={{ position: 'sticky', zIndex: '20', left: '0', top: '0' }}>
             <TableRow>
@@ -120,7 +120,7 @@ function ReactTable({ columns, data }) {
               <TableCell align="center">Student ID</TableCell>
               <TableCell align="center">Student details</TableCell>
               <TableCell align="center">Course</TableCell>
-              <TableCell align="center">Status</TableCell>
+              <TableCell align="center" sx={{width:'200px'}}>Status</TableCell>
               <TableCell align="center">Action</TableCell>
             </TableRow>
           </TableHead>
@@ -141,19 +141,26 @@ function ReactTable({ columns, data }) {
                   </Stack>
                 </TableCell>
                 <TableCell align="center">
-                  <Typography>{row.course}</Typography>
+                  <Chip label={row.course} />
                 </TableCell>
-                <TableCell align="center">
+                <TableCell align="center" sx={{width:"200px"}}>
                   {(() => {
                     switch (row.status) {
                       case 'Completed':
                         return <Box sx={{ background: '#16a34a', color: 'white', padding: '5px', borderRadius: '5px' }}>{row.status}</Box>;
                       case 'OnGoing':
-                        return <Box sx={{ background: '#e11d48', color: 'white', padding: '5px', borderRadius: '5px' }}>{row.status}</Box>;
+                        return <Box sx={{ background: '#e11d48', color: 'white', padding: '3px', borderRadius: '5px' }}>
+                          <Typography variant='h6'>{row.status}</Typography>
+                        </Box>;
                       case 'Not Attend':
-                        return <Box sx={{ background: '#f59e0b', color: 'white', padding: '5px', borderRadius: '5px' }}>{row.status}</Box>;
+                        return <Box sx={{ background: '#f59e0b', color: 'white', padding: '5px', borderRadius: '5px'}}>
+                          {row.status}
+                        </Box>;
                       case 'Not Yet Started':
-                        return <Box sx={{ background: '#0891b2', color: 'white', padding: '5px', borderRadius: '5px' }}>{row.status}</Box>;
+                        return <Box sx={{ background: '#0891b2', color: 'white', padding: '5px', borderRadius: '5px' }}>
+                          <span style={{ whiteSpace: 'nowrap' }}>{row.status}</span>
+                          
+                          </Box>;
                       default:
                         return <Box>{row.status}</Box>;
                     }
@@ -250,7 +257,8 @@ const ColumnHiding = () => {
       name: 'sakthi vel',
       email: 'abc123@gmail.com',
       course: 'DUI',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 30
     },
     {
       id: 2,
@@ -258,7 +266,8 @@ const ColumnHiding = () => {
       name: 'suresh',
       email: 'ganesh123@gmail.com',
       course: 'Defensive',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 28
     },
     {
       id: 3,
@@ -266,7 +275,8 @@ const ColumnHiding = () => {
       name: 'prabhu',
       email: 'karthick123@gmail.com',
       course: 'Road Test',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 15
     },
     {
       id: 4,
@@ -274,7 +284,8 @@ const ColumnHiding = () => {
       name: 'vimal',
       email: 'suresh123@gmail.com',
       course: 'Behind the Wheels',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 16
     },
     {
       id: 5,
@@ -282,7 +293,8 @@ const ColumnHiding = () => {
       name: 'ramesh',
       email: 'sakthi123@gmail.com',
       course: 'Drivers Education',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 15
     },
     {
       id: 6,
@@ -290,7 +302,8 @@ const ColumnHiding = () => {
       name: 'raja',
       email: 'vel123@gmail.com',
       course: 'DUI',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 15
     },
     {
       id: 7,
@@ -298,7 +311,8 @@ const ColumnHiding = () => {
       name: 'vishnu',
       email: 'sakthivel123@gmail.com',
       course: 'Defensive',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 16
     },
     {
       id: 8,
@@ -306,7 +320,8 @@ const ColumnHiding = () => {
       name: 'goutham',
       email: 'bharathi123@gmail.com',
       course: 'Drivers Education',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 17
     },
     {
       id: 9,
@@ -314,7 +329,8 @@ const ColumnHiding = () => {
       name: 'nirmal',
       email: 'ramesh123@gmail.com',
       course: 'Drivers Education',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 16
     },
     {
       id: 10,
@@ -322,11 +338,12 @@ const ColumnHiding = () => {
       name: 'sanjai',
       email: 'dinesh123@gmail.com',
       course: 'Road Test',
-      status: 'Not Yet Started'
+      status: 'Not Yet Started',
+      date : 17
     }
   ];
 
-  // console.log(data);
+  const currentDate = new Date().getDate()
 
   return (
     <Box sx={{ width: '100%', border: '1px solid #e5e7eb' }}>

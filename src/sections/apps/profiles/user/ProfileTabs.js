@@ -1,10 +1,9 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Box, Divider, FormLabel, Grid, TextField, Menu, MenuItem, Stack, Typography, IconButton, Avatar } from '@mui/material';
+import { Box, Divider, Link , FormLabel, Grid, TextField, Menu, MenuItem, Stack, Typography, IconButton, Avatar } from '@mui/material';
 
 // project import
 // import ProfileTab from './ProfileTab';
@@ -41,6 +40,14 @@ const ProfileTabs = ({ focusInput, data }) => {
   };
 
   // console.log(data[0]);
+
+  const currentDate = new Date().getDate()
+  const currentMonth = new Date().getMonth()
+  const currentYear = new Date().getFullYear()
+  const currentTime = new Date().getTime()
+  // console.log(currentDate);
+  // console.log(currentMonth+1);
+  // console.log(currentYear);
 
   return (
     <MainCard >
@@ -142,7 +149,7 @@ const ProfileTabs = ({ focusInput, data }) => {
             </Stack>
             <Stack direction="row" spacing={3} sx={{ '& svg': { fontSize: '1.15rem', cursor: 'pointer' } }}>
               <Typography variant="h5" color={'primary'}>
-                {`${data[0].date} ( ${data[0].time} )`}
+                {`${currentDate} - ${currentMonth+1} - ${currentYear} ( 1:30pm - 3:30pm )`}
               </Typography>
             </Stack>
             <Divider sx={{width:'100%'}} variant="middle"  />
@@ -181,7 +188,7 @@ const ProfileTabs = ({ focusInput, data }) => {
           </Stack>
         </Grid>
         <Grid item xs={12}>
-          {/* <ProfileTab /> */}
+          <Link href='#' sx={{border:`1px solid blue`,padding:'3px',borderRadius:'5px'}} target='blank'>Zoom Class Link</Link>
         </Grid>
       </Grid>
     </MainCard>

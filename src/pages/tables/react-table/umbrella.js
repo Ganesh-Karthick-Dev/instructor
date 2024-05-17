@@ -21,6 +21,9 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+import { FaRegCircleUser } from "react-icons/fa6";
+
+
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -41,6 +44,10 @@ function TablePaginationActions(props) {
   const handleLastPageButtonClick = (event) => {
     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
+
+
+
+ 
 
   return (
     <Box sx={{ flexShrink: 0, ml: 2.5 }}>
@@ -118,7 +125,13 @@ const rows = [
   }
 ];
 
+
+
+
+
 export default function CustomPaginationActionsTable() {
+
+
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
@@ -130,6 +143,14 @@ export default function CustomPaginationActionsTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+   // options
+ const [selectedColorValue, setSelectedColorValue] = React.useState('');
+
+ const handleColorChange = (event) => {
+   setSelectedColorValue(event.target.value);
+ };
+ // options
 
   return (
     <TableContainer component={Paper}>
@@ -171,7 +192,18 @@ export default function CustomPaginationActionsTable() {
               <TableCell>
                 <FormControl>
                   <RadioGroup aria-labelledby="demo-row-radio-buttons-group-label" name="row-radio-buttons-group">
-                    <FormControlLabel value="completed" control={<Radio />} label="completed" />
+                    <FormControlLabel value="completed" control={<Radio />} label=
+                    {
+                      <>
+                      <Stack direction={'row'} alignItems={'center'} gap={1}>
+                      <FaRegCircleUser color={selectedColorValue === 'completed' ? 'green' : 'black'} size={26} />
+                      <Typography>completed</Typography>
+                      </Stack>
+                      </>
+                    } 
+                    // onChange={handleColorChange}
+                    // checked={selectedColorValue === 'completed'}
+                    />
                     <FormControlLabel value="not attend" control={<Radio />} label="not attend" />
                     <FormControlLabel value="not completed" control={<Radio />} label="not completede" />
                   </RadioGroup>

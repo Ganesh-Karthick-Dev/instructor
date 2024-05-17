@@ -1,6 +1,6 @@
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Box } from '@mui/material';
+import { Box, useMediaQuery } from '@mui/material';
 
 // project-imports
 import { ThemeDirection, ThemeMode } from 'config';
@@ -9,6 +9,10 @@ import oneActLogo from '../oneActLogo/1actLogo.png'
 // ==============================|| AUTH BLUR BACK SVG ||============================== //
 
 const AuthBackground = () => {
+
+
+  const isLargeDevice = useMediaQuery('min-width:800px')
+
   const theme = useTheme();
   return (
     <Box
@@ -17,11 +21,11 @@ const AuthBackground = () => {
         filter: 'blur(9px)',
         zIndex: -1,
         bottom: 0,
-        left : 0,
+        left : 1000,
         transform: theme.direction === ThemeDirection.RTL ? 'rotate(180deg)' : 'inherit'
       }}
     >
-     <img width="55%" style={{marginLeft:'-50px'}} height="calc(100vh - 175px)" src={oneActLogo} />
+     <img width="100%" style={{marginLeft:'-50px'}} height="calc(100vh - 175px)" src={oneActLogo} />
     </Box>
   );
 };
