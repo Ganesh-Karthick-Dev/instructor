@@ -301,7 +301,6 @@ const eventData = [
 
 
   const handleCourseSelect = (event, value) => {
-    // setSelectedCourse(prev => [...prev, event.target.innerHTML]);
 
     console.log(value);
 

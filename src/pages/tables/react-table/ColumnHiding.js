@@ -155,7 +155,7 @@ function ReactTable({ columns, data }) {
                           <Typography variant='h6'>{row.status}</Typography>
                         </Box>;
                       case 'Not Attend':
-                        return <Box sx={{ background: '#f59e0b', color: 'white', padding: '5px', borderRadius: '5px'}}>
+                        return <Box sx={{ background: '#dc2626', color: 'white', padding: '5px', borderRadius: '5px'}}>
                           {row.status}
                         </Box>;
                       case 'Not Yet Started':
@@ -164,7 +164,7 @@ function ReactTable({ columns, data }) {
                           
                           </Box>;
                       default:
-                        return <Box>{row.status}</Box>;
+                        return <Box sx={{ background: '#a8a29e', color: 'white', padding: '5px', borderRadius: '5px' }}>{row.status}</Box>;
                     }
                   })()}
                 </TableCell>

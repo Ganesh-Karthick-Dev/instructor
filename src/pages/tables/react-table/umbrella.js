@@ -17,7 +17,7 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-import { Avatar, Button, ButtonGroup, Chip, Grid, Stack, TableHead, Typography } from '@mui/material';
+import { Autocomplete, Avatar, Button, ButtonGroup, Chip, Grid, OutlinedInput, Stack, TableHead, TextField, Typography } from '@mui/material';
 import { FaRegCircleUser } from 'react-icons/fa6';
 import tempImg from '../../../assets/images/users/avatar-8.png';
 
@@ -32,6 +32,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 // tooltip
 import Tooltip from '@mui/material/Tooltip';
+import MainCard from 'components/MainCard';
+import { PiStudentFill } from 'react-icons/pi';
 // tooltip
 
 function TablePaginationActions(props) {
@@ -92,88 +94,7 @@ export default function CustomPaginationActionsTable() {
     setPage(0);
   };
 
-  // data
-  const rows = [
-    {
-      id: 10,
-      image: '',
-      name: 'ganesh',
-      email: 'ganesh@gmail.com',
-      course: 'DUI',
-      marks: 100,
-      attendance: [
-        { date: '17-05-2024', status: 'Completed' },
-        { date: '18-05-2024', status: 'Completed' },
-        { date: '19-05-2024', status: 'Completed' }
-      ]
-    },
-    {
-      id: 20,
-      image: '',
-      name: 'karthick',
-      email: 'karthick@gmail.com',
-      course: 'Behind the Wheels',
-      marks: 85,
-      attendance: [
-        { date: '17-05-2024', status: 'Completed' },
-        { date: '18-05-2024', status: 'Not Attend' },
-        { date: '19-05-2024', status: 'Completed' }
-      ]
-    },
-    {
-      id: 30,
-      image: '',
-      name: 'ramesh',
-      email: 'ramesh@gmail.com',
-      course: 'Road test',
-      marks: 70,
-      attendance: [
-        { date: '17-05-2024', status: 'Action not Taken Yet' },
-        { date: '18-05-2024', status: 'Not Attend' },
-        { date: '19-05-2024', status: 'Completed' }
-      ]
-    },
-    {
-      id: 40,
-      image: '',
-      name: 'suresh',
-      email: 'suresh@gmail.com',
-      course: 'Defensive',
-      marks: 40,
-      attendance: [
-        { date: '17-05-2024', status: 'Action not Taken Yet' },
-        { date: '18-05-2024', status: 'Not Attend' },
-        { date: '19-05-2024', status: 'Completed' }
-      ]
-    },
-    {
-      id: 50,
-      image: '',
-      name: 'sakthiVel',
-      email: 'sakthiVel@gmail.com',
-      course: 'Driver Educations',
-      marks: 60,
-      attendance: [
-        { date: '17-05-2024', status: 'Action not Taken Yet' },
-        { date: '18-05-2024', status: 'Not Attend' },
-        { date: '19-05-2024', status: 'Completed' }
-      ]
-    },
-    {
-      id: 60,
-      image: '',
-      name: 'guna',
-      email: 'guna@gmail.com',
-      course: 'Driver Educations',
-      marks: 90,
-      attendance: [
-        { date: '17-05-2024', status: 'Action not Taken Yet' },
-        { date: '18-05-2024', status: 'Not Attend' },
-        { date: '19-05-2024', status: 'Completed' }
-      ]
-    }
-  ];
-  // data
+
 
   // options
   const [selectedColorValue, setSelectedColorValue] = React.useState('completed');
@@ -190,7 +111,7 @@ export default function CustomPaginationActionsTable() {
 
   const [selectedStudent, setSelectedStudent] = React.useState();
 
-  console.log(`select student`, selectedStudent);
+  // console.log(`select student`, selectedStudent);
 
   const handleClickOpen = (row) => {
     setOpen(true);
@@ -203,8 +124,265 @@ export default function CustomPaginationActionsTable() {
   };
   // pop-over
 
+
+    // data
+    const [rows , setRows ] = React.useState(
+      [
+        {
+          id: 10,
+          image: '',
+          name: 'ganesh',
+          email: 'ganesh@gmail.com',
+          course: 'DUI',
+          marks: 100,
+          attendance: [
+            { date: '17-05-2024', status: 'Completed' },
+            { date: '18-05-2024', status: 'Completed' },
+            { date: '19-05-2024', status: 'Completed' }
+          ]
+        },
+        {
+          id: 20,
+          image: '',
+          name: 'karthick',
+          email: 'karthick@gmail.com',
+          course: 'Behind the Wheels',
+          marks: 85,
+          attendance: [
+            { date: '17-05-2024', status: 'Completed' },
+            { date: '18-05-2024', status: 'Not Attend' },
+            { date: '19-05-2024', status: 'Completed' }
+          ]
+        },
+        {
+          id: 30,
+          image: '',
+          name: 'ramesh',
+          email: 'ramesh@gmail.com',
+          course: 'Road test',
+          marks: 70,
+          attendance: [
+            { date: '17-05-2024', status: 'Action not Taken Yet' },
+            { date: '18-05-2024', status: 'Not Attend' },
+            { date: '19-05-2024', status: 'Completed' }
+          ]
+        },
+        {
+          id: 40,
+          image: '',
+          name: 'suresh',
+          email: 'suresh@gmail.com',
+          course: 'Defensive',
+          marks: 40,
+          attendance: [
+            { date: '17-05-2024', status: 'Action not Taken Yet' },
+            { date: '18-05-2024', status: 'Not Attend' },
+            { date: '19-05-2024', status: 'Completed' }
+          ]
+        },
+        {
+          id: 50,
+          image: '',
+          name: 'sakthiVel',
+          email: 'sakthiVel@gmail.com',
+          course: 'Driver Educations',
+          marks: 60,
+          attendance: [
+            { date: '17-05-2024', status: 'Action not Taken Yet' },
+            { date: '18-05-2024', status: 'Not Attend' },
+            { date: '19-05-2024', status: 'Completed' }
+          ]
+        },
+        {
+          id: 60,
+          image: '',
+          name: 'guna',
+          email: 'guna@gmail.com',
+          course: 'Driver Educations',
+          marks: 90,
+          attendance: [
+            { date: '17-05-2024', status: 'Action not Taken Yet' },
+            { date: '18-05-2024', status: 'Not Attend' },
+            { date: '19-05-2024', status: 'Completed' }
+          ]
+        }
+      ]
+    )
+    // data
+
+  
+  // global search
+
+  const globalSearch = (dataArray, pattern) => {
+    // Use lodash filter to search for objects matching the pattern
+    return _.filter(dataArray, (item) => {
+      // Convert each object's values to a string and perform case-insensitive search
+      const values = _.values(item).join('').toLowerCase();
+      return values.includes(pattern.toLowerCase());
+    });
+  };
+
+  
+  // ================== pipe - 1 ==========================
+  const [searchValue, setSearchvalue] = React.useState('');
+  const searchResults = globalSearch(rows, searchValue);
+  console.log(`searchResults`,searchResults);
+  // ================== pipe - 1 ==========================
+
+  
+  // ================== pipe - 2 ==========================
+  const [filteredData,setfilteredData] = React.useState(searchResults) 
+  React.useEffect(() => {
+    setfilteredData(_.isEmpty(searchResults) ? rows : searchResults);
+    setSelectedCourse(filteredData)
+  }, [searchValue]);
+  console.log(`filteredData`,filteredData);
+  // ================== pipe - 2 ==========================
+
+  
+  // ================== pipe - 3 ==========================
+  const [selectedCourse, setSelectedCourse] = React.useState(filteredData);
+  const [filteredCourse,setFilteredCourse] = React.useState(filteredData)
+  console.log(`selectedCourse`,selectedCourse);
+  console.log(`filteredCourse`,filteredCourse);
+  console.log(`-------------------------------------------`);
+  // ================== pipe - 3 ==========================
+
+
+ // =================== pipe - 4 ===========================
+  // const [finalData,setFinalData] = React.useState(selectedCourse)
+  // ================== pipe - 4 ==========================
+
+
+
+
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // console.log(e.target.value);
+    setSearchvalue(e.target.value);
+  };
+
+  React.useEffect(()=>{
+    setFilteredCourse(_.uniqBy(rows,(e)=> e.course))
+  },[])
+
+  const handleCourseSelect = (event, value) => {
+
+    console.log(`course selection`,value);
+
+    console.log(`course selection event`,event);
+    
+
+    setSelectedCourse(_.isEmpty(value) ? filteredData : value)
+
+  };
+
+  // global search
+
+
+  // status search
+
+  const [activeButton, setActiveButton] = React.useState('All');
+
+  const handleButtonClick = (buttonKey) => {
+    setActiveButton(buttonKey);
+    
+    if(_.isEmpty(searchResults)){
+      setfilteredData(rows)
+    }
+    if (buttonKey === 'ReadyToTakeTest') {
+      const data = searchResults.filter(val => 
+        val.attendance.some(val2 => val2.status === 'Completed')
+      );
+      setfilteredData(data);
+    } else if (buttonKey === 'Incomplete') {
+      const data = searchResults.filter(val => 
+        val.attendance.some(val2 => val2.status !== 'Completed')
+      );
+      setfilteredData(data);
+    } else if (buttonKey === 'All') {
+      setfilteredData(searchResults);
+    }
+    else {
+      setfilteredData(searchResults);
+    }
+  };
+
+    // status search
+
+
   return (
     <>
+    <MainCard>
+
+    <Typography>Student List</Typography>
+
+      <Stack sx={{my:2}} direction={'row'} alignItems={'center'} justifyContent={'space-evenly'}>
+      
+      <OutlinedInput
+            sx={{ width: '200px', outline: '2px solid black' }}
+            id="start-adornment-email"
+            placeholder="name / course / id / status"
+            onChange={handleSearch}
+            startAdornment={<PiStudentFill size={40} />}
+          />
+          <ButtonGroup color="secondary" aria-label="medium secondary button group">
+                <Button
+                  sx={{ height: 'fit-content' }}
+                  key="All"
+                  variant={activeButton === 'All' ? 'contained' : 'outlined'}
+                  onClick={() => handleButtonClick('All')}
+                >
+                  All
+                </Button>
+                <Button
+                  sx={{ height: 'fit-content' }}
+                  key="Incomplete"
+                  variant={activeButton === 'Incomplete' ? 'contained' : 'outlined'}
+                  onClick={() => handleButtonClick('Incomplete')}
+                >
+                  Incomplete
+                </Button>
+                <Button
+                  sx={{ height: 'fit-content' }}
+                  key="ReadyToTakeTest"
+                  variant={activeButton === 'ReadyToTakeTest' ? 'contained' : 'outlined'}
+                  onClick={() => handleButtonClick('ReadyToTakeTest')}
+                >
+                  Ready to take Test
+                </Button>
+              </ButtonGroup>
+
+              <Autocomplete
+                multiple
+                id="tags-outlined"
+                options={filteredCourse}
+                getOptionLabel={(option) => option.course }
+                onChange={handleCourseSelect}
+                filterSelectedOptions
+                renderInput={(params) => <TextField {...params} placeholder="Courses" />}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    p: 1
+                  },
+                  '& .MuiAutocomplete-tag': {
+                    bgcolor: 'primary.lighter',
+                    border: '1px solid',
+                    borderColor: 'primary.light',
+                    '& .MuiSvgIcon-root': {
+                      color: 'primary.main',
+                      '&:hover': {
+                        color: 'primary.dark'
+                      }
+                    }
+                  },
+                  width: '200px'
+                }}
+              />
+
+      </Stack>
+
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
           <TableHead>
@@ -220,7 +398,7 @@ export default function CustomPaginationActionsTable() {
           </TableHead>
 
           <TableBody>
-            {(rowsPerPage > 0 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows).map((row, index) => (
+            {(rowsPerPage > 0 ? selectedCourse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : selectedCourse).map((row, index) => (
               <TableRow key={index}>
                 <TableCell align="center" component="th" scope="row">
                   {index + 1}
@@ -295,6 +473,8 @@ export default function CustomPaginationActionsTable() {
           </TableFooter>
         </Table>
       </TableContainer>
+
+    </MainCard>
 
       <Dialog fullScreen={fullScreen} open={open} onClose={handleClose} aria-labelledby="responsive-dialog-title">
         <DialogTitle id="responsive-dialog-title">{selectedStudent?.name}</DialogTitle>
