@@ -17,7 +17,7 @@ import { PopupTransition } from 'components/@extended/Transitions';
 import CalendarStyled from 'sections/apps/calendar/CalendarStyled';
 import Toolbar from 'sections/apps/calendar/Toolbar';
 import AddEventForm from 'sections/apps/calendar/AddEventForm';
-import SheduleModel from 'components/SheduleModel';
+import SheduleModel from 'components/Instructor/SheduleModel';
 import MainCard from 'components/MainCard';
 
 // Assets

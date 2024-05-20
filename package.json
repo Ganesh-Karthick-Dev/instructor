@@ -107,6 +107,7 @@
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/eslint-parser": "^7.21.3",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-react-app": "^7.0.1",
@@ -118,5 +119,9 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^2.8.7",
     "react-error-overlay": "6.0.11"
+  },
+  "babel": {
+    "presets": ["@babel/preset-env", "@babel/preset-react"],
+    "plugins": ["@babel/plugin-proposal-private-property-in-object"]
   }
 }

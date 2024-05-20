@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import _ from 'lodash';
 import { Grid, Stack } from '@mui/material';
-import ProfileTab from '../sections/apps/profiles/user/ProfileTabs';
+import ProfileTab from '../../sections/apps/profiles/user/ProfileTabs';
 import ColumnHiding from 'pages/tables/react-table/ColumnHiding';
 import { RiCloseLargeFill } from "react-icons/ri";
 
