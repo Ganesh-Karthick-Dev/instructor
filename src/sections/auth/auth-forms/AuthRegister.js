@@ -57,10 +57,8 @@ const AuthRegister = () => {
     firstname: '',
     lastname: '',
     email: '',
-    company: '',
     mobile:'',
-    password: '',
-    dob: '',
+    dob: selectedDate,
     gender: 'Male',
     address : '',
     city : '',
@@ -107,23 +105,28 @@ const AuthRegister = () => {
     firstname: Joi.string().max(255).required().label('First Name'),
     lastname: Joi.string().max(255).required().label('Last Name'),
     email: Joi.string().email({ tlds: { allow: false } }).max(255).required().label('Email'),
-    password: Joi.string().max(255).required().label('Password'),
+    // password: Joi.string().max(255).required().label('Password'),
+    mobile : Joi.number().required(),
+    dob : Joi.required(),
+    gender:Joi.required()
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { error } = schema.validate(formValues, { abortEarly: false });
+    const { error } = schema.validate(formValues, { abortEarly: true });
 
     if (error) {
       const errors = {};
       error.details.forEach((detail) => {
         errors[detail.path[0]] = detail.message;
       });
-      setFormErrors(errors);
-      toast.error(error);
+      // setFormErrors(errors);
+      const errorMessage = error.details.map(detail => detail.message).join(', ');
+      toast.error(errorMessage);
+      // toast.error(error);
     } else {
       try {
-        await register(formValues.email, formValues.password, formValues.firstname, formValues.lastname,formValues.address,formValues.dob,formValues.company,formValues.city,formValues.country,formValues.courses,formValues.gender,formValues.image,formValues.state,formValues.status,formValues.zipcode,formValues.zone,formValues.serviceLocation,formValues.mobile);
+        await register(formValues.email, formValues.firstname, formValues.lastname,formValues.address,formValues.dob,formValues.city,formValues.country,formValues.courses,formValues.gender,formValues.image,formValues.state,formValues.status,formValues.zipcode,formValues.zone,formValues.serviceLocation,formValues.mobile);
         if (scriptedRef.current) {
           toast.success('Your registration has been successfully completed.');
           setTimeout(() => {
@@ -143,9 +146,9 @@ const AuthRegister = () => {
   return (
     <>
       <form noValidate onSubmit={handleSubmit}>
-        <Toaster />
+        
         <Grid container spacing={3}>
-
+        <Toaster />
           <Grid item xs={12} md={6}> {/*First Name*/}
             <Stack spacing={1}>
               <InputLabel htmlFor="firstname-signup">First Name</InputLabel>
@@ -240,18 +243,33 @@ const AuthRegister = () => {
             </Stack>
           </Grid>
 
-          <Grid item xs={12} lg={6}>   {/*mobile*/}
-            <Stack spacing={1}>
+          <Grid item xs={12} lg={6} sx={{ width: '100%' }}>   {/*mobile*/}
+            <Stack spacing={1} sx={{ width: '100%' }}>
               <InputLabel htmlFor="company-signup">Mobile No</InputLabel>
+              <Box
+              sx={{
+                width: '100%',
+                '& .react-international-phone': {
+                  width: '100%',
+                  height: '50px'
+                },
+                '& .react-international-phone-country-selector & button': {
+                  height: '42px'
+                },
+                '& .react-international-phone-input': {
+                  width: '100%',
+                  height: '50px'
+                }
+              }} //react-international-phone-input-container
+            >
               <PhoneInput
-                fullWidth
                 defaultCountry="ua"
                 id="mobile-signup"
-                style={{width:'100'}}
                 value={formValues.mobile}
                 onChange={handlePhoneChange}
                 placeholder="Mobile Number"
               />
+            </Box>
               {/* <OutlinedInput
                 fullWidth
                 id="company-signup"
@@ -275,7 +293,7 @@ const AuthRegister = () => {
                 value={formValues.address}
                 name="address"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.email && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -297,7 +315,7 @@ const AuthRegister = () => {
                 value={formValues.city}
                 name="city"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.city && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -318,7 +336,7 @@ const AuthRegister = () => {
                 value={formValues.state}
                 name="city"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.state && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -340,7 +358,7 @@ const AuthRegister = () => {
                 value={formValues.country}
                 name="country"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.country && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -362,7 +380,7 @@ const AuthRegister = () => {
                 value={formValues.zipcode}
                 name="zipcode"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.zipcode && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -384,7 +402,7 @@ const AuthRegister = () => {
                 value={formValues.serviceLocation}
                 name="serviceLocation"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.serviceLocation && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -407,7 +425,7 @@ const AuthRegister = () => {
                 value={formValues.zone}
                 name="zone"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.zone && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -428,7 +446,7 @@ const AuthRegister = () => {
                 value={formValues.courses}
                 name="courses"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.courses && (
                 <FormHelperText error id="helper-text-email-signup">
@@ -450,7 +468,7 @@ const AuthRegister = () => {
                 value={formValues.status}
                 name="status"
                 onChange={handleChange}
-                placeholder="demo@company.com"
+                placeholder=""
               />
               {formErrors.status && (
                 <FormHelperText error id="helper-text-email-signup">

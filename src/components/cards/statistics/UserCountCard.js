@@ -4,33 +4,53 @@ import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import { Card, CardContent, Grid, Typography } from '@mui/material';
 
-// styles
+
+
+// =============================|| USER NUM CARD ||============================= //
+
+const UserCountCard = ({ primary, secondary, secondary2 , iconPrimary, color , iconColor }) => {
+
+
+  // styles
 const IconWrapper = styled('div')({
   position: 'absolute',
   left: '-17px',
   bottom: '-27px',
-  color: '#fff',
+  color: iconColor,
   transform: 'rotate(25deg)',
   '& svg': {
-    width: '100px',
-    height: '100px',
-    opacity: '0.35'
+    width: '80px',
+    height: '80px',
+    opacity: '1'
   }
 });
 
-// =============================|| USER NUM CARD ||============================= //
 
-const UserCountCard = ({ primary, secondary, secondary2 , iconPrimary, color }) => {
   const IconPrimary = iconPrimary;
   const primaryIcon = iconPrimary ? <IconPrimary fontSize="large" /> : null;
 
   return (
-    <Card elevation={0} sx={{ background: color, position: 'relative', color: '#fff',boxShadow:10 }}>
+    <Card 
+    elevation={0} 
+    sx={{ 
+      background: color,
+      position: 'relative',
+      color: '#fff',
+      boxShadow:10,
+      transition: 'all 0.3s ease',
+      '&:hover span, &:hover svg': {
+        transform: 'translate(10px, 10px)', // Change the values as needed
+      },
+      '& span, & svg': {
+        transition: 'transform 0.3s ease', // Smooth transition for elements
+      }
+    }}
+    >
       <CardContent>
         <IconWrapper>{primaryIcon}</IconWrapper>
         <Grid container direction="column" justifyContent="center" alignItems="center" spacing={1}>
           <Grid item sm={12}>
-            <Typography variant="h3" align="center" color="inherit">
+            <Typography variant="h5" align="center" color="inherit">
               {secondary}
             </Typography>
           </Grid>
@@ -40,7 +60,7 @@ const UserCountCard = ({ primary, secondary, secondary2 , iconPrimary, color }) 
             </Typography>
           </Grid>
           <Grid item sm={12}>
-            <Typography variant="h3" align="center" color="inherit">
+            <Typography variant="h5" align="center" color="inherit">
               {secondary2}
             </Typography>
           </Grid>
@@ -55,7 +75,8 @@ UserCountCard.propTypes = {
   secondary: PropTypes.string,
   secondary2: PropTypes.string,
   iconPrimary: PropTypes.object,
-  color: PropTypes.string
+  color: PropTypes.string,
+  iconColor : PropTypes.string
 };
 
 export default UserCountCard;

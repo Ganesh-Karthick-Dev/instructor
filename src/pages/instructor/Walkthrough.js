@@ -27,7 +27,7 @@ const Walkthrough = () => {
   // instructor status
   const [contractPdf,setContractPdf] = useState()
   const [instructorStatus,setInstructorStatus] = useState({
-    status : 1,
+    status : 2,
     pdfVerified : false
   })
   // const instructorStat = ()=>{
@@ -47,8 +47,11 @@ const Walkthrough = () => {
   },[instructorStatus])
 
   const handleNext = () => {
-    if(instructorStatus.pdfVerified === false){
+    if(instructorStatus.pdfVerified === false && instructorStatus.status === 1){
      return setActiveStep(1)
+    }
+    else if(instructorStatus.pdfVerified === true && instructorStatus.status === 2){
+      return setActiveStep(3)
     }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
