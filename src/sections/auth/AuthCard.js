@@ -14,7 +14,7 @@ const AuthCard = ({ children, ...other }) => {
   return (
     <MainCard
       sx={{
-        maxWidth: { xs: 400, lg: 475 },
+        maxWidth: { xs: 400, lg: 700 },
         margin: { xs: 2.5, md: 3 },
         '& > *': {
           flexGrow: 1,

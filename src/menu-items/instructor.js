@@ -17,6 +17,7 @@ import {
 import { MdOutlineDashboard } from "react-icons/md";
 import { MdOutlineEventAvailable } from "react-icons/md";
 import { FaMarker } from "react-icons/fa6";
+import { GrInProgress } from "react-icons/gr";
 
 // icons
 const icons = {
@@ -31,7 +32,8 @@ const icons = {
   DeploymentUnitOutlined,
   MdOutlineDashboard,
   MdOutlineEventAvailable,
-  FaMarker
+  FaMarker,
+  GrInProgress
 };
 
 // ==============================|| MENU ITEMS - SUPPORT ||============================== //
@@ -61,6 +63,13 @@ const Dashboard = {
       type: 'item',
       url: '/attendance',
       icon: icons.FaMarker
+    },
+    {
+      id: 'Walkthrough',
+      title: <FormattedMessage id="Walkthrough" />,
+      type: 'item',
+      url: '/walkthrough',
+      icon: icons.GrInProgress
     }
   ]
 };

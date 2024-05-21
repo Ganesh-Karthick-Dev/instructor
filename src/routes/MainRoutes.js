@@ -8,6 +8,7 @@ import AuthGuard from 'utils/route-guard/AuthGuard';
 import Profile from '../pages/instructor/Profile';
 import Availability from '../pages/instructor/Availability';
 import Attendance from '../pages/instructor/Attendance'
+import Walkthrough from 'pages/instructor/Walkthrough';
 
 // pages routing
 const MaintenanceError = Loadable(lazy(() => import('pages/maintenance/404')));
@@ -46,6 +47,10 @@ const MainRoutes = {
         {
           path : 'attendance',
           element : <Attendance />
+        },
+        {
+          path : 'walkthrough',
+          element : <Walkthrough />
         }
       ]
     },

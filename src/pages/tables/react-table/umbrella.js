@@ -82,6 +82,7 @@ TablePaginationActions.propTypes = {
 };
 
 export default function CustomPaginationActionsTable() {
+
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
@@ -241,7 +242,7 @@ export default function CustomPaginationActionsTable() {
 
   
   // ================== pipe - 3 ==========================
-  const [selectedCourse, setSelectedCourse] = React.useState(filteredData);
+  var [selectedCourse, setSelectedCourse] = React.useState([]);
   const [filteredCourse,setFilteredCourse] = React.useState(filteredData)
   console.log(`selectedCourse`,selectedCourse);
   console.log(`filteredCourse`,filteredCourse);
@@ -258,25 +259,29 @@ export default function CustomPaginationActionsTable() {
 
 
   const handleSearch = (e) => {
-    e.preventDefault();
-    // console.log(e.target.value);
-    setSearchvalue(e.target.value);
+    const { value } = e.target;
+    setSearchvalue(value);
+    if (!value) {
+      setfilteredData(rows); // Render all data when the search input is cleared
+    }
   };
+  
 
   React.useEffect(()=>{
     setFilteredCourse(_.uniqBy(rows,(e)=> e.course))
   },[])
 
   const handleCourseSelect = (event, value) => {
-
-    console.log(`course selection`,value);
-
-    console.log(`course selection event`,event);
-    
-
-    setSelectedCourse(_.isEmpty(value) ? filteredData : value)
-
+    // If no courses are selected, reset the filtered data to the original rows
+    if (_.isEmpty(value)) {
+      setSelectedCourse(rows);
+    } else {
+      // Filter the rows based on the selected courses
+      const filteredRows = rows.filter(row => value.some(course => course.course === row.course));
+      setSelectedCourse(filteredRows);
+    }
   };
+  
 
   // global search
 
@@ -288,26 +293,19 @@ export default function CustomPaginationActionsTable() {
   const handleButtonClick = (buttonKey) => {
     setActiveButton(buttonKey);
     
-    if(_.isEmpty(searchResults)){
-      setfilteredData(rows)
-    }
     if (buttonKey === 'ReadyToTakeTest') {
-      const data = searchResults.filter(val => 
-        val.attendance.some(val2 => val2.status === 'Completed')
-      );
-      setfilteredData(data);
+      // Filter students whose all attendance statuses are 'Completed' in place
+      selectedCourse = selectedCourse.filter(student => student.attendance.every(att => att.status === 'Completed'));
     } else if (buttonKey === 'Incomplete') {
-      const data = searchResults.filter(val => 
-        val.attendance.some(val2 => val2.status !== 'Completed')
-      );
-      setfilteredData(data);
-    } else if (buttonKey === 'All') {
-      setfilteredData(searchResults);
+      // Filter students who have at least one attendance status that is not 'Completed' in place
+      selectedCourse = selectedCourse.filter(student => student.attendance.some(att => att.status !== 'Completed'));
     }
-    else {
-      setfilteredData(searchResults);
-    }
+  
+    // Update filtered data
+    setSelectedCourse(selectedCourse);
   };
+  
+  
 
     // status search
 

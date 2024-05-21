@@ -1,58 +1,139 @@
+/* eslint-disable no-unused-vars */
+
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-
-// material-ui
 import {
   Box,
   Button,
   FormControl,
-  FormHelperText,
   Grid,
   Link,
   InputAdornment,
   InputLabel,
   OutlinedInput,
   Stack,
-  Typography
+  Typography,
+  FormHelperText,
+  TextField,
+  Select,
+  MenuItem
 } from '@mui/material';
-
-// third party
-import * as Yup from 'yup';
-import { Formik } from 'formik';
-
-// project import
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
-
 import useAuth from 'hooks/useAuth';
 import useScriptRef from 'hooks/useScriptRef';
-import { dispatch } from 'store';
-import { openSnackbar } from 'store/reducers/snackbar';
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
-
-// assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
-// ============================|| JWT - REGISTER ||============================ //
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+import toast, { Toaster } from 'react-hot-toast';
+import Joi from 'joi';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
+
+
 
 const AuthRegister = () => {
+
+  // for date pickers
+  const [selectedDate, setSelectedDate] = useState(dayjs('2000-08-18'));
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    console.log('Selected Date:', newDate.format('YYYY-MM-DD'));
+  };
+  // for date pickers
+
   const { register } = useAuth();
   const scriptedRef = useScriptRef();
   const navigate = useNavigate();
 
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
+  const [formValues, setFormValues] = useState({
+    firstname: '',
+    lastname: '',
+    email: '',
+    company: '',
+    mobile:'',
+    password: '',
+    dob: '',
+    gender: 'Male',
+    address : '',
+    city : '',
+    state : '',
+    country : '',
+    zipcode : '',
+    serviceLocation : '',
+    zone : '',
+    courses : '',
+    status : '',
+    image : 'https://www.biowritingservice.com/wp-content/themes/tuborg/images/Executive%20Bio%20Sample%20Photo.png'
+  });
+  const [formErrors, setFormErrors] = useState({});
+
+  // const handleClickShowPassword = () => {
+  //   setShowPassword(!showPassword);
+  // };
+
+  // const handleMouseDownPassword = (event) => {
+  //   event.preventDefault();
+  // };
+
+  const handleSelectChange = (event) => {
+    setFormValues({ ...formValues, gender: event.target.value });
   };
 
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
+  const handlePhoneChange = (value) => {
+    setFormValues({ ...formValues, mobile: value });
   };
+  
+  
 
   const changePassword = (value) => {
     const temp = strengthIndicator(value);
     setLevel(strengthColor(temp));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+  };
+
+  const schema = Joi.object({
+    firstname: Joi.string().max(255).required().label('First Name'),
+    lastname: Joi.string().max(255).required().label('Last Name'),
+    email: Joi.string().email({ tlds: { allow: false } }).max(255).required().label('Email'),
+    password: Joi.string().max(255).required().label('Password'),
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { error } = schema.validate(formValues, { abortEarly: false });
+
+    if (error) {
+      const errors = {};
+      error.details.forEach((detail) => {
+        errors[detail.path[0]] = detail.message;
+      });
+      setFormErrors(errors);
+      toast.error(error);
+    } else {
+      try {
+        await register(formValues.email, formValues.password, formValues.firstname, formValues.lastname,formValues.address,formValues.dob,formValues.company,formValues.city,formValues.country,formValues.courses,formValues.gender,formValues.image,formValues.state,formValues.status,formValues.zipcode,formValues.zone,formValues.serviceLocation,formValues.mobile);
+        if (scriptedRef.current) {
+          toast.success('Your registration has been successfully completed.');
+          setTimeout(() => {
+            navigate('/login', { replace: true });
+          }, 1500);
+        }
+      } catch (err) {
+        toast.error(err.message);
+      }
+    }
   };
 
   useEffect(() => {
@@ -61,220 +142,350 @@ const AuthRegister = () => {
 
   return (
     <>
-      <Formik
-        initialValues={{
-          firstname: '',
-          lastname: '',
-          email: '',
-          company: '',
-          password: '',
-          submit: null
-        }}
-        validationSchema={Yup.object().shape({
-          firstname: Yup.string().max(255).required('First Name is required'),
-          lastname: Yup.string().max(255).required('Last Name is required'),
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
-        })}
-        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-          try {
-            await register(values.email, values.password, values.firstname, values.lastname);
-            if (scriptedRef.current) {
-              setStatus({ success: true });
-              setSubmitting(false);
-              dispatch(
-                openSnackbar({
-                  open: true,
-                  message: 'Your registration has been successfully completed.',
-                  variant: 'alert',
-                  alert: {
-                    color: 'success'
-                  },
-                  close: false
-                })
-              );
+      <form noValidate onSubmit={handleSubmit}>
+        <Toaster />
+        <Grid container spacing={3}>
 
-              setTimeout(() => {
-                navigate('/login', { replace: true });
-              }, 1500);
-            }
-          } catch (err) {
-            console.error(err);
-            if (scriptedRef.current) {
-              setStatus({ success: false });
-              setErrors({ submit: err.message });
-              setSubmitting(false);
-            }
-          }
-        }}
-      >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
-          <form noValidate onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="firstname-signup">First Name*</InputLabel>
-                  <OutlinedInput
-                    id="firstname-login"
-                    type="firstname"
-                    value={values.firstname}
-                    name="firstname"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="John"
-                    fullWidth
-                    error={Boolean(touched.firstname && errors.firstname)}
-                  />
-                  {touched.firstname && errors.firstname && (
-                    <FormHelperText error id="helper-text-firstname-signup">
-                      {errors.firstname}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="lastname-signup">Last Name*</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.lastname && errors.lastname)}
-                    id="lastname-signup"
-                    type="lastname"
-                    value={values.lastname}
-                    name="lastname"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Doe"
-                    inputProps={{}}
-                  />
-                  {touched.lastname && errors.lastname && (
-                    <FormHelperText error id="helper-text-lastname-signup">
-                      {errors.lastname}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="company-signup">Company</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.company && errors.company)}
-                    id="company-signup"
-                    value={values.company}
-                    name="company"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Demo Inc."
-                    inputProps={{}}
-                  />
-                  {touched.company && errors.company && (
-                    <FormHelperText error id="helper-text-company-signup">
-                      {errors.company}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="email-signup">Email Address*</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.email && errors.email)}
-                    id="email-login"
-                    type="email"
-                    value={values.email}
-                    name="email"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="demo@company.com"
-                    inputProps={{}}
-                  />
-                  {touched.email && errors.email && (
-                    <FormHelperText error id="helper-text-email-signup">
-                      {errors.email}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="password-signup">Password</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.password && errors.password)}
-                    id="password-signup"
-                    type={showPassword ? 'text' : 'password'}
-                    value={values.password}
-                    name="password"
-                    onBlur={handleBlur}
-                    onChange={(e) => {
-                      handleChange(e);
-                      changePassword(e.target.value);
-                    }}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                          color="secondary"
-                        >
-                          {showPassword ? <EyeOutlined /> : <EyeInvisibleOutlined />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    placeholder="******"
-                    inputProps={{}}
-                  />
-                  {touched.password && errors.password && (
-                    <FormHelperText error id="helper-text-password-signup">
-                      {errors.password}
-                    </FormHelperText>
-                  )}
-                </Stack>
-                <FormControl fullWidth sx={{ mt: 2 }}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item>
-                      <Box sx={{ bgcolor: level?.color, width: 85, height: 8, borderRadius: '7px' }} />
-                    </Grid>
-                    <Grid item>
-                      <Typography variant="subtitle1" fontSize="0.75rem">
-                        {level?.label}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body2">
-                  By Signing up, you agree to our &nbsp;
-                  <Link variant="subtitle2" component={RouterLink} to="#">
-                    Terms of Service
-                  </Link>
-                  &nbsp; and &nbsp;
-                  <Link variant="subtitle2" component={RouterLink} to="#">
-                    Privacy Policy
-                  </Link>
-                </Typography>
-              </Grid>
-              {errors.submit && (
-                <Grid item xs={12}>
-                  <FormHelperText error>{errors.submit}</FormHelperText>
-                </Grid>
+          <Grid item xs={12} md={6}> {/*First Name*/}
+            <Stack spacing={1}>
+              <InputLabel htmlFor="firstname-signup">First Name</InputLabel>
+              <OutlinedInput
+                id="firstname-signup"
+                type="text"
+                value={formValues.firstname}
+                name="firstname"
+                onChange={handleChange}
+                placeholder="John"
+                fullWidth
+                error={Boolean(formErrors.firstname)}
+              />
+              {formErrors.firstname && (
+                <FormHelperText error id="helper-text-firstname-signup">
+                  {formErrors.firstname}
+                </FormHelperText>
               )}
-              <Grid item xs={12}>
-                <AnimateButton>
-                  <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                    Create Account
-                  </Button>
-                </AnimateButton>
-              </Grid>
-            </Grid>
-          </form>
-        )}
-      </Formik>
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} md={6}>  {/*Last Name*/}
+            <Stack spacing={1}>
+              <InputLabel htmlFor="lastname-signup">Last Name</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.lastname)}
+                id="lastname-signup"
+                type="text"
+                value={formValues.lastname}
+                name="lastname"
+                onChange={handleChange}
+                placeholder="Doe"
+              />
+              {formErrors.lastname && (
+                <FormHelperText error id="helper-text-lastname-signup">
+                  {formErrors.lastname}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} md={6}> {/*Dob*/}
+            <Stack spacing={1}>
+              <InputLabel htmlFor="dob-signup">Date of Birth</InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </Stack>
+          </Grid>
+          
+          <Grid item xs={12} md={6}> {/*Gender*/}
+            <Stack spacing={1}>
+            <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+              <Select
+               labelId="demo-simple-select-label"
+               id="demo-simple-select"
+               value={formValues.gender}
+               name="gender"
+               onChange={handleSelectChange}
+               fullWidth
+               >
+                <MenuItem value={'Male'}>Male</MenuItem>
+                <MenuItem value={'Female'}>Female</MenuItem>
+                <MenuItem value={'Trans'}>Trans</MenuItem>
+              </Select>
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} lg={6}>  {/*email*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">Email Address</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.email)}
+                id="email-signup"
+                type="email"
+                value={formValues.email}
+                name="email"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.email && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.email}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} lg={6}>   {/*mobile*/}
+            <Stack spacing={1}>
+              <InputLabel htmlFor="company-signup">Mobile No</InputLabel>
+              <PhoneInput
+                fullWidth
+                defaultCountry="ua"
+                id="mobile-signup"
+                style={{width:'100'}}
+                value={formValues.mobile}
+                onChange={handlePhoneChange}
+                placeholder="Mobile Number"
+              />
+              {/* <OutlinedInput
+                fullWidth
+                id="company-signup"
+                value={formValues.mobile}
+                name="company"
+                onChange={handleChange}
+                placeholder="Demo Inc."
+              /> */}
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} >  {/*address*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">Address</InputLabel>
+              <OutlinedInput
+                fullWidth
+                multiline
+                error={Boolean(formErrors.email)}
+                id="email-signup"
+                type="email"
+                value={formValues.address}
+                name="address"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.email && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.email}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+
+          <Grid item xs={12} lg={6}>  {/*city*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">city</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.city)}
+                id="email-signup"
+                type="email"
+                value={formValues.city}
+                name="city"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.city && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.city}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} lg={6}>  {/*state*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">state</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.state)}
+                id="email-signup"
+                type="state"
+                value={formValues.state}
+                name="city"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.state && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.state}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+
+          <Grid item xs={12} lg={6}>  {/*country*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">country</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.country)}
+                id="email-signup"
+                type="country"
+                value={formValues.country}
+                name="country"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.country && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.country}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+
+          <Grid item xs={12} lg={6}>  {/*zip code*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">zip code</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.zipcode)}
+                id="email-signup"
+                type="country"
+                value={formValues.zipcode}
+                name="zipcode"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.zipcode && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.zipcode}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+
+          <Grid item xs={12} lg={6}>  {/*service location*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">service location</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.serviceLocation)}
+                id="email-signup"
+                type="country"
+                value={formValues.serviceLocation}
+                name="serviceLocation"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.serviceLocation && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.serviceLocation}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+
+
+          <Grid item xs={12} lg={6}>  {/*zone*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">zone</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.zone)}
+                id="email-signup"
+                type="country"
+                value={formValues.zone}
+                name="zone"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.zone && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.zone}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} lg={6}>  {/*course*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">courses</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.courses)}
+                id="email-signup"
+                type="country"
+                value={formValues.courses}
+                name="courses"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.courses && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.courses}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+
+          <Grid item xs={12} lg={6}>  {/*status*/}
+            <Stack spacing={1}> 
+              <InputLabel htmlFor="email-signup">status</InputLabel>
+              <OutlinedInput
+                fullWidth
+                error={Boolean(formErrors.status)}
+                id="email-signup"
+                type="country"
+                value={formValues.status}
+                name="status"
+                onChange={handleChange}
+                placeholder="demo@company.com"
+              />
+              {formErrors.status && (
+                <FormHelperText error id="helper-text-email-signup">
+                  {formErrors.status}
+                </FormHelperText>
+              )}
+            </Stack>
+          </Grid>
+
+          
+
+          <Grid item xs={12}>
+            <Typography variant="body2">
+              By Signing up, you agree to our &nbsp;
+              <Link variant="subtitle2" component={RouterLink} to="#">
+                Terms of Service
+              </Link>
+              &nbsp; and &nbsp;
+              <Link variant="subtitle2" component={RouterLink} to="#">
+                Privacy Policy
+              </Link>
+            </Typography>
+          </Grid>
+
+
+
+          <Grid item xs={12}>
+            <AnimateButton>
+              <Button disableElevation fullWidth size="large" type="submit" variant="contained" color="primary">
+                Create Account
+              </Button>
+            </AnimateButton>
+          </Grid>
+        </Grid>
+      </form>
     </>
   );
 };
