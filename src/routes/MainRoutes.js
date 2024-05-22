@@ -4,11 +4,12 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import CommonLayout from 'layout/CommonLayout';
 import Loadable from 'components/Loadable';
-import AuthGuard from 'utils/route-guard/AuthGuard';
+// import AuthGuard from 'utils/route-guard/AuthGuard';
 import Profile from '../pages/instructor/Profile';
 import Availability from '../pages/instructor/Availability';
 import Attendance from '../pages/instructor/Attendance'
 import Walkthrough from 'pages/instructor/Walkthrough';
+import StudentAction from 'pages/instructor/StudentAction';
 
 // pages routing
 const MaintenanceError = Loadable(lazy(() => import('pages/maintenance/404')));
@@ -27,9 +28,9 @@ const MainRoutes = {
     {
       path: '/',
       element: (
-        <AuthGuard>
+        // <AuthGuard>
           <MainLayout />
-        </AuthGuard>
+        // </AuthGuard>
       ),
       children: [
         {
@@ -51,7 +52,12 @@ const MainRoutes = {
         {
           path : 'walkthrough',
           element : <Walkthrough />
+        },
+        {
+          path : 'student',
+          element : <StudentAction />
         }
+
       ]
     },
     {

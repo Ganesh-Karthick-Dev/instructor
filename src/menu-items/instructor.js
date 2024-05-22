@@ -59,7 +59,7 @@ const Dashboard = {
     },
     {
       id: 'Attendance',
-      title: <FormattedMessage id="Attendance" />,
+      title: <FormattedMessage id="Students" />,
       type: 'item',
       url: '/attendance',
       icon: icons.FaMarker

@@ -13,6 +13,7 @@ import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Validation schema using Joi
 const schema = Joi.object({
@@ -21,6 +22,9 @@ const schema = Joi.object({
 });
 
 const AuthLogin = () => {
+
+  const navigate = useNavigate()
+
   const [checked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   // const toast = usetoast();
@@ -40,6 +44,7 @@ const AuthLogin = () => {
       if (scriptedRef.current) {
         toast.success('Login successful');
       }
+      navigate('/walkthrough')
     } catch (err) { 
       if (scriptedRef.current) {
         toast.error(err.message);

@@ -14,13 +14,13 @@ const UserCountCard = ({ primary, secondary, secondary2 , iconPrimary, color , i
   // styles
 const IconWrapper = styled('div')({
   position: 'absolute',
-  left: '-17px',
-  bottom: '-27px',
+  left: '25px',
+  bottom: '25px',
   color: iconColor,
-  transform: 'rotate(25deg)',
+  // transform: 'rotate(25deg)',
   '& svg': {
-    width: '80px',
-    height: '80px',
+    width: '50px',
+    height: '50px',
     opacity: '1'
   }
 });
@@ -39,7 +39,7 @@ const IconWrapper = styled('div')({
       boxShadow:10,
       transition: 'all 0.3s ease',
       '&:hover span, &:hover svg': {
-        transform: 'translate(10px, 10px)', // Change the values as needed
+        transform: 'scale(1.2,1.2)', // Change the values as needed
       },
       '& span, & svg': {
         transition: 'transform 0.3s ease', // Smooth transition for elements
@@ -48,7 +48,7 @@ const IconWrapper = styled('div')({
     >
       <CardContent>
         <IconWrapper>{primaryIcon}</IconWrapper>
-        <Grid container direction="column" justifyContent="center" alignItems="center" spacing={1}>
+        <Grid container direction="column" justifyContent="center" alignItems="end" spacing={1}>
           <Grid item sm={12}>
             <Typography variant="h5" align="center" color="inherit">
               {secondary}

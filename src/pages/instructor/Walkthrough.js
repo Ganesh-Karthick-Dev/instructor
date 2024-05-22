@@ -27,7 +27,7 @@ const Walkthrough = () => {
   // instructor status
   const [contractPdf,setContractPdf] = useState()
   const [instructorStatus,setInstructorStatus] = useState({
-    status : 2,
+    status : 1,
     pdfVerified : false
   })
   // const instructorStat = ()=>{

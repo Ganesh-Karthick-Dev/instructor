@@ -123,7 +123,7 @@ function ReactTable({ columns, data }) {
               <TableCell align="center">Student details</TableCell>
               <TableCell align="center">Course</TableCell>
               <TableCell align="center" sx={{width:'200px'}}>Status</TableCell>
-              <TableCell align="center">Action</TableCell>
+              {/* <TableCell align="center">Action</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody sx={{ overflowY: 'scroll' }}>
@@ -168,7 +168,7 @@ function ReactTable({ columns, data }) {
                     }
                   })()}
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <FormControl  sx={{ m: 1, minWidth: 120 }}>
                     <Select value={status} onChange={(e)=>handleAction(row,e)} displayEmpty inputProps={{ 'aria-label': 'Without label' }}>
                       <MenuItem value="Action not Taken">
@@ -178,7 +178,7 @@ function ReactTable({ columns, data }) {
                       <MenuItem value={'Not Attend'}>Not Attend</MenuItem>
                     </Select>
                   </FormControl>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>

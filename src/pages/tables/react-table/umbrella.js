@@ -17,9 +17,14 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-import { Autocomplete, Avatar, Button, ButtonGroup, Chip, Grid, OutlinedInput, Stack, TableHead, TextField, Typography } from '@mui/material';
+import { Autocomplete, Avatar, Button, ButtonGroup, Checkbox, Chip, Grid, OutlinedInput, Stack, TableHead, TextField, Typography } from '@mui/material';
 import { FaRegCircleUser } from 'react-icons/fa6';
 import tempImg from '../../../assets/images/users/avatar-8.png';
+import _ from 'lodash'
+
+// excel module
+import { CSVLink, CSVDownload } from "react-csv";
+// excel module
 
 // for pop over
 import Dialog from '@mui/material/Dialog';
@@ -30,10 +35,21 @@ import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 // for pop over
 
+
+// react icons
+import { MdOutlineFileDownload } from "react-icons/md";
+import { MdDoNotDisturbAlt } from "react-icons/md";
+import { CiCircleCheck } from "react-icons/ci";
+import { IoIosSend } from "react-icons/io";
+import { FaEye } from "react-icons/fa";
+// react icons
+
 // tooltip
 import Tooltip from '@mui/material/Tooltip';
 import MainCard from 'components/MainCard';
 import { PiStudentFill } from 'react-icons/pi';
+import StudentAction from 'pages/instructor/StudentAction';
+import { NavLink } from 'react-router-dom';
 // tooltip
 
 function TablePaginationActions(props) {
@@ -125,6 +141,8 @@ export default function CustomPaginationActionsTable() {
   };
   // pop-over
 
+  let name = 'praveen'
+
 
     // data
     const [rows , setRows ] = React.useState(
@@ -135,6 +153,8 @@ export default function CustomPaginationActionsTable() {
           name: 'ganesh',
           email: 'ganesh@gmail.com',
           course: 'DUI',
+          status:'Qualified',
+          class : '4/6',
           marks: 100,
           attendance: [
             { date: '17-05-2024', status: 'Completed' },
@@ -145,8 +165,10 @@ export default function CustomPaginationActionsTable() {
         {
           id: 20,
           image: '',
-          name: 'karthick',
+          name: `karthick \n ${name}`,
           email: 'karthick@gmail.com',
+          status:'Not Qualified',
+          class : '3/6',
           course: 'Behind the Wheels',
           marks: 85,
           attendance: [
@@ -160,6 +182,8 @@ export default function CustomPaginationActionsTable() {
           image: '',
           name: 'ramesh',
           email: 'ramesh@gmail.com',
+          status:'Test Taken',
+          class : '1/6',
           course: 'Road test',
           marks: 70,
           attendance: [
@@ -173,6 +197,8 @@ export default function CustomPaginationActionsTable() {
           image: '',
           name: 'suresh',
           email: 'suresh@gmail.com',
+          status:'Test not Taken',
+          class : '2/6',
           course: 'Defensive',
           marks: 40,
           attendance: [
@@ -186,6 +212,8 @@ export default function CustomPaginationActionsTable() {
           image: '',
           name: 'sakthiVel',
           email: 'sakthiVel@gmail.com',
+          status:'Qualified',
+          class : '4/6',
           course: 'Driver Educations',
           marks: 60,
           attendance: [
@@ -199,6 +227,8 @@ export default function CustomPaginationActionsTable() {
           image: '',
           name: 'guna',
           email: 'guna@gmail.com',
+          status:'Test not Taken',
+          class : '1/6',
           course: 'Driver Educations',
           marks: 90,
           attendance: [
@@ -310,11 +340,33 @@ export default function CustomPaginationActionsTable() {
     // status search
 
 
+
+    // select student
+const [checkedStudent, setCheckedStudent] = React.useState([])
+
+console.log(`students`,checkedStudent);
+
+const handleStudentSelect = (row) => {
+  setCheckedStudent(prev => {
+    const alreadyChecked = prev.some(student => student.id === row.id);
+    if (alreadyChecked) {
+      return prev.filter(student => student.id !== row.id);
+    } else {
+      return [...prev, row];
+    }
+  });
+}
+
+const renderTools = checkedStudent.length > 0;
+
+// select student
+ 
+
   return (
     <>
     <MainCard>
 
-    <Typography>Student List</Typography>
+    {/* <Typography>Student List</Typography> */}
 
       <Stack sx={{my:2}} direction={'row'} alignItems={'center'} justifyContent={'space-evenly'}>
       
@@ -385,42 +437,51 @@ export default function CustomPaginationActionsTable() {
         <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
           <TableHead>
             <TableRow>
-              <TableCell align="center">S.no</TableCell>
-              <TableCell align="center">Student Id</TableCell>
-              <TableCell align="center">Student</TableCell>
-              <TableCell align="center">Course</TableCell>
-              <TableCell align="center">Marks</TableCell>
-              <TableCell align="center">Attendance</TableCell>
-              <TableCell align="center">Action</TableCell>
+            <TableCell align="center" sx={{ width: '2%' }}></TableCell>
+            <TableCell align="center" sx={{ width: '2%' }}>S.no</TableCell>
+            <TableCell align="center" sx={{ width: '10%' }}>Student Id</TableCell>
+            <TableCell align="center" sx={{ width: '20%' }}>Student</TableCell>
+            <TableCell align="center" sx={{ width: '20%' }}>Course</TableCell>
+            <TableCell align="center" sx={{ width: '10%' }}>Class</TableCell>
+            <TableCell align="center" sx={{ width: '20%' }}>Status</TableCell>
+            <TableCell align="center" sx={{ width: '5%' }}>Assessment</TableCell>
+              {/* <TableCell align="center">Action</TableCell> */}
             </TableRow>
           </TableHead>
 
           <TableBody>
             {(rowsPerPage > 0 ? selectedCourse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : selectedCourse).map((row, index) => (
               <TableRow key={index}>
-                <TableCell align="center" component="th" scope="row">
+                <TableCell sx={{ width: '2%' }} align="center">
+                  <Checkbox /*{...label}*/ onClick={()=>handleStudentSelect(row)}  />
+                  </TableCell>
+                <TableCell align="center" sx={{ width: '2%' }} component="th" scope="row">
                   {index + 1}
                 </TableCell>
-                <TableCell align="center">{row.id}</TableCell>
-                <TableCell>
-                  <Stack direction={'row'} gap={2} justifyContent={'center'} alignItems={'center'}>
-                    <Avatar src={tempImg} alt="user-image" />
-                    <Grid container direction={'column'}>
-                      <Grid item>
-                        <Typography>{row.name}</Typography>
-                      </Grid>
-                      <Grid item>
-                        <Typography>{row.email}</Typography>
-                      </Grid>
-                    </Grid>
-                  </Stack>
-                </TableCell>
+                <TableCell sx={{ width: '10%' }} align="center">{row.id}</TableCell>
+                <TableCell align="center">
+            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent:'center', alignItems: 'center', gap:'15px' }}>
+                <Avatar src={tempImg} alt="user-image" />
+                <Box sx={{display:'flex',flexDirection:'column',justifyContent:'start',alignItems:'start'}}>
+                <Typography>{row.name}</Typography>
+                <Typography>{row.email}</Typography>
+                </Box>
+            </Box>
+        </TableCell>
                 <TableCell align="center">
                   <Chip label={row.course} />
                 </TableCell>
-                <TableCell align="center">{row.marks}</TableCell>
+
+               <TableCell align="center">
+                  <Chip label={row.class} />
+                </TableCell>
+
                 <TableCell align="center">
-                  <ButtonGroup orientation="vertical" sx={{ display: 'flex', gap: '10px' }} aria-label="Vertical button group">
+                  <Chip label={row.status} />
+                </TableCell>
+
+                {/* <TableCell align="center">
+                  <ButtonGroup orientation="vertical" sx={{ display: 'flex', gap: '10px' , alignItems:'center' }} aria-label="Vertical button group">
                     {row.attendance.map((val, i) => (
                       <Tooltip key={i} placement="left" title={val.status}>
                         <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -445,32 +506,74 @@ export default function CustomPaginationActionsTable() {
                       </Tooltip>
                     ))}
                   </ButtonGroup>
-                </TableCell>
+                </TableCell> */}
+
                 <TableCell align="center">
+                  <NavLink to={'/student'}>
+                  <Button>
+                  <FaEye size={20} />
+                  </Button>
+                  </NavLink>
+                  </TableCell>
+
+                {/* <TableCell align="center">
                   <Button variant="outlined" onClick={() => handleClickOpen(row)}>
                     Edit
                   </Button>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>
 
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                colSpan={3}
-                count={rows.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                ActionsComponent={TablePaginationActions}
-              />
+          {/* <TableFooter >
+            <TableRow >
+              
             </TableRow>
-          </TableFooter>
+          </TableFooter> */}
+
         </Table>
+
+        
       </TableContainer>
+          
+
+                <Stack sx={{my:2}} direction={'row'} alignItems={'center'} justifyContent={'space-evenly'}>
+
+                        <TablePagination
+                        sx={{wdith:'100%'}}
+                        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                        colSpan={3}
+                        count={rows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        ActionsComponent={TablePaginationActions}
+                      />
+
+                      {
+                        renderTools  && <>
+                        <Button sx={{display:'flex' , alignItems:'center' , gap:'5px' }} color='warning' variant='contained'>
+                          <Typography> Send Test Link</Typography><IoIosSend size={25} />
+                          </Button>
+  
+                        <Button sx={{display:'flex' , alignItems:'center' , gap:'5px' }} color='success' variant='contained'>
+                          <Typography> Qualify to Certificaton</Typography><CiCircleCheck size={25} />
+                          </Button>
+  
+                        <Button sx={{display:'flex' , alignItems:'center' , gap:'5px' }} color='error' variant='contained'>
+                          <Typography>Not Qualified</Typography><MdDoNotDisturbAlt size={25} />
+                        </Button>
+  
+                        {/* <Button color="primary" variant="contained"> */}
+                        <CSVLink data={rows} style={{ display:'flex' , alignItems:'center' , gap:'5px' , color: 'white', background:'#3b82f6', padding:'8px 10px', borderRadius:'4px' , textDecoration: 'none' }}>
+                          <Typography>View Detailed Report</Typography> <MdOutlineFileDownload size={25} />
+                        </CSVLink>
+                      {/* </Button> */}
+                        </> 
+                      }
+
+                </Stack>
 
     </MainCard>
 
