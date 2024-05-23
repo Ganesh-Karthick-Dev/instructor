@@ -35,8 +35,8 @@ const IconWrapper = styled('div')({
     sx={{ 
       background: color,
       position: 'relative',
-      color: '#fff',
-      boxShadow:10,
+      color: 'black',
+      border : ' 1px solid #d1d5db',
       transition: 'all 0.3s ease',
       '&:hover span, &:hover svg': {
         transform: 'scale(1.2,1.2)', // Change the values as needed

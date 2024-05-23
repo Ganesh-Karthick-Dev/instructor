@@ -1,10 +1,13 @@
+/* eslint-disable no-unused-vars */
+
 import { AimOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons'
 import { TabContext, TabList, TabPanel } from '@mui/lab'
-import { Avatar, Box, Chip, Divider, Grid, IconButton, List, ListItem, ListItemIcon, ListItemSecondaryAction, Stack, Tab, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import { Avatar, Box, CardContent, CardMedia, Chip, Divider, Grid, IconButton, List, ListItem, ListItemIcon, ListItemSecondaryAction, Paper, Stack, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import MainCard from 'components/MainCard'
 import React from 'react'
 import { IoReturnDownBackOutline } from 'react-icons/io5'
 import { useNavigate } from 'react-router'
+import PropTypes from 'prop-types';
 
 
 // react icons
@@ -14,7 +17,135 @@ import { FaClipboardList } from "react-icons/fa";
 import { FaClipboardCheck } from "react-icons/fa6";
 import { FaListCheck } from "react-icons/fa6";
 import Calendar from 'pages/apps/calendar'
+// import { GiDuration } from "react-icons/gi";
 // react icons
+
+// colapse imports
+import Collapse from '@mui/material/Collapse';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+// colapse imports
+
+//images imports
+import courseImage from '../../assets/images/temp-images/handsome-man-driving-his-car_1303-23084.avif'
+import LinearWithLabel from 'components/@extended/progress/LinearWithLabel'
+
+
+
+
+//collapse data
+
+const rows = [
+  {
+    name : 'DUI',
+    attendance : [
+      { date : '01-05-2024', status : 'Completed' },
+      { date : '02-05-2024', status : 'Not Attend' },
+      { date : '03-05-2024', status : 'Action not Taken' }
+    ]
+  },
+  {
+    name : 'Behind the Wheel',
+    attendance : [
+      { date : '04-05-2024', status : 'Completed' },
+      { date : '05-05-2024', status : 'Not Attend' },
+      { date : '06-05-2024', status : 'Action not Taken' }
+    ]
+  },
+  {
+    name : 'Road Test',
+    attendance : [
+      { date : '07-05-2024', status : 'Completed' },
+      { date : '08-05-2024', status : 'Not Attend' },
+      { date : '09-05-2024', status : 'Action not Taken' }
+    ]
+  },
+  {
+    name : 'Drivers Education',
+    attendance : [
+      { date : '10-05-2024', status : 'Completed' },
+      { date : '11-05-2024', status : 'Not Attend' },
+      { date : '12-05-2024', status : 'Action not Taken' }
+    ]
+  },
+  {
+    name : 'Defensive',
+    attendance : [
+      { date : '13-05-2024', status : 'Completed' },
+      { date : '14-05-2024', status : 'Not Attend' },
+      { date : '15-05-2024', status : 'Action not Taken' }
+    ]
+  }
+];
+
+
+ function Row(props) {
+  const { row } = props;
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell sx={{width:''}}>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell component="th" align='' scope="row">
+          {row.name}
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Table size="small" aria-label="purchases">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align='center'>Date</TableCell>
+                    <TableCell align='center'>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {row.attendance.map((historyRow,index) => (
+                    <TableRow key={index}>
+                      <TableCell align='center' component="th" scope="row">
+                        <Chip label={historyRow.date} />
+                      </TableCell>
+                      <TableCell align='center'>
+                        <Chip
+                        color={
+                          (()=>{
+                            switch (historyRow.status) {
+                              case 'Completed':
+                                return 'success'
+                              case 'Not Attend':
+                                return 'error'
+                              case 'Action not Taken':
+                                return 'primary'
+                              default:
+                                break;
+                            }
+                          })()
+                        } 
+                        label={historyRow.status} 
+                        />
+                        </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+  );
+}
 
 
 
@@ -108,7 +239,7 @@ const StudentAction = () => {
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <Stack direction="row" justifyContent="flex-end">
-                    <Chip label="Pro" size="small" color="primary" />
+                    <Chip label="Active" size="small" color="success" />
                   </Stack>
                   <Stack spacing={2.5} alignItems="center">
                     <Avatar alt="Avatar 1" size="xl" src={''} />
@@ -252,15 +383,440 @@ const StudentAction = () => {
 
         </TabPanel>
 
-        <TabPanel value="2">
-
-            <Calendar />
-
+        <TabPanel value="2">                   {/* schedules */}
+            <Calendar />                       
         </TabPanel>
         
-        <TabPanel value="3">Courses</TabPanel>
-        <TabPanel value="4">Attendance</TabPanel>
-        <TabPanel value="5">Assessment</TabPanel>
+        <TabPanel value="3">                   {/* Courses */}
+          <Grid container spacing={2} >
+
+            <Grid item lg={3}>
+            <MainCard
+          title="DUI"
+          content={false}
+        >
+          <CardMedia component="img" image={courseImage} alt="green iguana" />
+        <CardContent sx={{gap:'10px',display:'flex',flexDirection:'column'}}>
+          <Typography variant="h5" color="text.secondary" gutterBottom>
+            Progress ( 1/ 4 )
+          </Typography>
+          <LinearWithLabel value={25} color="warning" sx={{ height: 10 }} />
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Duration</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}>
+            {/* <GiDuration size={25} /> */}
+            <Chip color={'warning'} label={'4 hours'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Payment Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={'$ 35 Paid'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>PaperWork Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'success'} label={'Completed'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Test Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Taken'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Attempts Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={' 2 '} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography> Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Qualified Yet'} />
+            </Box>
+          </Stack>
+
+        </CardContent>
+            </MainCard>
+            </Grid>
+
+            <Grid item lg={3}>
+            <MainCard
+          title="Behind the Wheels"
+          content={false}
+        >
+          <CardMedia component="img" image={courseImage} alt="green iguana" />
+        <CardContent sx={{gap:'10px',display:'flex',flexDirection:'column'}}>
+          <Typography variant="h5" color="text.secondary" gutterBottom>
+            Progress ( 2 / 4 )
+          </Typography>
+          <LinearWithLabel value={50} color="warning" sx={{ height: 10 }} />
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Duration</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}>
+            {/* <GiDuration size={25} /> */}
+            <Chip color={'warning'} label={'4 hours'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Payment Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={'$ 35 Paid'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>PaperWork Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'success'} label={'Completed'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Test Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Taken'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Attempts Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={' 2 '} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography> Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Qualified Yet'} />
+            </Box>
+          </Stack>
+
+        </CardContent>
+            </MainCard>
+            </Grid>
+
+            <Grid item lg={3}>
+            <MainCard
+          title="Road Test"
+          content={false}
+        >
+          <CardMedia component="img" image={courseImage} alt="green iguana" />
+        <CardContent sx={{gap:'10px',display:'flex',flexDirection:'column'}}>
+          <Typography variant="h5" color="text.secondary" gutterBottom>
+            Progress ( 3 / 4 )
+          </Typography>
+          <LinearWithLabel value={75} color="warning" sx={{ height: 10 }} />
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Duration</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}>
+            {/* <GiDuration size={25} /> */}
+            <Chip color={'warning'} label={'4 hours'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Payment Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={'$ 35 Paid'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>PaperWork Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'success'} label={'Completed'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Test Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Taken'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Attempts Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={' 2 '} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography> Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Qualified Yet'} />
+            </Box>
+          </Stack>
+
+        </CardContent>
+            </MainCard>
+            </Grid>
+
+            <Grid item lg={3}>
+            <MainCard
+          title="Defensive"
+          content={false}
+        >
+          <CardMedia component="img" image={courseImage} alt="green iguana" />
+        <CardContent sx={{gap:'10px',display:'flex',flexDirection:'column'}}>
+          <Typography variant="h5" color="text.secondary" gutterBottom>
+            Progress ( 4 / 4 )
+          </Typography>
+          <LinearWithLabel value={100} color="warning" sx={{ height: 10 }} />
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Duration</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}>
+            {/* <GiDuration size={25} /> */}
+            <Chip color={'warning'} label={'4 hours'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Payment Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={'$ 35 Paid'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>PaperWork Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'success'} label={'Completed'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Test Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Taken'} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography>Attempts Taken</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip  label={' 2 '} />
+            </Box>
+          </Stack>
+
+          <Stack alignItems={'center'} direction={'row'} justifyContent={'space-between'}>
+            <Box>
+              <Typography> Status</Typography>
+            </Box>
+            <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',gap:'7px'}}> 
+            <Chip color={'error'} label={'Not Qualified Yet'} />
+            </Box>
+          </Stack>
+
+        </CardContent>
+            </MainCard>
+            </Grid>
+
+          </Grid>
+        </TabPanel>
+
+
+        <TabPanel value="4">                   {/* attendance */}
+
+        {/* <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">Date</TableCell>
+              <TableCell align="center">Attendance</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+              <TableRow
+                // key={row.name}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align="center">20-05-2024</TableCell>
+                <TableCell align="center">
+                  <Chip color='error' label={'Not Attend'} />
+                </TableCell>
+                
+              </TableRow>
+              <TableRow
+                // key={row.name}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align="center">21-05-2024</TableCell>
+                <TableCell align="center">
+                  <Chip label={'Action Not Taken'} />
+                </TableCell>
+                
+              </TableRow>
+              <TableRow
+                // key={row.name}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align="center">22-05-2024</TableCell>
+                <TableCell align="center">
+                  <Chip color='error' label={'Not Attend'} />
+                </TableCell>
+                
+              </TableRow>
+              <TableRow
+                // key={row.name}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align="center">22-05-2024</TableCell>
+                <TableCell align="center">
+                  <Chip color='success' label={'Completed'} />
+                </TableCell>
+                
+              </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer> */}
+
+
+      <TableContainer component={Paper}>
+      <Table aria-label="collapsible table">
+        <TableHead>
+          
+        </TableHead>
+        <TableBody>
+          {rows?.map((row) => (
+            <Row key={row?.name} row={row} />
+          ))}
+        </TableBody>
+      </Table>
+     </TableContainer>
+
+        </TabPanel>
+
+
+        <TabPanel value="5">
+
+        <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+        <TableHead>
+          <TableRow>
+            <TableCell>S.no</TableCell>
+            <TableCell align="center">Date</TableCell>
+            <TableCell align="center">Attempts</TableCell>
+            <TableCell align="center">Score</TableCell>
+            <TableCell align="center">Result</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          
+            <TableRow
+              // key={row.name}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                1
+              </TableCell>
+              <TableCell align="center">10-05-2024</TableCell>
+              <TableCell align="center">Attempt 1</TableCell>
+              <TableCell align="center">10</TableCell>
+              <TableCell align="center">
+                <Chip color='error' label={'Fail'} />
+              </TableCell>
+            </TableRow>
+
+            <TableRow
+              // key={row.name}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                2
+              </TableCell>
+              <TableCell align="center">11-05-2024</TableCell>
+              <TableCell align="center">Attempt 2</TableCell>
+              <TableCell align="center">13</TableCell>
+              <TableCell align="center">
+                <Chip color='error' label={'Fail'} />
+              </TableCell>
+            </TableRow>
+
+            <TableRow
+              // key={row.name}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                3
+              </TableCell>
+              <TableCell align="center">12-05-2024</TableCell>
+              <TableCell align="center">Attempt 3</TableCell>
+              <TableCell align="center">7</TableCell>
+              <TableCell align="center">
+                <Chip color='error' label={'Fail'} />
+              </TableCell>
+            </TableRow>
+
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+        </TabPanel>
+
+
       </TabContext>
     </Box>
     </MainCard>

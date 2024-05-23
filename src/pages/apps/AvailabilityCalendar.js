@@ -19,6 +19,11 @@ import {
   Badge
 } from '@mui/material';
 
+
+// react icons
+import { IoIosWarning } from "react-icons/io";
+// react icons
+
 // Third-party
 import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -366,37 +371,42 @@ const AvailabilityCalendar = () => {
 
   // custom1
 
+
+  // admin approval
+  const [adminApproval,setAdminApproval] = useState(false)
+
+  // admin approval
+
   if (loading) return <Loader />;
 
   return (
     <>
       <MainCard>
         <Grid item xs={12} sm={6} md={12}>
-          <Stack direction="row" gap={3} justifyContent={'start'} alignItems="center">
-            <Stack>
-              <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1d4ed8', display: 'inline-block' }}></Box>
-                <Typography sx={{ width: 'fit-content' }}>Selected</Typography>
-              </Stack>
-            </Stack>
-            <Divider orientation="vertical" flexItem />
-            <Stack>
-              <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box
-                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
-                ></Box>
-                <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
-              </Stack>
-            </Stack>
-            {/* <Stack spacing={0.5} alignItems="center">
-              <Typography variant="h6" color="primary">
-                <Typography sx={{ fontWeight: 'bolder', display: 'inline-block' }}>2</Typography>/5
-              </Typography>
-              <Typography sx={{ fontWeight: 'bolder' }} variant="h5">
-                Class
-              </Typography>
-            </Stack> */}
-          </Stack>
+
+
+        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+ 
+            <Box sx={{display:'flex',gap:'10px'}}>
+            <Button variant='contained' disabled={adminApproval === false}>Add</Button>
+            <Button variant='contained'>View</Button>
+            </Box>       
+
+              {
+                adminApproval === false &&  <Box sx={{background:'#f59e0b',padding:'20px',borderRadius:'5px',display:'flex',flexDirection:'row',gap:'15px ',alignItems:'center'}}>
+                <Box>
+                <IoIosWarning size={30} />
+                </Box>
+                <Typography sx={{width:'300px'}} >
+                  <span style={{fontWeight:'bold',display:'block'}}>Under admin approval</span> Please wait for your account approval to feed your flexible availability
+                </Typography>
+              </Box>
+              }
+           
+
+        </Stack>
+          
+
         </Grid>
         <Toaster />
         <Box sx={{ position: 'relative', marginTop: '40px' }}>
@@ -415,6 +425,27 @@ const AvailabilityCalendar = () => {
             >
               <Grid container gap={3} justifyContent={'center'} alignItems={'center'}>
                 <Grid item>
+
+                <Stack direction="row" gap={3} justifyContent={'start'} alignItems="center">
+            <Stack>
+              <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
+                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1d4ed8', display: 'inline-block' }}></Box>
+                <Typography sx={{ width: 'fit-content' }}>Selected</Typography>
+              </Stack>
+            </Stack>
+            <Divider orientation="vertical" flexItem />
+            <Stack>
+              <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
+                <Box
+                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
+                ></Box>
+                <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
+              </Stack>
+            </Stack>
+          </Stack>
+
+                </Grid>
+                <Grid item>
                   <Autocomplete
                     sx={{ width: '250px' }}
                     fullWidth
@@ -431,7 +462,7 @@ const AvailabilityCalendar = () => {
 
             <FullCalendar
               selectable
-              events={searchResults}
+              events={ adminApproval && searchResults}
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}

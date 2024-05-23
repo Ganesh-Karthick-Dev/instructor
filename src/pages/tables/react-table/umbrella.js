@@ -22,6 +22,15 @@ import { FaRegCircleUser } from 'react-icons/fa6';
 import tempImg from '../../../assets/images/users/avatar-8.png';
 import _ from 'lodash'
 
+
+
+// third-party
+import { DateRangePicker } from 'rsuite';
+import 'rsuite/dist/rsuite.min.css';
+// third-party
+
+
+
 // excel module
 import { CSVLink, CSVDownload } from "react-csv";
 // excel module
@@ -358,9 +367,13 @@ const handleStudentSelect = (row) => {
 }
 
 const renderTools = checkedStudent.length > 0;
-
 // select student
- 
+
+
+// date range picker
+const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
+ // date range picker
+
 
   return (
     <>
@@ -369,6 +382,12 @@ const renderTools = checkedStudent.length > 0;
     {/* <Typography>Student List</Typography> */}
 
       <Stack sx={{my:2}} direction={'row'} alignItems={'center'} justifyContent={'space-evenly'}>
+
+                <DateRangePicker 
+                value={dateRange}
+                onChange={value => setDateRange(value)}
+                placeholder="Select Date Range"
+                />
       
       <OutlinedInput
             sx={{ width: '200px', outline: '2px solid black' }}
@@ -431,6 +450,8 @@ const renderTools = checkedStudent.length > 0;
                 }}
               />
 
+                
+
       </Stack>
 
       <TableContainer component={Paper}>
@@ -444,7 +465,7 @@ const renderTools = checkedStudent.length > 0;
             <TableCell align="center" sx={{ width: '20%' }}>Course</TableCell>
             <TableCell align="center" sx={{ width: '10%' }}>Class</TableCell>
             <TableCell align="center" sx={{ width: '20%' }}>Status</TableCell>
-            <TableCell align="center" sx={{ width: '5%' }}>Assessment</TableCell>
+            <TableCell align="center" sx={{ width: '5%' }}>Action</TableCell>
               {/* <TableCell align="center">Action</TableCell> */}
             </TableRow>
           </TableHead>

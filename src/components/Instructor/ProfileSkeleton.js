@@ -1,126 +1,45 @@
 /* eslint-disable no-unused-vars */
 
-import { AimOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import React from 'react'
+import Skeleton from '@mui/material/Skeleton';
 import {
-  Avatar,
-  Button,
-  Chip,
-  Divider,
-  Grid,
-  IconButton,
-  Link,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  Tooltip,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
-import LinearWithLabel from 'components/@extended/progress/LinearWithLabel';
+    Avatar,
+    Button,
+    Chip,
+    Divider,
+    Grid,
+    IconButton,
+    Link,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemSecondaryAction,
+    Paper,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+    Tooltip,
+    Typography,
+    useMediaQuery
+  } from '@mui/material';
 import MainCard from 'components/MainCard';
-import React, { useEffect, useState } from 'react';
-import { unstable_HistoryRouter, useNavigate } from 'react-router-dom';
-import { IoReturnDownBackOutline } from 'react-icons/io5';
-import instructorImage from '../../assets/images/users/avatar-9.png';
-import instructorCar from '../../assets/images/cars/City-Desktop.png';
-import dummycar from '../../assets/images/cars/generic-car.png';
-import axios from 'axios';
-import _ from 'lodash';
-import ProfileSkeleton from 'components/Instructor/ProfileSkeleton';
 
-const Profile = () => {
-  const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
-
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    return navigate(-1);
-  };
-
-  // user details
-
-  const [userDetails, setUserDetails] = useState([]);
-
-  const [branches, setBranches] = useState([]);
-
-  const [zones, setZones] = useState([]);
-
-  const [courses, setCourses] = useState([]);
-
-  const [vehicleDetails, setVehicleDetails] = useState([]);
-
-  useEffect(() => {
-    handleUserFetch();
-    // setBranches(userDetails.branch)
-  }, []);
-
-  const handleUserFetch = async () => {
-    try {
-      let id = 6;
-      const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${id}`);
-      let user = response.data;
-      setUserDetails(user.data[0]);
-      setBranches(user.data[0].branch);
-      setZones(user.data[0].zones);
-      setCourses(user.data[0].courses);
-      setVehicleDetails(user.data[0].vehicle);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // calculate age of user
-  var dob = userDetails.dob; // 2033-03-03
-  var arrayDob = dob?.split('-'); // ['2033','03','03']
-  var userAge;
-  if (arrayDob) {
-    var [userYear] = arrayDob;
-    userAge = userYear; // Assuming userAge is the year part of the date of birth
-  } else {
-    // Handle the case where dob is not set or doesn't have the expected format
-  }
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-
-  // console.log(courses);
-
-  const [vehicle, setVehicle] = useState(null);
-
-  const globalSearch = (dataArray, pattern) => {
-    return _.filter(dataArray, (item) => {
-      const values = _.values(item).join('').toLowerCase();
-      return values.includes(pattern.toLowerCase());
-    });
-  };
-
-  useEffect(() => {
-    setVehicle(globalSearch(courses, 'Behind the Wheels'));
-  }, [courses]);
-
-  // console.log(vehicle);
-
-  // console.log(vehicleDetails);
-
-  // user details
-
-  if(_.isEmpty(userDetails)) return <ProfileSkeleton />
-
+const ProfileSkeleton = () => {
   return (
     <>
-      <Tooltip sx={{ marginBottom: '10px' }} title="back">
-        <IconButton onClick={handleBack}>
-          <IoReturnDownBackOutline size={40} />
-        </IconButton>
-      </Tooltip>
-      <Grid container spacing={3}>
+    <Stack spacing={1}>
+      {/* For variant="text", adjust the height via font-size */}
+      <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+      {/* For other variants, adjust the size with `width` and `height` */}
+      <Skeleton variant="circular" width={40} height={40} />
+      <Skeleton variant="rectangular" width={210} height={60} />
+      <Skeleton variant="rounded" width={210} height={60} />
+    </Stack>
+
+    <Grid container spacing={3}>
         <Grid item xs={12} sm={5} md={4} xl={3}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
@@ -128,13 +47,15 @@ const Profile = () => {
                 <Grid container spacing={3}>
                   <Grid item xs={12}>
                     <Stack direction="row" justifyContent="flex-end">
-                      <Chip label={userDetails.status} size="medium" color={userDetails.status === 'Active' ? 'success' : 'error'} />
+                    <Skeleton variant="rounded" width={40} height={40} />
                     </Stack>
                     <Stack spacing={2.5} alignItems="center">
-                      <Avatar alt="instructorImage" sx={{ width: 80, height: 80 }} src={userDetails.partnerimage} />
+                    <Skeleton variant="circular" width={40} height={40} />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{userDetails.firstname + ' ' + userDetails.lastname}</Typography>
-                        <Typography color="secondary">{userDetails.rolename}</Typography>
+                        {/* <Typography variant="h5">{userDetails.firstname + ' ' + userDetails.lastname}</Typography>
+                        <Typography color="secondary">{userDetails.rolename}</Typography> */}
+                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                       </Stack>
                     </Stack>
                   </Grid>
@@ -144,20 +65,26 @@ const Profile = () => {
                   <Grid item xs={12}>
                     <Stack direction="row" justifyContent="space-around" alignItems="center">
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{currentYear - userAge}</Typography>
-                        <Typography color="secondary">Age</Typography>
+                        {/* <Typography variant="h5">{currentYear - userAge}</Typography>
+                        <Typography color="secondary">Age</Typography> */}
+                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                       </Stack>
                       <Divider orientation="vertical" flexItem />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">{userDetails.gender}</Typography>
-                        <Typography color="secondary">Gender</Typography>
+                        {/* <Typography variant="h5">{userDetails.gender}</Typography>
+                        <Typography color="secondary">Gender</Typography> */}
+                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} />                        
+                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                       </Stack>
                       <Divider orientation="vertical" flexItem />
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="h5">
+                        {/* <Typography variant="h5">
                           <Chip label="Paper Work" size="medium" color="warning" />
                         </Typography>
-                        <Typography color="secondary">Contract Status</Typography>
+                        <Typography color="secondary">Contract Status</Typography> */}
+                         <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                         <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                       </Stack>
                     </Stack>
                   </Grid>
@@ -168,31 +95,34 @@ const Profile = () => {
                     <List component="nav" aria-label="main mailbox folders" sx={{ py: 0, '& .MuiListItem-root': { p: 0, py: 1 } }}>
                       <ListItem>
                         <ListItemIcon>
-                          <MailOutlined />
+                          {/* <MailOutlined /> */}
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">{userDetails.primaryemail}</Typography>
+                          {/* <Typography align="right">{userDetails.primaryemail}</Typography> */}
+                          <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
                         <ListItemIcon>
-                          <PhoneOutlined />
+                          {/* <PhoneOutlined /> */}
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">{userDetails.primarycontact}</Typography>
+                          {/* <Typography align="right">{userDetails.primarycontact}</Typography> */}
+                          <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem>
                         <ListItemIcon>
-                          <AimOutlined />
+                          {/* <AimOutlined /> */}
                         </ListItemIcon>
                         <ListItemSecondaryAction>
-                          <Typography align="right">
+                          {/* <Typography align="right">
                             {!_.isEmpty(branches) &&
                               branches.map((val) => {
                                 return val.locationname;
                               })}
-                          </Typography>
+                          </Typography> */}
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </ListItemSecondaryAction>
                       </ListItem>
                     </List>
@@ -203,20 +133,22 @@ const Profile = () => {
             <Grid item xs={12}>
               <MainCard title="Zones">
                 <Grid container gap={2}>
-                  {!_.isEmpty(zones) &&
+                  {/* {!_.isEmpty(zones) &&
                     zones.map((val,index) => {
                       return <Chip key={index} label={val.zonename} sx={{ width: 'fit-content' }} />;
-                    })}
+                    })} */}
+                     <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                 </Grid>
               </MainCard>
             </Grid>
             <Grid item xs={12}>
               <MainCard title="Courses">
                 <Grid container gap={2}>
-                  {!_.isEmpty(courses) &&
+                  {/* {!_.isEmpty(courses) &&
                     courses.map((val,index) => {
                       return <Chip key={index} label={val.productname} sx={{ width: 'fit-content' }} />;
-                    })}
+                    })} */}
+                     <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                 </Grid>
               </MainCard>
             </Grid>
@@ -227,75 +159,89 @@ const Profile = () => {
             <Grid item xs={12}>
               <MainCard title="Personal Details">
                 <List sx={{ py: 0 }}>
-                  <ListItem divider={!matchDownMD}>
+                  <ListItem >
                     <Grid container spacing={3}>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">First Name</Typography>
-                          <Typography>{userDetails.firstname}</Typography>
+                          {/* <Typography color="secondary">First Name</Typography>
+                          <Typography>{userDetails.firstname}</Typography> */}
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </Stack>
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">Last Name</Typography>
-                          <Typography>{userDetails.lastname}</Typography>
+                          {/* <Typography color="secondary">Last Name</Typography>
+                          <Typography>{userDetails.lastname}</Typography> */}
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                            <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </Stack>
                       </Grid>
                     </Grid>
                   </ListItem>
-                  <ListItem divider={!matchDownMD}>
+                  <ListItem >
                     <Grid container spacing={3}>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">Phone</Typography>
-                          <Typography>{userDetails.primarycontact}</Typography>
+                          {/* <Typography color="secondary">Phone</Typography>
+                          <Typography>{userDetails.primarycontact}</Typography> */}
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </Stack>
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">Country</Typography>
-                          <Typography>{userDetails.country}</Typography>
+                          {/* <Typography color="secondary">Country</Typography>
+                          <Typography>{userDetails.country}</Typography> */}
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </Stack>
                       </Grid>
                     </Grid>
                   </ListItem>
-                  <ListItem divider={!matchDownMD}>
+                  <ListItem>
                     <Grid container spacing={3}>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">Email</Typography>
-                          <Typography>{userDetails.primaryemail}</Typography>
+                          {/* <Typography color="secondary">Email</Typography>
+                          <Typography>{userDetails.primaryemail}</Typography> */}
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </Stack>
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <Stack spacing={0.5}>
-                          <Typography color="secondary">Zip Code</Typography>
-                          <Typography>{userDetails.postcode}</Typography>
+                          {/* <Typography color="secondary">Zip Code</Typography>
+                          <Typography>{userDetails.postcode}</Typography> */}
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                         </Stack>
                       </Grid>
                     </Grid>
                   </ListItem>
                   <ListItem>
                     <Stack spacing={0.5}>
-                      <Typography color="secondary">Address</Typography>
+                      {/* <Typography color="secondary">Address</Typography>
                       <Typography>
                         {userDetails.address + ' , ' + userDetails.city + ' , ' + userDetails.state + ' , ' + userDetails.country}
-                      </Typography>
+                      </Typography> */}
+                       <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                       <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                     </Stack>
                   </ListItem>
                 </List>
               </MainCard>
             </Grid>
             <Grid item xs={12}>
-              {!_.isEmpty(vehicle) && (
+              
                 <MainCard title="Vehicle Detials">
                   <Grid container alignItems={'center'}>
                     <Grid item lg={6}>
-                      {_.isEmpty(vehicleDetails) ? (
+                      {/* {_.isEmpty(vehicleDetails) ? (
                         <img style={{ width: '100%' }} src={dummycar} alt="instructorCar" />
                       ) : (
                         <img style={{ width: '100%' }} src={instructorCar} alt="instructorCar" />
-                      )}
+                      )} */}
                     </Grid>
                     <Grid item lg={6}>
                       <MainCard title="Basic info">
@@ -304,26 +250,32 @@ const Profile = () => {
                             <TableBody sx={{ overflowY: 'scroll' }}>
                               <TableRow>
                                 <TableCell>
-                                  <Typography sx={{ fontWeight: 'bold' }}>Make</Typography>
+                                  {/* <Typography sx={{ fontWeight: 'bold' }}>Make</Typography> */}
+                                  <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                                 </TableCell>
                                 <TableCell align="right">
-                                  <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography>
+                                  {/* <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography> */}
+                                  <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                                 </TableCell>
                               </TableRow>
                               <TableRow>
                                 <TableCell>
-                                  <Typography sx={{ fontWeight: 'bold' }}>Model</Typography>
+                                  {/* <Typography sx={{ fontWeight: 'bold' }}>Model</Typography> */}
+                                  <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                                 </TableCell>
                                 <TableCell align="right">
-                                  <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography>
+                                  {/* <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography> */}
+                                  <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                                 </TableCell>
                               </TableRow>
                               <TableRow>
                                 <TableCell>
-                                  <Typography sx={{ fontWeight: 'bold' }}>Name</Typography>
+                                  {/* <Typography sx={{ fontWeight: 'bold' }}>Name</Typography> */}
+                                  <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                                 </TableCell>
                                 <TableCell align="right">
-                                  <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography>
+                                  {/* <Typography>{_.isEmpty(vehicleDetails) ? '' : ''}</Typography> */}
+                                  <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
                                 </TableCell>
                               </TableRow>
                             </TableBody>
@@ -333,13 +285,13 @@ const Profile = () => {
                     </Grid>
                   </Grid>
                 </MainCard>
-              )}
+          
             </Grid>
           </Grid>
         </Grid>
       </Grid>
     </>
-  );
-};
+  )
+}
 
-export default Profile;
+export default ProfileSkeleton

@@ -26,12 +26,13 @@ const HeaderContent = () => {
     <>
       {/* {!matchesXs && <Search />}
       {!matchesXs && megaMenu}
-      {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
+      {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />} */}
 
-      <Notification />
-      <Message /> */}
+      
+      {/* <Message /> */}
 
       <Box sx={{width:'100%',display:'flex',justifyContent:'end'}}>
+      <Notification />
       {!matchesXs && <Profile />}
       </Box>
       

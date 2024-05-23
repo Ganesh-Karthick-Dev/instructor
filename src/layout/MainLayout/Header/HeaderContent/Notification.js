@@ -70,7 +70,7 @@ const Notification = () => {
   const iconBackColor = theme.palette.mode === ThemeMode.DARK ? 'background.default' : 'grey.100';
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+    <Box sx={{ flexShrink: 0, ml: 0.75  }}>
       <IconButton
         color="secondary"
         variant="light"
@@ -110,6 +110,7 @@ const Notification = () => {
                 boxShadow: theme.customShadows.z1,
                 width: '100%',
                 minWidth: 285,
+                border:'1px solid grey',
                 maxWidth: 420,
                 [theme.breakpoints.down('md')]: {
                   maxWidth: 285
