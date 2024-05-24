@@ -27,8 +27,8 @@ const Walkthrough = () => {
   // instructor status
   const [contractPdf,setContractPdf] = useState()
   const [instructorStatus,setInstructorStatus] = useState({
-    status : 1,
-    pdfVerified : false
+    status : 3,
+    pdfVerified : true
   })
   // const instructorStat = ()=>{
   //   if(instructorStatus === 1){
@@ -89,7 +89,7 @@ const Walkthrough = () => {
                     variant="contained"
                     disabled={ instructorStatus.status === 1 && instructorStatus.pdfVerified === false}
                     onClick={handleNext}
-                    sx={{ mt: 1, mr: 1 }}
+                    sx={{ mt: 1, mr: 1 , bgcolor:'primary.custom1'}}
                     color={index === steps.length - 1 ? 'success' : 'primary'}
                   >
                     {index === steps.length - 1 ? 'Finish' : 'Continue'}
@@ -160,7 +160,7 @@ const Walkthrough = () => {
                  document={<PdfModule data={'sample'} />} 
                  fileName='Contract.pdf'
                 >
-                <Button variant="contained" startIcon={<PaperClipOutlined />}>
+                <Button variant="contained" sx={{bgcolor:'primary.custom1'}} startIcon={<PaperClipOutlined />}>
                   Download PDF
                   </Button>
                 </PDFDownloadLink>
@@ -168,7 +168,7 @@ const Walkthrough = () => {
                 
 
                 
-                <LoadingButton /*loading*/ variant="contained" loadingPosition="start" startIcon={<CloudUploadOutlined />}>
+                <LoadingButton /*loading*/ variant="contained" sx={{bgcolor:'primary.custom1'}} loadingPosition="start" startIcon={<CloudUploadOutlined />}>
                 Upload PDF
                 </LoadingButton>
                 </TimelineOppositeContent>

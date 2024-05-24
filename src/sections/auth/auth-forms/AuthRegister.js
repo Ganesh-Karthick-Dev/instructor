@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -16,7 +16,16 @@ import {
   FormHelperText,
   TextField,
   Select,
-  MenuItem
+  MenuItem,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,Autocomplete,
+  Checkbox,
+  ListItemText
 } from '@mui/material';
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
@@ -34,10 +43,26 @@ import toast, { Toaster } from 'react-hot-toast';
 import Joi from 'joi';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
+import axios from 'axios';
+
+
+// react icons
+import { MdDeleteForever } from "react-icons/md";
+// raect icons
+
+
+// prime react
+import { Toast } from 'primereact/toast';
+import { FileUpload } from 'primereact/fileupload';
+import { FormatOverlineSharp } from '@mui/icons-material';
+// prime react
 
 
 
 const AuthRegister = () => {
+
+
+  const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`
 
   // for date pickers
   const [selectedDate, setSelectedDate] = useState(dayjs('2000-08-18'));
@@ -47,8 +72,8 @@ const AuthRegister = () => {
   };
   // for date pickers
 
-  const { register } = useAuth();
-  const scriptedRef = useScriptRef();
+  // const { register } = useAuth();
+  // const scriptedRef = useScriptRef();
   const navigate = useNavigate();
 
   const [level, setLevel] = useState();
@@ -65,22 +90,31 @@ const AuthRegister = () => {
     state : '',
     country : '',
     zipcode : '',
-    serviceLocation : '',
-    zone : '',
-    courses : '',
-    status : '',
-    image : 'https://www.biowritingservice.com/wp-content/themes/tuborg/images/Executive%20Bio%20Sample%20Photo.png'
+    servicelocation: 4,
+        zones: [
+            55,
+            56
+        ],
+        profileimage: "https://webnox.blr1.digitaloceanspaces.com/driving_school/user.png",
+        courseshandled: [
+            1,
+            2
+        ],
+        documents: [
+            {
+                doctypeid: 1,
+                doc: "https://webnox.blr1.digitaloceanspaces.com/driving_school/double%20quotes%20to%20single%20quotes.PNG"
+            }
+        ],
+        status: "Active",
+        roleid: 3,
+        configid: 1,
+        authmode: 1
   });
   const [formErrors, setFormErrors] = useState({});
 
-  // const handleClickShowPassword = () => {
-  //   setShowPassword(!showPassword);
-  // };
 
-  // const handleMouseDownPassword = (event) => {
-  //   event.preventDefault();
-  // };
-
+  // form input handlers
   const handleSelectChange = (event) => {
     setFormValues({ ...formValues, gender: event.target.value });
   };
@@ -88,6 +122,97 @@ const AuthRegister = () => {
   const handlePhoneChange = (value) => {
     setFormValues({ ...formValues, mobile: value });
   };
+
+  // ----------------------- service location-------------------
+  const [serviceLocationsApi,setServiceLocationsApi] = useState([])
+  // console.log(`service locations`,serviceLocationsApi);
+  useEffect(()=>{
+    handleServiceLocationsApi()
+  },[])
+  const handleServiceLocationsApi = ()=> {
+    try {
+      axios
+          .post(`${baseUrl}/getAllBranches`)
+          .then((val)=>{
+              console.log(`doc`,val);
+              const data = val.data.response?.map((item) => {
+                return{
+                  id:item.applocationid,
+                  label:item.locationname
+                }
+              })
+              setServiceLocationsApi(data)
+          })
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const handleServiceLocations = (value,val)=>{
+    // console.log(`value`,value);
+    handleZoneApi(value.target.value)
+    setFormValues({ ...formValues, serviceLocation: value.target.value });
+  }
+// ----------------------- service location-------------------
+
+
+  // ----------------------- zone -------------------
+  const [zoneApi,setZoneApi] = useState([])
+  // console.log(`service locations`,serviceLocationsApi);
+  const handleZoneApi = (id)=> {
+    try {
+      axios
+          .post(`${baseUrl}/getzonesbyBranchId`,{
+            branchId : Number(id)
+          })
+          .then((val)=>{
+              console.log(`doc`,val);
+              const data = val.data.response?.map((item) => {
+                return{
+                  id:item.applocationconfigid,
+                  label:item.zonename
+                }
+              })
+              setZoneApi(data)
+          })
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  // ----------------------- zone -------------------
+
+
+  // ----------------------- courses -------------------
+  const [coursesApi, setCoursesApi] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]);
+
+  console.log(`formvalues`,formValues);
+
+  console.log('courses', selectedCourses);
+
+  useEffect(() => {
+    handleCourseApi();
+  }, []);
+
+  const handleCourseApi = () => {
+    try {
+      axios.post(`${baseUrl}/getAllCourse`).then((val) => {
+        const data = val.data.response?.map((item) => {
+          return {
+            id: item.applocationid,
+            label: item.productname
+          };
+        });
+        setCoursesApi(data);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // ----------------------- courses -------------------
+
+
+
+  // form input handlers
   
   
 
@@ -105,10 +230,19 @@ const AuthRegister = () => {
     firstname: Joi.string().max(255).required().label('First Name'),
     lastname: Joi.string().max(255).required().label('Last Name'),
     email: Joi.string().email({ tlds: { allow: false } }).max(255).required().label('Email'),
-    // password: Joi.string().max(255).required().label('Password'),
-    mobile : Joi.number().required(),
-    dob : Joi.required(),
-    gender:Joi.required()
+    mobile: Joi.string().required().label('Mobile'),
+    dob: Joi.required().label('Date of Birth'),
+    gender: Joi.string().required().label('Gender'),
+    address: Joi.string().required().label('Address'),
+    city: Joi.string().required().label('City'),
+    state: Joi.string().required().label('State'),
+    country: Joi.string().required().label('Country'),
+    zipcode: Joi.string().required().label('Postal Code'),
+    serviceLocation: Joi.string().required().label('Service Location'),
+    zones: Joi.string().required().label('Zone'),
+    courseshandled: Joi.required().label('Courses'),
+    status: Joi.string().required().label('Status'),
+    image: Joi.string().required().label('Image')
   });
 
   const handleSubmit = async (e) => {
@@ -116,32 +250,94 @@ const AuthRegister = () => {
     const { error } = schema.validate(formValues, { abortEarly: true });
 
     if (error) {
-      const errors = {};
-      error.details.forEach((detail) => {
-        errors[detail.path[0]] = detail.message;
-      });
-      // setFormErrors(errors);
-      const errorMessage = error.details.map(detail => detail.message).join(', ');
-      toast.error(errorMessage);
-      // toast.error(error);
-    } else {
-      try {
-        await register(formValues.email, formValues.firstname, formValues.lastname,formValues.address,formValues.dob,formValues.city,formValues.country,formValues.courses,formValues.gender,formValues.image,formValues.state,formValues.status,formValues.zipcode,formValues.zone,formValues.serviceLocation,formValues.mobile);
-        if (scriptedRef.current) {
-          toast.success('Your registration has been successfully completed.');
-          setTimeout(() => {
-            navigate('/login', { replace: true });
-          }, 1500);
-        }
-      } catch (err) {
-        toast.error(err.message);
-      }
+      console.log(error);
+      return toast.error(error.details[0].message); // Use error.details[0].message to display the validation error message
     }
-  };
+    try {
+      const response = await axios.post(`${baseUrl}/addInstructor`, {
+        firstname: formValues.firstname,
+        lastname: formValues.lastname,
+        dob: formValues.dob,
+        phone: formValues.mobile,
+        email: formValues.email,
+        gender: formValues.gender,
+        address: formValues.address,
+        country: formValues.country,
+        state: formValues.state,
+        city: formValues.city,
+        zipcode: formValues.zipcode,
+        servicelocation: 4,
+        zones: [
+            55,
+            56
+        ],
+        profileimage: "https://webnox.blr1.digitaloceanspaces.com/driving_school/user.png",
+        courseshandled: [
+            1,
+            2
+        ],
+        documents: [
+            {
+                doctypeid: 1,
+                doc: "https://webnox.blr1.digitaloceanspaces.com/driving_school/double%20quotes%20to%20single%20quotes.PNG"
+            }
+        ],
+        status: "Active",
+        roleid: 3,
+        configid: 1,
+        authmode: 1
+      });
+
+      toast.success('Register success');
+    } catch (err) {
+      toast.error(err.message);
+    }
+};
+
 
   useEffect(() => {
     changePassword('');
   }, []);
+
+
+
+  // api for document table 
+  const [documentStructure,setDocumentStructure] = useState([])
+
+  useEffect(()=>{
+    handleDocumentStructure()
+  },[])
+
+
+  const handleDocumentStructure = ()=> {
+    try {
+      axios
+          .post(`${baseUrl}/getDocs`,{
+            docfor : 2 , 
+            status : 1 
+        })
+          .then((val)=>{
+              // console.log(`doc`,val.data.data);
+              setDocumentStructure(val.data.data)
+          })
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  // api for document table
+
+
+
+  // file upload works
+    const toastsmg = useRef(null);
+
+    const onUpload = () => {
+        toast.current.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
+    };
+  // file upload works
+
+
+
 
   return (
     <>
@@ -151,9 +347,8 @@ const AuthRegister = () => {
         <Toaster />
           <Grid item xs={12} md={6}> {/*First Name*/}
             <Stack spacing={1}>
-              <InputLabel htmlFor="firstname-signup">First Name</InputLabel>
+              <InputLabel >First Name</InputLabel>
               <OutlinedInput
-                id="firstname-signup"
                 type="text"
                 value={formValues.firstname}
                 name="firstname"
@@ -162,32 +357,21 @@ const AuthRegister = () => {
                 fullWidth
                 error={Boolean(formErrors.firstname)}
               />
-              {formErrors.firstname && (
-                <FormHelperText error id="helper-text-firstname-signup">
-                  {formErrors.firstname}
-                </FormHelperText>
-              )}
             </Stack>
           </Grid>
 
           <Grid item xs={12} md={6}>  {/*Last Name*/}
             <Stack spacing={1}>
-              <InputLabel htmlFor="lastname-signup">Last Name</InputLabel>
+              <InputLabel >Last Name</InputLabel>
               <OutlinedInput
                 fullWidth
                 error={Boolean(formErrors.lastname)}
-                id="lastname-signup"
                 type="text"
                 value={formValues.lastname}
                 name="lastname"
                 onChange={handleChange}
                 placeholder="Doe"
               />
-              {formErrors.lastname && (
-                <FormHelperText error id="helper-text-lastname-signup">
-                  {formErrors.lastname}
-                </FormHelperText>
-              )}
             </Stack>
           </Grid>
 
@@ -206,10 +390,9 @@ const AuthRegister = () => {
           
           <Grid item xs={12} md={6}> {/*Gender*/}
             <Stack spacing={1}>
-            <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+            <InputLabel>Gender</InputLabel>
               <Select
                labelId="demo-simple-select-label"
-               id="demo-simple-select"
                value={formValues.gender}
                name="gender"
                onChange={handleSelectChange}
@@ -224,11 +407,10 @@ const AuthRegister = () => {
 
           <Grid item xs={12} lg={6}>  {/*email*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">Email Address</InputLabel>
+              <InputLabel >Email Address</InputLabel>
               <OutlinedInput
                 fullWidth
                 error={Boolean(formErrors.email)}
-                id="email-signup"
                 type="email"
                 value={formValues.email}
                 name="email"
@@ -245,7 +427,7 @@ const AuthRegister = () => {
 
           <Grid item xs={12} lg={6} sx={{ width: '100%' }}>   {/*mobile*/}
             <Stack spacing={1} sx={{ width: '100%' }}>
-              <InputLabel htmlFor="company-signup">Mobile No</InputLabel>
+              <InputLabel >Mobile No</InputLabel>
               <Box
               sx={{
                 width: '100%',
@@ -264,7 +446,7 @@ const AuthRegister = () => {
             >
               <PhoneInput
                 defaultCountry="ua"
-                id="mobile-signup"
+                
                 value={formValues.mobile}
                 onChange={handlePhoneChange}
                 placeholder="Mobile Number"
@@ -283,12 +465,12 @@ const AuthRegister = () => {
 
           <Grid item xs={12} >  {/*address*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">Address</InputLabel>
+              <InputLabel >Address</InputLabel>
               <OutlinedInput
                 fullWidth
                 multiline
                 error={Boolean(formErrors.email)}
-                id="email-signup"
+                
                 type="email"
                 value={formValues.address}
                 name="address"
@@ -306,109 +488,108 @@ const AuthRegister = () => {
 
           <Grid item xs={12} lg={6}>  {/*city*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">city</InputLabel>
+              <InputLabel >city</InputLabel>
               <OutlinedInput
                 fullWidth
                 error={Boolean(formErrors.city)}
-                id="email-signup"
+                
                 type="email"
                 value={formValues.city}
                 name="city"
                 onChange={handleChange}
                 placeholder=""
               />
-              {formErrors.city && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.city}
-                </FormHelperText>
-              )}
             </Stack>
           </Grid>
 
           <Grid item xs={12} lg={6}>  {/*state*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">state</InputLabel>
+              <InputLabel >state</InputLabel>
               <OutlinedInput
                 fullWidth
                 error={Boolean(formErrors.state)}
-                id="email-signup"
+                
                 type="state"
                 value={formValues.state}
-                name="city"
+                name="state"
                 onChange={handleChange}
                 placeholder=""
               />
-              {formErrors.state && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.state}
-                </FormHelperText>
-              )}
             </Stack>
           </Grid>
 
 
           <Grid item xs={12} lg={6}>  {/*country*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">country</InputLabel>
+              <InputLabel >country</InputLabel>
               <OutlinedInput
                 fullWidth
                 error={Boolean(formErrors.country)}
-                id="email-signup"
                 type="country"
                 value={formValues.country}
                 name="country"
                 onChange={handleChange}
                 placeholder=""
               />
-              {formErrors.country && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.country}
-                </FormHelperText>
-              )}
             </Stack>
           </Grid>
 
 
           <Grid item xs={12} lg={6}>  {/*zip code*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">zip code</InputLabel>
+              <InputLabel >zip code</InputLabel>
               <OutlinedInput
                 fullWidth
                 error={Boolean(formErrors.zipcode)}
-                id="email-signup"
                 type="country"
                 value={formValues.zipcode}
                 name="zipcode"
                 onChange={handleChange}
                 placeholder=""
               />
-              {formErrors.zipcode && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.zipcode}
-                </FormHelperText>
-              )}
             </Stack>
           </Grid>
 
 
           <Grid item xs={12} lg={6}>  {/*service location*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">service location</InputLabel>
-              <OutlinedInput
-                fullWidth
-                error={Boolean(formErrors.serviceLocation)}
-                id="email-signup"
-                type="country"
-                value={formValues.serviceLocation}
-                name="serviceLocation"
-                onChange={handleChange}
-                placeholder=""
-              />
-              {formErrors.serviceLocation && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.serviceLocation}
-                </FormHelperText>
-              )}
+              <InputLabel >service location</InputLabel>
+              {/* <Select
+               value={formValues.serviceLocation}
+               name="serviceLocation"
+               onChange={(val)=>handleServiceLocations(val)}
+               fullWidth
+               >
+                {
+                  serviceLocationsApi && serviceLocationsApi.map((val,index)=>{
+                    return(
+                      <MenuItem key={val.applocationid} value={val.applocationid}>{val?.city}</MenuItem>
+                    )
+                  })
+                }
+
+              </Select> */}
+
+<Autocomplete
+                                id="brand"
+                                options={serviceLocationsApi ? serviceLocationsApi : []}
+                                value={serviceLocationsApi?.find((option) => option?.id == formValues?.locid) || null}
+                                // getOptionLabel={(option) => option.brandname}
+                                onChange={(event, val) => {
+                                    if (val) {
+                                        console.log('val', val)
+                                        handleZoneApi(val.id)
+                                        const updatedData = { ...formValues }
+                                        updatedData['locid'] = val.id
+                                        // updatedData['brand'] = val.label
+                                        setFormValues(updatedData)
+                                    }
+                                }}
+                                renderInput={(params) => (
+                                    <TextField {...params} placeholder="select  service location"  />
+                                )}
+                                autoHighlight={true}
+                            />
             </Stack>
           </Grid>
 
@@ -416,67 +597,117 @@ const AuthRegister = () => {
 
           <Grid item xs={12} lg={6}>  {/*zone*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">zone</InputLabel>
-              <OutlinedInput
-                fullWidth
-                error={Boolean(formErrors.zone)}
-                id="email-signup"
-                type="country"
-                value={formValues.zone}
-                name="zone"
-                onChange={handleChange}
-                placeholder=""
-              />
-              {formErrors.zone && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.zone}
-                </FormHelperText>
-              )}
+              <InputLabel >zone</InputLabel>
+                              <Autocomplete
+                                id="model"
+                                options={zoneApi ? zoneApi : []}
+                                value={zoneApi?.find((option) => option?.id == formValues?.zonid) || null}
+                                // getOptionLabel={(option) => option.modelname}
+                                onChange={(event, val) => {
+                                    if (val) {
+                                        console.log('val', val)
+                                        const updatedData = { ...formValues }
+                                        updatedData['zonid'] = val.id
+                                        // updatedData['model'] = val.label
+                                        setFormValues(updatedData)
+                                    }
+                                }}
+                                renderInput={(params) => (
+                                    <TextField {...params} placeholder="select zones"  />
+                                )}
+                                autoHighlight={true}
+                            />
             </Stack>
           </Grid>
 
           <Grid item xs={12} lg={6}>  {/*course*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">courses</InputLabel>
-              <OutlinedInput
-                fullWidth
-                error={Boolean(formErrors.courses)}
-                id="email-signup"
-                type="country"
-                value={formValues.courses}
-                name="courses"
-                onChange={handleChange}
-                placeholder=""
-              />
-              {formErrors.courses && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.courses}
-                </FormHelperText>
-              )}
+              <InputLabel >courses</InputLabel>
+              <Autocomplete
+                  multiple
+                  id="model"
+                  options={coursesApi ? coursesApi : []}
+                  value={selectedCourses}
+                  getOptionLabel={(option) => option.label}
+                  onChange={(event, value) => {
+                    setSelectedCourses(value);
+                    const updatedData = { ...formValues, zonid: value.map((v) => v.id) };
+                    setFormValues(updatedData);
+                  }}
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox
+                        checked={selected}
+                        style={{ marginRight: 8 }}
+                      />
+                      <ListItemText primary={option.label} />
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField {...params} placeholder="select zones" />
+                  )}
+                  autoHighlight={true}
+                />
             </Stack>
           </Grid>
 
 
           <Grid item xs={12} lg={6}>  {/*status*/}
             <Stack spacing={1}> 
-              <InputLabel htmlFor="email-signup">status</InputLabel>
+              <InputLabel>status</InputLabel>
               <OutlinedInput
                 fullWidth
                 error={Boolean(formErrors.status)}
-                id="email-signup"
                 type="country"
                 value={formValues.status}
                 name="status"
                 onChange={handleChange}
                 placeholder=""
               />
-              {formErrors.status && (
-                <FormHelperText error id="helper-text-email-signup">
-                  {formErrors.status}
-                </FormHelperText>
-              )}
             </Stack>
           </Grid>
+
+
+          <Grid item xs={12} lg={6}>  {/*profile picture*/}
+            <Stack spacing={1}> 
+              <InputLabel >Profile image</InputLabel>
+              
+              <Toast style={{background:'grey'}} ref={toastsmg}></Toast>
+             <FileUpload style={{width:'fit-content','& svg':{marginTop:'20px'}}} mode="basic" name="demo[]" url="/api/upload" accept="image/*" maxFileSize={1000000} onUpload={onUpload} />
+                
+            </Stack>
+          </Grid>
+
+
+
+          <TableContainer sx={{marginTop:'20px',overflowX:'hidden'}} component={Paper}>                        {/*Documents upload section*/}
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell align="center">SNO</TableCell>
+            <TableCell align="center">DOC ID</TableCell>
+            <TableCell align="center">DOC NAME</TableCell>
+            <TableCell align="center">ACTION</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {documentStructure?.map((row,index) => (
+            <TableRow
+              key={row.index}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell align="center">{`${index + 1}`}</TableCell>
+              <TableCell align="center">{row.apptypeid}</TableCell>
+              <TableCell align="center">{row.typename}</TableCell>
+              <TableCell align="center"><input type='file' /></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+
+
 
           
 
@@ -497,7 +728,7 @@ const AuthRegister = () => {
 
           <Grid item xs={12}>
             <AnimateButton>
-              <Button disableElevation fullWidth size="large" type="submit" variant="contained" color="primary">
+              <Button disableElevation sx={{bgcolor:'primary.custom1'}} fullWidth size="large" type="submit" variant="contained" color="primary">
                 Create Account
               </Button>
             </AnimateButton>

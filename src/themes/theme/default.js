@@ -37,7 +37,8 @@ const Default = (colors) => {
       700: blue[7],
       darker: blue[8],
       900: blue[9],
-      contrastText
+      custom1 : '#093467',
+      contrastText : '#ffffff'
     },
     secondary: {
       lighter: greyColors[100],

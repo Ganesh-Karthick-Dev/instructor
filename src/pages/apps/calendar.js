@@ -380,7 +380,11 @@ const eventData = [
             <Grid item>
               <ButtonGroup color="secondary" aria-label="medium secondary button group">
                 <Button
-                  sx={{ height: 'fit-content' }}
+                  sx={{
+                     height: 'fit-content',
+                     bgcolor: activeButton === 'All' ? 'primary.custom1' : 'transparent',
+                     color: activeButton === 'All' ? 'primary.contrastText' : 'black',
+                     }}
                   key="All"
                   variant={activeButton === 'All' ? 'contained' : 'outlined'}
                   onClick={() => handleButtonClick('All')}
@@ -388,7 +392,11 @@ const eventData = [
                   All
                 </Button>
                 <Button
-                  sx={{ height: 'fit-content' }}
+                  sx={{
+                     height: 'fit-content',
+                     bgcolor: activeButton === 'Completed' ? 'primary.custom1' : 'transparent',
+                     color: activeButton === 'Completed' ? 'primary.contrastText' : 'black',
+                     }}
                   key="Completed"
                   variant={activeButton === 'Completed' ? 'contained' : 'outlined'}
                   onClick={() => handleButtonClick('Completed')}
@@ -396,7 +404,11 @@ const eventData = [
                   Completed
                 </Button>
                 <Button
-                  sx={{ height: 'fit-content' }}
+                  sx={{
+                     height: 'fit-content',
+                     bgcolor: activeButton === 'OnGoing' ? 'primary.custom1' : 'transparent',
+                     color: activeButton === 'OnGoing' ? 'primary.contrastText' : 'black',
+                     }}
                   key="OnGoing"
                   variant={activeButton === 'OnGoing' ? 'contained' : 'outlined'}
                   onClick={() => handleButtonClick('OnGoing')}
@@ -404,7 +416,11 @@ const eventData = [
                   OnGoing
                 </Button>
                 <Button
-                  sx={{ height: 'fit-content' }}
+                  sx={{
+                     height: 'fit-content',
+                     bgcolor: activeButton === 'NotYetStarted' ? 'primary.custom1' : 'transparent',
+                     color: activeButton === 'NotYetStarted' ? 'primary.contrastText' : 'black',
+                     }}
                   key="NotYetStarted"
                   variant={activeButton === 'NotYetStarted' ? 'contained' : 'outlined'}
                   onClick={() => handleButtonClick('NotYetStarted')}

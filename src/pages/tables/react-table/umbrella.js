@@ -398,7 +398,11 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
           />
           <ButtonGroup color="secondary" aria-label="medium secondary button group">
                 <Button
-                  sx={{ height: 'fit-content' }}
+                  sx={{ 
+                    height: 'fit-content',
+                    bgcolor: activeButton === 'All' ? 'primary.custom1' : 'transparent',
+                    color: activeButton === 'All' ? 'primary.contrastText' : 'black',
+                    }}
                   key="All"
                   variant={activeButton === 'All' ? 'contained' : 'outlined'}
                   onClick={() => handleButtonClick('All')}
@@ -406,7 +410,11 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
                   All
                 </Button>
                 <Button
-                  sx={{ height: 'fit-content' }}
+                  sx={{ 
+                    height: 'fit-content',
+                    bgcolor: activeButton === 'Incomplete' ? 'primary.custom1' : 'transparent',
+                    color: activeButton === 'Incomplete' ? 'primary.contrastText' : 'black',
+                   }}
                   key="Incomplete"
                   variant={activeButton === 'Incomplete' ? 'contained' : 'outlined'}
                   onClick={() => handleButtonClick('Incomplete')}
@@ -414,7 +422,11 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
                   Incomplete
                 </Button>
                 <Button
-                  sx={{ height: 'fit-content' }}
+                  sx={{ 
+                    height: 'fit-content',
+                    bgcolor: activeButton === 'ReadyToTakeTest' ? 'primary.custom1' : 'transparent',
+                    color: activeButton === 'ReadyToTakeTest' ? 'primary.contrastText' : 'black',
+                   }}
                   key="ReadyToTakeTest"
                   variant={activeButton === 'ReadyToTakeTest' ? 'contained' : 'outlined'}
                   onClick={() => handleButtonClick('ReadyToTakeTest')}
@@ -531,9 +543,9 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
 
                 <TableCell align="center">
                   <NavLink to={'/student'}>
-                  <Button>
+                  <IconButton sx={{color:'primary.custom1'}} >
                   <FaEye size={20} />
-                  </Button>
+                  </IconButton>
                   </NavLink>
                   </TableCell>
 

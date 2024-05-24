@@ -1,8 +1,12 @@
+/* eslint-disable no-unused-vars */
+
+
 import PropTypes from 'prop-types';
 
 // material-ui
 import { styled } from '@mui/material/styles';
 import { Card, CardContent, Grid, Typography } from '@mui/material';
+import MainCard from 'components/MainCard';
 
 
 
@@ -15,7 +19,7 @@ const UserCountCard = ({ primary, secondary, secondary2 , iconPrimary, color , i
 const IconWrapper = styled('div')({
   position: 'absolute',
   left: '25px',
-  bottom: '25px',
+  bottom: '20px',
   color: iconColor,
   // transform: 'rotate(25deg)',
   '& svg': {
@@ -30,13 +34,12 @@ const IconWrapper = styled('div')({
   const primaryIcon = iconPrimary ? <IconPrimary fontSize="large" /> : null;
 
   return (
-    <Card 
-    elevation={0} 
+    <MainCard
     sx={{ 
       background: color,
       position: 'relative',
       color: 'black',
-      border : ' 1px solid #d1d5db',
+      boxShadow : 1,
       transition: 'all 0.3s ease',
       '&:hover span, &:hover svg': {
         transform: 'scale(1.2,1.2)', // Change the values as needed
@@ -45,8 +48,9 @@ const IconWrapper = styled('div')({
         transition: 'transform 0.3s ease', // Smooth transition for elements
       }
     }}
-    >
-      <CardContent>
+     >
+
+
         <IconWrapper>{primaryIcon}</IconWrapper>
         <Grid container direction="column" justifyContent="center" alignItems="end" spacing={1}>
           <Grid item sm={12}>
@@ -55,18 +59,19 @@ const IconWrapper = styled('div')({
             </Typography>
           </Grid>
           <Grid item sm={12}>
-            <Typography variant="h5" align="center" color="inherit">
+            <Typography variant="h5" sx={{fontWeight:'bolder'}} align="center" color="inherit">
               {primary}
             </Typography>
           </Grid>
           <Grid item sm={12}>
-            <Typography variant="h5" align="center" color="inherit">
+            <Typography variant="body1" align="center" color="inherit">
               {secondary2}
             </Typography>
           </Grid>
         </Grid>
-      </CardContent>
-    </Card>
+
+
+    </MainCard>
   );
 };
 

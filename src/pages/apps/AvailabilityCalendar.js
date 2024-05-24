@@ -373,7 +373,7 @@ const AvailabilityCalendar = () => {
 
 
   // admin approval
-  const [adminApproval,setAdminApproval] = useState(false)
+  const [adminApproval,setAdminApproval] = useState(true)
 
   // admin approval
 
@@ -388,8 +388,8 @@ const AvailabilityCalendar = () => {
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
  
             <Box sx={{display:'flex',gap:'10px'}}>
-            <Button variant='contained' disabled={adminApproval === false}>Add</Button>
-            <Button variant='contained'>View</Button>
+            <Button sx={{bgcolor:'primary.custom1'}} variant='contained' disabled={adminApproval === false}>Add</Button>
+            <Button sx={{bgcolor:'primary.custom1'}} variant='contained'>View</Button>
             </Box>       
 
               {
@@ -429,7 +429,7 @@ const AvailabilityCalendar = () => {
                 <Stack direction="row" gap={3} justifyContent={'start'} alignItems="center">
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1d4ed8', display: 'inline-block' }}></Box>
+                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1d4ed8', display: 'inline-block'}}></Box>
                 <Typography sx={{ width: 'fit-content' }}>Selected</Typography>
               </Stack>
             </Stack>
