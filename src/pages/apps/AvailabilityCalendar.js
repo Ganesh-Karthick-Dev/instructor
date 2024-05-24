@@ -95,8 +95,14 @@ const AvailabilityCalendar = () => {
     setSelectedEvent(null);
   };
 
+  const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+
+
+  // availability
+
+
   const handleDynamicColor = (data) => {
-    switch (data ? data : selectedCourse) {
+    switch (data) {
       case 'DUI':
         return '#dc2626';
       case 'Road Test':
@@ -108,12 +114,34 @@ const AvailabilityCalendar = () => {
       case 'Drivers Education':
         return '#c026d3';
       default:
-        '#7e22ce';
+        return '#7e22ce';
     }
   };
 
-  // event data
+  const [availability,setAvailability] = useState([])
+  console.log(`availability`,availability)
 
+  useEffect(() => {
+    handleGetAvailability();
+  }, []);
+  
+  const handleGetAvailability = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/getAvailability/1`);
+      const availabilityData = response.data.data.map(event => ({
+        ...event,
+        color: handleDynamicColor(event.productname)
+      }));
+      setAvailability(availabilityData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // availability
+
+
+
+  // event data
   let [eventData, setEventData] = useState([
     {
       id: 1,
@@ -292,23 +320,26 @@ const AvailabilityCalendar = () => {
       status: 'NotYetStarted'
     }
   ]);
+  // event data
+  
 
-  eventData.forEach((event) => {
-    event.color = handleDynamicColor(event.title);
-  });
+
+
 
   const [searchResults, setSearchResults] = useState([]);
 
   const [submittedData,setSubmittedData] = useState([])
 
-  const [selectedCourse, setSelectedCourse] = useState('DUI');
+  const [selectedCourse, setSelectedCourse] = useState('Behind the Wheels');
+
+  console.log(`search results`,searchResults);
 
   const [filteredCourse, setFilteredCourse] = useState([]);
 
 
   useEffect(() => {
-    setFilteredCourse(_.uniqBy(eventData, (e) => e.value));
-  }, []);
+    setFilteredCourse(_.uniqBy(availability, (e) => e.productname));
+  },[availability]);
 
  
   // custom1
@@ -321,7 +352,7 @@ const AvailabilityCalendar = () => {
 
   useEffect(() => {
     // Initialize searchResults with DUI course data when component mounts
-    setSearchResults(globalSearch(eventData, 'DUI'));
+    setSearchResults(globalSearch(availability, 'DUI'));
   }, []); // Empty dependency array ensures this effect runs only once when the component mounts
 
   // Function to perform global search
@@ -335,8 +366,9 @@ const AvailabilityCalendar = () => {
   // Function to handle event selection
   const handleEventSelect = (arg) => {
     const data = arg.event._def;
+    console.log(`data origi`,data);
     const publicId = data.publicId;
-
+  
     // Toggle event color based on selected course
     const updatedRows = searchResults.map((row) =>
       row.id === parseInt(publicId)
@@ -346,14 +378,15 @@ const AvailabilityCalendar = () => {
           }
         : row
     );
-
+  
     setSearchResults(updatedRows);
   };
+  
 
   // Function to handle course selection
   const handleCourseSelect = (event, value) => {
-    setSelectedCourse(value.title);
-    setSearchResults(globalSearch(eventData, value.title));
+    setSelectedCourse(value.productname);
+    setSearchResults(globalSearch(availability, value.productname));
   };
 
 
@@ -416,7 +449,7 @@ const AvailabilityCalendar = () => {
           }
           <CalendarStyled>
             <Toolbar
-              data={eventData}
+              data={availability}
               date={date}
               onClickNext={handleDateNext}
               onClickPrev={handleDatePrev}
@@ -437,7 +470,7 @@ const AvailabilityCalendar = () => {
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
                 <Box
-                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
+                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(selectedCourse), display: 'inline-block' }}
                 ></Box>
                 <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
               </Stack>
@@ -452,8 +485,8 @@ const AvailabilityCalendar = () => {
                     disablePortal
                     onChange={handleCourseSelect}
                     id="basic-autocomplete"
-                    options={filteredCourse}
-                    getOptionLabel={(option) => option.title}
+                    options={availability && filteredCourse}
+                    getOptionLabel={(option) => option.productname}
                     renderInput={(params) => <TextField {...params} placeholder="DUI,Road Test..." />}
                   />
                 </Grid>
@@ -462,7 +495,7 @@ const AvailabilityCalendar = () => {
 
             <FullCalendar
               selectable
-              events={ adminApproval && searchResults}
+              events={searchResults && searchResults[0]?.dates}
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}
@@ -475,6 +508,7 @@ const AvailabilityCalendar = () => {
               select={handleRangeSelect}
               eventDrop={handleEventUpdate}
               eventClick={handleEventSelect}
+              eventColor={searchResults.map((val)=>val.color)}
               eventResize={handleEventUpdate}
               height={matchDownSM ? 'auto' : 720}
               plugins={[dayGridPlugin, interactionPlugin]}
