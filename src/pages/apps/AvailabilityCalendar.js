@@ -114,7 +114,7 @@ const AvailabilityCalendar = () => {
       case 'Drivers Education':
         return '#c026d3';
       default:
-        return '#7e22ce';
+        return '#1d4ed8';
     }
   };
 
@@ -128,9 +128,10 @@ const AvailabilityCalendar = () => {
   const handleGetAvailability = async () => {
     try {
       const response = await axios.get(`${baseUrl}/getAvailability/1`);
-      const availabilityData = response.data.data.map(event => ({
+      const availabilityData = response.data.data.map((event , index) => ({
         ...event,
-        color: handleDynamicColor(event.productname)
+        color: handleDynamicColor(event.productname),
+        id : index + 1
       }));
       setAvailability(availabilityData);
     } catch (error) {
@@ -363,14 +364,31 @@ const AvailabilityCalendar = () => {
     });
   };
 
-  // Function to handle event selection
-  const handleEventSelect = (arg) => {
-    const data = arg.event._def;
-    console.log(`data origi`,data);
+  const handleEventSelect = (arg, val1, val2) => {
+    const event = arg.event;
+    const data = event._def;
+  
+    console.log(`,final event `, event);
+    console.log(`,val1 event `, val1);
+    console.log(`,val2 event `, val2);
+  
+    // Assuming moduleid and instructorid are part of the event's extended properties
+    const moduleid = event.extendedProps.moduleid;
+    const instructorid = event.extendedProps.instructorid;
+  
+    console.log(`Module ID:`, moduleid);
+    console.log(`Instructor ID:`, instructorid);
+  
     const publicId = data.publicId;
   
+    // Get the original color of the event
+    const originalColor = event.backgroundColor || handleDynamicColor(event.extendedProps.productname);
+  
+    // Initialize or retrieve the stored color for the event
+    const storedColor = event.extendedProps.storedColor || originalColor;
+  
     // Toggle event color based on selected course
-    const updatedRows = searchResults.map((row) =>
+    const updatedRows = searchResults.map((row, index) =>
       row.id === parseInt(publicId)
         ? {
             ...row,
@@ -379,8 +397,21 @@ const AvailabilityCalendar = () => {
         : row
     );
   
+    // If event color is same as the stored color, change it to selected course color
+    if (event.backgroundColor === storedColor) {
+      event.setProp('backgroundColor', '#1d4ed8');
+      event.setExtendedProp('storedColor', originalColor); // Store original color
+    } else {
+      // Otherwise, change it back to stored color
+      event.setProp('backgroundColor', storedColor);
+    }
+  
     setSearchResults(updatedRows);
   };
+  
+  
+  
+  
   
 
   // Function to handle course selection
@@ -494,7 +525,7 @@ const AvailabilityCalendar = () => {
             </Toolbar>
 
             <FullCalendar
-              selectable
+              selectable={true}
               events={searchResults && searchResults[0]?.dates}
               ref={calendarRef}
               rerenderDelay={10}
