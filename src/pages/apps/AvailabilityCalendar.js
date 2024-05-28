@@ -16,12 +16,13 @@ import {
   Stack,
   Typography,
   Divider,
-  Badge
+  Badge,
+  IconButton
 } from '@mui/material';
-
 
 // react icons
 import { IoIosWarning } from "react-icons/io";
+import { FaCheckSquare } from "react-icons/fa";
 // react icons
 
 // Third-party
@@ -38,10 +39,159 @@ import AddEventForm from 'sections/apps/calendar/AddEventForm';
 import MainCard from 'components/MainCard';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
+import { useSelector } from 'react-redux';
+import AnimateButton from 'components/@extended/AnimateButton';
+import { SettingOutlined } from '@ant-design/icons';
 
 // ==============================|| CALENDAR - MAIN ||============================== //
 
 const AvailabilityCalendar = () => {
+
+const instructor = useSelector((state)=>state.userSlice)
+const {partnerid} = instructor.instructor
+const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+
+
+// ------------------------------------------------------------getting availability permission-------------------------------------
+const [availabilityPermission,setAvailabilityPermission] = useState([])
+
+const [availability,setAvailability] = useState([])
+
+// console.log(`>>>>>>>>>>>>>>`,availabilityPermission);
+
+useEffect(()=>{
+  handleAvailabilityPermission()
+},[])
+
+const handleAvailabilityPermission = ()=> {
+  try {
+    axios.get(`${baseUrl}/getAvailabilitypermission/${partnerid}`)
+    .then((val)=>{
+      if(val.data.status === false){
+         throw new Error('error in getting availability from admin - status - false')
+      }
+      else {
+        setAvailability(val.data.data)
+        filterAvPending(val.data.data)
+      }
+    })
+  } catch (error) {
+    console.log(`error in getting availability from admin`);
+  }
+}
+
+// console.log(`availability`,availability);
+
+function filterAvPending(data) {
+  console.log(`vsdvolsd`,data);
+  const result = data.reduce((acc, item) => {
+      if (item.substatus === "av_pending") {
+          acc.push({ productname: item.productname, substatus: item.substatus, type : item.type });
+      }
+      return acc;
+  }, []);
+
+  const allEmpty = data.every(item => item.substatus === "");
+  
+  return allEmpty ? setAvailabilityPermission([]) : setAvailabilityPermission(result);
+}
+// console.log(`avail message`,availabilityPermission);
+// ------------------------------------------------------------getting availability permission--------------------------------------------
+
+
+
+// -----------------------------------------------fetch course dropdown for the particular instructor--------------------------------------------
+// fetch course date to shown that course in calendar
+const [dropDownCourse,setDropDownCourse] = useState([])
+
+const handleGetCourseDates = ()=> {
+  setDropDownCourse(availabilityPermission)
+  toast.success(`course dates fetched successfully`)
+  // try {
+
+  //   // toast.promise(
+  //   //   axios.get(`${baseUrl}/getInstructorById/${partnerid}`)
+  //   //   .then((response) => {
+  //   //     if (response.data.status === false) {
+  //   //       throw new Error("Failed to get course dates");
+  //   //     } else {
+  //   //       // console.log(`courses - `,response.data.data[0].courses);
+  //   //       let instructorCourses = response.data.data[0].courses
+  //   //       setDropDownCourse(instructorCourses)
+  //   //       return "Course dates retrieved successfully";
+  //   //     }
+  //   //   }).catch((error) => {
+  //   //     console.error("Error fetching course dates:", error);
+  //   //     throw new Error("Failed to fetch course dates");
+  //   //   }),
+  //   //   {
+  //   //     loading: 'Fetching course dates...',
+  //   //     success: (response) => <b>{response}</b>, // Use response message here
+  //   //     error: (error) => <b>{error.message}</b>, // Use error message here
+  //   //   }
+  //   // );    
+  // } catch (error) {
+  //   console.log(error);
+  // }
+}
+
+  // fetch course date to shown that course in calendar
+// --------------------------------------------fetch course dropdown for the particular instructor--------------------------------------------
+
+
+
+
+
+  
+  // admin approval
+  const [adminApproval,setAdminApproval] = useState(false)
+  // admin approval
+
+
+//   // fetch course date to shown that course in calendar
+// const [coursesState,setCoursesState] = useState(false)
+
+// useEffect(()=>{
+//   setCoursesState(false)
+// },[])
+// const handleGetCourseDates = ()=> {
+//   try {
+//     const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+
+//     toast.promise(
+//       axios.post(`${baseUrl}/getInstructorById/14`, {
+//         courseid: 3,
+//         type: 3,
+//         combo: 2, // 1-yes;2-no
+//       }).then((response) => {
+//         if (!response.status) {
+//           throw new Error("Failed to get course dates");
+//         } else {
+//           // Handle successful response
+//           setCoursesState(true)
+//           return "Course dates retrieved successfully";
+//         }
+//       }).catch((error) => {
+//         console.error("Error fetching course dates:", error);
+//         throw new Error("Failed to fetch course dates");
+//       }),
+//       {
+//         loading: 'Fetching course dates...',
+//         success: (response) => <b>{response}</b>, // Use response message here
+//         error: (error) => <b>{error.message}</b>, // Use error message here
+//       }
+//     );    
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+//   // fetch course date to shown that course in calendar
+  
+
+
+
+
+
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,14 +245,8 @@ const AvailabilityCalendar = () => {
     setSelectedEvent(null);
   };
 
-  const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
-
-
-  // availability
-
-
   const handleDynamicColor = (data) => {
-    switch (data) {
+    switch (data ? data : selectedCourse) {
       case 'DUI':
         return '#dc2626';
       case 'Road Test':
@@ -114,35 +258,12 @@ const AvailabilityCalendar = () => {
       case 'Drivers Education':
         return '#c026d3';
       default:
-        return '#1d4ed8';
+        '#7e22ce';
     }
   };
-
-  const [availability,setAvailability] = useState([])
-  console.log(`availability`,availability)
-
-  useEffect(() => {
-    handleGetAvailability();
-  }, []);
-  
-  const handleGetAvailability = async () => {
-    try {
-      const response = await axios.get(`${baseUrl}/getAvailability/1`);
-      const availabilityData = response.data.data.map((event , index) => ({
-        ...event,
-        color: handleDynamicColor(event.productname),
-        id : index + 1
-      }));
-      setAvailability(availabilityData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  // availability
-
-
 
   // event data
+
   let [eventData, setEventData] = useState([
     {
       id: 1,
@@ -321,26 +442,28 @@ const AvailabilityCalendar = () => {
       status: 'NotYetStarted'
     }
   ]);
-  // event data
-  
 
-
-
+  eventData.forEach((event) => {
+    event.color = handleDynamicColor(event.title);
+  });
 
   const [searchResults, setSearchResults] = useState([]);
 
   const [submittedData,setSubmittedData] = useState([])
 
-  const [selectedCourse, setSelectedCourse] = useState('Behind the Wheels');
-
-  console.log(`search results`,searchResults);
+  const [selectedCourse, setSelectedCourse] = useState('DUI');
 
   const [filteredCourse, setFilteredCourse] = useState([]);
 
 
-  useEffect(() => {
-    setFilteredCourse(_.uniqBy(availability, (e) => e.productname));
-  },[availability]);
+  // useEffect(() => {
+  //   if(coursesState && adminApproval === true){
+  //     setFilteredCourse(_.uniqBy(eventData, (e) => e.value));
+  //   }
+  //   else{
+  //     setFilteredCourse([])
+  //   }
+  // }, [coursesState,adminApproval]);
 
  
   // custom1
@@ -353,7 +476,7 @@ const AvailabilityCalendar = () => {
 
   useEffect(() => {
     // Initialize searchResults with DUI course data when component mounts
-    setSearchResults(globalSearch(availability, 'DUI'));
+    setSearchResults(globalSearch(eventData, 'DUI'));
   }, []); // Empty dependency array ensures this effect runs only once when the component mounts
 
   // Function to perform global search
@@ -364,31 +487,13 @@ const AvailabilityCalendar = () => {
     });
   };
 
-  const handleEventSelect = (arg, val1, val2) => {
-    const event = arg.event;
-    const data = event._def;
-  
-    console.log(`,final event `, event);
-    console.log(`,val1 event `, val1);
-    console.log(`,val2 event `, val2);
-  
-    // Assuming moduleid and instructorid are part of the event's extended properties
-    const moduleid = event.extendedProps.moduleid;
-    const instructorid = event.extendedProps.instructorid;
-  
-    console.log(`Module ID:`, moduleid);
-    console.log(`Instructor ID:`, instructorid);
-  
+  // Function to handle event selection
+  const handleEventSelect = (arg) => {
+    const data = arg.event._def;
     const publicId = data.publicId;
-  
-    // Get the original color of the event
-    const originalColor = event.backgroundColor || handleDynamicColor(event.extendedProps.productname);
-  
-    // Initialize or retrieve the stored color for the event
-    const storedColor = event.extendedProps.storedColor || originalColor;
-  
+
     // Toggle event color based on selected course
-    const updatedRows = searchResults.map((row, index) =>
+    const updatedRows = searchResults.map((row) =>
       row.id === parseInt(publicId)
         ? {
             ...row,
@@ -396,29 +501,50 @@ const AvailabilityCalendar = () => {
           }
         : row
     );
-  
-    // If event color is same as the stored color, change it to selected course color
-    if (event.backgroundColor === storedColor) {
-      event.setProp('backgroundColor', '#1d4ed8');
-      event.setExtendedProp('storedColor', originalColor); // Store original color
-    } else {
-      // Otherwise, change it back to stored color
-      event.setProp('backgroundColor', storedColor);
-    }
-  
+
     setSearchResults(updatedRows);
   };
-  
-  
-  
-  
-  
 
   // Function to handle course selection
+
+  const [clickedCourse,setClickedCourse] = useState([])
+
+  let Dates = clickedCourse.map((val)=>{
+    return val.details
+  })
+
+  let finalDates = _.flatMapDeep(Dates)
+
+
   const handleCourseSelect = (event, value) => {
-    setSelectedCourse(value.productname);
-    setSearchResults(globalSearch(availability, value.productname));
+    // console.log(`event`,event);
+    console.log(`value`,value);
+    // setSelectedCourse(value.title);
+    // setSearchResults(globalSearch(eventData, value.title));
+
+
+      // setClickedCourse(prevState => ({
+      //   ...prevState,
+      //   productname: value.productname,
+      //   substatus: value.substatus,
+      //   type: value.type
+      // }));
+
+      let courseid = value.type
+      axios.post(`${baseUrl}/getcoursedates`,{
+        courseid : courseid,      // 1.BTW , 2.DUI , 3.Defensive , 4.Drivers educations , 5.Road Test
+        type : courseid,
+        combo : 2 // 1-yes;2-no
+      })
+      .then((val)=>{
+        setClickedCourse(val.data.response[0].dates)
+      })
+      .catch((error)=>{
+        console.log(`error in getting course dates`,error);
+      })
+
   };
+
 
 
   const handleSubmittedData = ()=>{
@@ -436,10 +562,7 @@ const AvailabilityCalendar = () => {
   // custom1
 
 
-  // admin approval
-  const [adminApproval,setAdminApproval] = useState(true)
 
-  // admin approval
 
   if (loading) return <Loader />;
 
@@ -449,22 +572,53 @@ const AvailabilityCalendar = () => {
         <Grid item xs={12} sm={6} md={12}>
 
 
-        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+        <Stack direction={'row'} justifyContent={'end'} alignItems={'center'}>
  
-            <Box sx={{display:'flex',gap:'10px'}}>
-            <Button sx={{bgcolor:'primary.custom1'}} variant='contained' disabled={adminApproval === false}>Add</Button>
-            <Button sx={{bgcolor:'primary.custom1'}} variant='contained'>View</Button>
-            </Box>       
+                   
 
               {
-                adminApproval === false &&  <Box sx={{background:'#f59e0b',padding:'20px',borderRadius:'5px',display:'flex',flexDirection:'row',gap:'15px ',alignItems:'center'}}>
+                _.isEmpty(availabilityPermission) ? <Box sx={{background:'#ca8a04', color : 'white',padding:'20px',borderRadius:'5px',display:'flex',flexDirection:'row',gap:'15px ',alignItems:'start'}}>
                 <Box>
                 <IoIosWarning size={30} />
                 </Box>
                 <Typography sx={{width:'300px'}} >
-                  <span style={{fontWeight:'bold',display:'block'}}>Under admin approval</span> Please wait for your account approval to feed your flexible availability
+                  <span style={{fontWeight:'bold',fontSize:"20px",display:'block'}}>Under admin approval</span> Please wait for your account approval to feed your flexible availability
+                </Typography>
+              </Box>  :  
+              <Stack direction={'row'} gap={2} alignItems={'center'}>
+              <Box sx={{display:'flex',gap:'10px'}}>
+            <Button
+               sx={{bgcolor:'primary.custom1'}}
+              variant='contained'
+              disabled={availabilityPermission.length === 0}
+              onClick={handleGetCourseDates}
+              >
+                <AnimateButton type="rotate">
+                  <IconButton color="" sx={{color:'white'}} variant="dashed" shape="rounded">
+                    <SettingOutlined />
+                  </IconButton>
+              </AnimateButton>
+              Get Course Dates
+              </Button>
+            {/* <Button sx={{bgcolor:'primary.custom1'}} disabled variant='contained'>View</Button> */}
+            </Box>
+            <Box sx={{background:'#15803d', color : 'white',padding:'20px',borderRadius:'5px',display:'flex',flexDirection:'row',gap:'15px ',alignItems:'start'}}>
+                <Box>
+                <FaCheckSquare size={30} />
+                </Box>
+                <Typography sx={{width:'300px',display:'flex',flexDirection:'column',gap:'10px'}} >
+                  <span style={{fontWeight:'bold',fontSize:'20px',lineHeight:'20px',display:'block'}}>Admin need approval for below Courses</span> 
+                  <ul>
+                    {
+                      availabilityPermission && availabilityPermission.map((val,index)=>{
+                        return <li key={index}>{val.productname}</li>
+                      })
+                    }
+                  </ul>
                 </Typography>
               </Box>
+              </Stack>
+              
               }
            
 
@@ -480,7 +634,7 @@ const AvailabilityCalendar = () => {
           }
           <CalendarStyled>
             <Toolbar
-              data={availability}
+              data={eventData}
               date={date}
               onClickNext={handleDateNext}
               onClickPrev={handleDatePrev}
@@ -501,7 +655,7 @@ const AvailabilityCalendar = () => {
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
                 <Box
-                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(selectedCourse), display: 'inline-block' }}
+                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
                 ></Box>
                 <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
               </Stack>
@@ -515,8 +669,9 @@ const AvailabilityCalendar = () => {
                     fullWidth
                     disablePortal
                     onChange={handleCourseSelect}
+                    // value={clickedCourse.productname}
                     id="basic-autocomplete"
-                    options={availability && filteredCourse}
+                    options={dropDownCourse}
                     getOptionLabel={(option) => option.productname}
                     renderInput={(params) => <TextField {...params} placeholder="DUI,Road Test..." />}
                   />
@@ -525,8 +680,8 @@ const AvailabilityCalendar = () => {
             </Toolbar>
 
             <FullCalendar
-              selectable={true}
-              events={searchResults && searchResults[0]?.dates}
+              selectable
+              events={finalDates}       // ( coursesState && adminApproval ) && searchResults
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}
@@ -539,7 +694,6 @@ const AvailabilityCalendar = () => {
               select={handleRangeSelect}
               eventDrop={handleEventUpdate}
               eventClick={handleEventSelect}
-              eventColor={searchResults.map((val)=>val.color)}
               eventResize={handleEventUpdate}
               height={matchDownSM ? 'auto' : 720}
               plugins={[dayGridPlugin, interactionPlugin]}

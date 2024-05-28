@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Box, Divider, Link , FormLabel, Grid, TextField, Menu, MenuItem, Stack, Typography, IconButton, Avatar } from '@mui/material';
+import { Box, Divider, Link , FormLabel, Grid, TextField, Menu, MenuItem, Stack, Typography, IconButton, Avatar, Button } from '@mui/material';
 
 // project import
 // import ProfileTab from './ProfileTab';
@@ -190,7 +190,8 @@ const ProfileTabs = ({ focusInput, data }) => {
           </Stack>
         </Grid>
         <Grid item xs={12}>
-          <Link href='#' sx={{border:`1px solid blue`,padding:'3px',borderRadius:'5px'}} target='blank'>Zoom Class Link</Link>
+          {/* <Link href='#' sx={{border:`1px solid blue`,padding:'3px',borderRadius:'5px'}} target='blank'>Zoom Class Link</Link> */}
+          <Button sx={{bgcolor:'primary.custom1'}} variant='contained'>Zoom Class Link</Button>
         </Grid>
       </Grid>
     </MainCard>

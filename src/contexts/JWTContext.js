@@ -10,10 +10,13 @@ import jwtDecode from 'jwt-decode';
 // reducer - state management
 import { LOGIN, LOGOUT } from 'store/reducers/actions';
 import authReducer from 'store/reducers/auth';
+import { addInstructor } from 'store/reducers/instructor';
 
 // project import
 import Loader from 'components/Loader';
 import axios from 'utils/axios';
+import { useDispatch } from 'store';
+import { useSelector } from 'react-redux';
 
 const chance = new Chance();
 
@@ -52,6 +55,10 @@ const JWTContext = createContext(null);
 export const JWTProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+    // saving instructor details to store
+      const reduxDispatch = useDispatch();
+    // saving instructor details to store
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -86,8 +93,9 @@ export const JWTProvider = ({ children }) => {
   const baseUrl = 'https://phpstack-977481-4409636.cloudwaysapps.com/api/v1'
 
   const login = async (email, password) => {
-    const response = await axios.post(`${baseUrl}/login`, { email, password , roleid : "3" });
+    const response = await axios.post(`${baseUrl}/login`, { email, password , roleid : "3" ,configid : 1 });
     const { accessToken, data , status } = response.data;
+    console.log(`sdsdvsdkv user data`,response);
     if(status === false){
       throw new Error(`user not found`)
     }
@@ -96,6 +104,13 @@ export const JWTProvider = ({ children }) => {
       const {email} = jwtDecode(serviceToken)
       // console.log(email);
       const user = email
+
+
+      // setting up instructyo detais into store
+      reduxDispatch(addInstructor(response.data.data))
+      // setting up instructyo detais into store
+
+
     setSession(serviceToken);
     dispatch({
       type: LOGIN,

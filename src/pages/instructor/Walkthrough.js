@@ -12,23 +12,73 @@ import GradingIcon from '@mui/icons-material/Grading';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
 // mui material icons
 
+
+// pop-up-dialog
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+// pop-up-dialog
+
+
+
 // pdf 
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFViewer } from '@react-pdf/renderer';
 // pdf
 
+
+// upload module
+import { Toast } from 'primereact/toast';
+import { FileUpload } from 'primereact/fileupload';
+// upload module
+
+
 import { LoadingButton, Timeline, TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineOppositeContent, TimelineSeparator } from '@mui/lab';
-import { Box, Button, Grid, Step, StepContent, StepLabel, Stepper, Typography } from '@mui/material';
+import { Box, Button, Grid, Stack, Step, StepContent, StepLabel, Stepper, TextField, Typography } from '@mui/material';
 import MainCard from 'components/MainCard';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PdfModule } from 'components/Instructor/PdfModule';
+import { useNavigate } from 'react-router';
+import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Walkthrough = () => {
+
+
+  const navigate = useNavigate()
+
+
+    // getting instructor details from redux store
+
+    const instructor = useSelector((state)=> state.userSlice)
+    const {created , contractstatus } = instructor.instructor
+    // var contractstatus = 'pw-approved'
+    const dateOnly = created.split('T')[0];                    // instructor registered date
+ 
+    // -------------------contractstatus-------------------
+    const handleBlur = ()=> {                               // instructor contract status - 1. '' , 2. pw-pending , 3. pw-review , 4.pw-approved
+      // if(contractstatus === ''){
+      //   return 'blur(3px)'
+      // }
+      // else if(contractstatus === 'pw-pending'){
+      //   return
+      // }
+    }
+    // -------------------contractstatus-------------------
+
+    // getting instructor details from redux store
+
+
+
+
 
   // instructor status
   const [contractPdf,setContractPdf] = useState()
   const [instructorStatus,setInstructorStatus] = useState({
-    status : 3,
-    pdfVerified : true
+    status : 2,
+    pdfVerified : false
   })
   // const instructorStat = ()=>{
   //   if(instructorStatus === 1){
@@ -41,10 +91,19 @@ const Walkthrough = () => {
   const [activeStep, setActiveStep] = useState(1);
 
   useEffect(()=>{
-    if(instructorStatus.status === 1){
+    if(contractstatus === ''){
+      setActiveStep(0)
+    }
+    else if(contractstatus === 'pw-pending'){
       setActiveStep(1)
     }
-  },[instructorStatus])
+    else if(contractstatus === 'pw-review'){
+      setActiveStep(2)
+    }
+    else {
+      setActiveStep(3)
+    }
+  },[contractstatus])
 
   const handleNext = () => {
     if(instructorStatus.pdfVerified === false && instructorStatus.status === 1){
@@ -61,14 +120,15 @@ const Walkthrough = () => {
   };
 
   const handleReset = () => {
-    setActiveStep(0);
+    setActiveStep(0)
+    navigate('/dashboard')
   };
 
 
 
   const steps = [
     { label: 'Step 1', description: 'Instructor Account Created Succesfully' },
-    { label: 'Step 2', description: 'Click below button to send signed pdf' },
+    { label: 'Step 2', description: 'Click below button to send signed pdf to admin and wait for admin approval' },
     { label: 'Step 3', description: 'Under Document Verification Process' },
     { label: 'Step 4', description: 'Instructoir Account Verified Succesfully' },
   ];
@@ -87,7 +147,7 @@ const Walkthrough = () => {
                 <div>
                   <Button
                     variant="contained"
-                    disabled={ instructorStatus.status === 1 && instructorStatus.pdfVerified === false}
+                    disabled={ (contractstatus === 'pw-review' && activeStep === 2) || (contractstatus === '' && activeStep === 0) }
                     onClick={handleNext}
                     sx={{ mt: 1, mr: 1 , bgcolor:'primary.custom1'}}
                     color={index === steps.length - 1 ? 'success' : 'primary'}
@@ -95,7 +155,7 @@ const Walkthrough = () => {
                     {index === steps.length - 1 ? 'Finish' : 'Continue'}
                   </Button>
                   <Button 
-                  disabled={ instructorStatus.status === 1 && instructorStatus.pdfVerified === false || activeStep === 0}
+                  disabled={ contractstatus === '' || activeStep === 0}
                   onClick={handleBack} sx={{ mt: 1, mr: 1 }}
                   >
                     Back
@@ -116,6 +176,62 @@ const Walkthrough = () => {
       )}
     </MainCard>
   );
+
+  const toastsmg = useRef(null);
+
+
+   //  sign handle 
+  // const handlePdfUpload = (e) => {
+  //   const file = e.files[0]; // Get the uploaded file
+  //   console.log('uploaded pdf', file);
+  //   setInstructorStatus({...instructorStatus,pdfVerified : file}); // Store the file in state
+  // };
+
+  const [sign,setSign] = useState('')
+
+  const handleSign = (event) => {
+    setSign(event.target.value);
+  };
+  //  sign handle 
+
+
+
+  // display isgn option
+  const [signView,setSignView] = useState(false)
+
+  useEffect(()=> {
+    setSignView(false)
+  },[])
+
+  const handleSignView = ()=> {
+    setSignView(true)
+  }
+
+
+
+  // popup -dialog
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  // popup -dialog
+
+
+
+  // navigate to availability
+
+  // const navigate = useNavigate()
+
+  // const handleNavigateAvailability = ()=> {
+  //   navigate('/availability')
+  // }
+
+
 
   return (
     <>
@@ -140,6 +256,7 @@ const Walkthrough = () => {
                 '& .MuiTimelineConnector-root': { border: '1px dashed', borderColor: 'secondary.light', bgcolor: 'transparent' }
               }}
             >
+
               <TimelineItem>
                 <TimelineSeparator>
                   <TimelineDot sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>
@@ -149,45 +266,35 @@ const Walkthrough = () => {
                 </TimelineSeparator>
                 <TimelineContent>
                   <Typography variant="h6" sx={{fontWeight:'bold'}}> Registered on </Typography>
-                  <Typography color="text.secondary"> 21/05/2024 </Typography>
+                  <Typography color="text.secondary"> {dateOnly} </Typography>
                 </TimelineContent>
               </TimelineItem>
 
+              
+
+                {/* level - 1 */}
+              <Box sx={{filter:contractstatus === '' && 'blur(3px)',userSelect:contractstatus === '' && 'none'}}>
               <TimelineItem>
-                <TimelineOppositeContent sx={{display:'flex',alignItems:'flex-start',gap:'10px'}} variant="body2" color="text.secondary">
-
-                <PDFDownloadLink
-                 document={<PdfModule data={'sample'} />} 
-                 fileName='Contract.pdf'
-                >
-                <Button variant="contained" sx={{bgcolor:'primary.custom1'}} startIcon={<PaperClipOutlined />}>
-                  Download PDF
-                  </Button>
-                </PDFDownloadLink>
-
-                
-
-                
-                <LoadingButton /*loading*/ variant="contained" sx={{bgcolor:'primary.custom1'}} loadingPosition="start" startIcon={<CloudUploadOutlined />}>
-                Upload PDF
-                </LoadingButton>
-                </TimelineOppositeContent>
+                <TimelineContent>
+                  <Typography variant="h6" sx={{fontWeight:'bold'}}> Contract Process </Typography>
+                  <Typography color="text.secondary">Sign the given PDF and upload</Typography>
+                </TimelineContent>
                 <TimelineSeparator>
                   <TimelineDot sx={{ color: 'success.main', bgcolor: 'success.lighter' }}>
                     <HistoryToggleOffIcon style={{ fontSize: '1.6rem' }} />
                   </TimelineDot>
                   <TimelineConnector />
                 </TimelineSeparator>
-                <TimelineContent>
-                  <Typography variant="h6" sx={{fontWeight:'bold'}}> Contract Process </Typography>
-                  <Typography color="text.secondary">Sign the given PDF and upload</Typography>
-                </TimelineContent>
+                <TimelineOppositeContent sx={{display:'flex',alignItems:'flex-start',gap:'10px'}} variant="body2" color="text.secondary">
+
+                <Button sx={{bgcolor:'primary.custom1',display:contractstatus === '' && 'none'}} disabled={contractstatus === ''} variant="contained" onClick={handleClickOpen}>
+                Sign Contract PDF
+                </Button>
+
+                </TimelineOppositeContent>
               </TimelineItem>
-
-
-              {/* level - 1 */}
-
-              <Box sx={{filter : instructorStatus.status === 1 && 'blur(3px)',userSelect:instructorStatus.status === 1 && 'none'}}>
+              {/* level - 2 */}
+              <Box sx={{filter : (contractstatus === 'pw-pending' || contractstatus === 'pw-review') ? 'blur(3px)' : 'none',userSelect:(contractstatus === 'pw-pending' || contractstatus === 'pw-review') ? 'blur(3px)' : 'none'}}>
               <TimelineItem>
                 <TimelineSeparator>
                   <TimelineDot sx={{ color: 'warning.main', bgcolor: 'warning.lighter' }}>
@@ -203,6 +310,13 @@ const Walkthrough = () => {
               </TimelineItem>
 
               <TimelineItem>
+
+                <TimelineOppositeContent sx={{display:'flex',alignItems:'flex-start',gap:'10px'}} variant="body2" color="text.secondary">
+                  <NavLink style={{display : (contractstatus === '' || contractstatus === 'pw-pending' || contractstatus === 'pw-review') && 'none' }} to={'/availability'}>
+                <Button variant='contained' disabled={contractstatus === '' || contractstatus === 'pw-pending' || contractstatus === 'pw-review'} sx={{bgcolor:'primary.custom1'}}>Choose Availability</Button>
+                  </NavLink>
+                </TimelineOppositeContent>
+
                 <TimelineSeparator>
                   <TimelineDot sx={{ color: 'error.main', bgcolor: 'error.lighter' }}>
                     <FactCheckIcon style={{ fontSize: '1.6rem' }} />
@@ -216,8 +330,8 @@ const Walkthrough = () => {
                 </TimelineContent>
               </TimelineItem>
 
-              {/* level - 2 */}
-              <Box sx={{filter:instructorStatus.status === 2 && 'blur(3px)',userSelect:instructorStatus.status === 2 && 'none'}}>
+              {/* level - 3 */}
+              <Box sx={{filter:contractstatus === 'pw-approved' && 'blur(3px)',userSelect:contractstatus === 'pw-approved' && 'none'}}>
 
               <TimelineItem>
                 <TimelineSeparator>
@@ -248,14 +362,21 @@ const Walkthrough = () => {
                 </TimelineContent>
               </TimelineItem>
               </Box>
+              {/* level - 3 */}
+              </Box>
               {/* level - 2 */}
               </Box>
+              {/* level - 1 */}
 
 
-              {/* level - 2 */}
 
-
+              
             </Timeline>
+
+
+
+
+
           </MainCard>
         </Grid>
 
@@ -268,8 +389,68 @@ const Walkthrough = () => {
           />
         </Grid>
       </Grid>
+
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle sx={{display:'flex',justifyContent:'end'}} id="alert-dialog-title">
+          <Button color='error' onClick={handleClose}>X</Button>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+          <Stack gap={3} direction={'column'}>
+          <PDFViewer style={{ height: '500px', width: '500px' }}>
+            <PdfModule data={sign} />
+          </PDFViewer>
+          <Stack gap={3} justifyContent={'space-evenly'} direction={'row'}>
+          <Button variant='contained' sx={{bgcolor:'primary.custom1'}} onClick={handleSignView}>
+            add sign
+          </Button>
+          {
+            signView && <TextField id="outlined-basic" value={sign} onChange={handleSign} placeholder='Enter your name as signature'  variant="outlined" />
+          }
+          </Stack>
+          </Stack>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          
+          <Button sx={{bgcolor:'primary.custom1'}} variant='contained' onClick={handleClose} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
     </>
   );
 };
 
 export default Walkthrough;
+
+
+
+
+
+
+// const AlertDialog = ()=> {
+  
+
+//   return (
+//     <React.Fragment>
+//       <Button variant="outlined" onClick={handleClickOpen}>
+//         Open alert dialog
+//       </Button>
+      
+//     </React.Fragment>
+//   );
+// }
+
+
+
+
+

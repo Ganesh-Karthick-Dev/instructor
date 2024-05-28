@@ -21,14 +21,14 @@ const AuthBackground = () => {
     <Box
       sx={{
         position: 'absolute',
-        filter: 'blur(9px)',
+        filter: 'blur(12px)',
         zIndex: -1,
         bottom: 0,
-        left : 1000,
+        left : 27,
         transform: theme.direction === ThemeDirection.RTL ? 'rotate(180deg)' : 'inherit'
       }}
     >
-     <img width="100%" style={{marginLeft:'-50px'}} height="calc(100vh - 175px)" alt='oneact-logo' src={oneActLogo} />
+     <img width="70%" style={{marginLeft:'-100px'}} height="calc(100vh -175px)" alt='oneact-logo' src={oneActLogo} />
     </Box>
   );
 };

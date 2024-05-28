@@ -35,8 +35,19 @@ import dummycar from '../../assets/images/cars/generic-car.png';
 import axios from 'axios';
 import _ from 'lodash';
 import ProfileSkeleton from 'components/Instructor/ProfileSkeleton';
+import { useSelector } from 'react-redux';
 
 const Profile = () => {
+
+
+  // getting instructor details from redux store
+  const instructor = useSelector((state)=> state.userSlice)
+  const {partnerid} = instructor.instructor
+  // getting instructor details from redux store
+
+
+
+
   const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   const navigate = useNavigate();
@@ -58,13 +69,13 @@ const Profile = () => {
   const [vehicleDetails, setVehicleDetails] = useState([]);
 
   useEffect(() => {
-    handleUserFetch();
+    handleUserFetch(partnerid);
     // setBranches(userDetails.branch)
   }, []);
 
-  const handleUserFetch = async () => {
+  const handleUserFetch = async (partnerid) => {
     try {
-      let id = 6;
+      let id = partnerid;
       const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${id}`);
       let user = response.data;
       setUserDetails(user.data[0]);
