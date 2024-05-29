@@ -20,6 +20,9 @@ const ProfileTab = ({ handleLogout }) => {
     setSelectedIndex(index);
   };
 
+
+  
+
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
       <ListItemButton selected={selectedIndex === 0} onClick={(event) => handleListItemClick(event, 0)}>

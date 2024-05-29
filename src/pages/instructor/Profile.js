@@ -36,6 +36,11 @@ import axios from 'axios';
 import _ from 'lodash';
 import ProfileSkeleton from 'components/Instructor/ProfileSkeleton';
 import { useSelector } from 'react-redux';
+import { MdEditSquare } from "react-icons/md";
+import {SimpleDialog} from 'components/Instructor/editInstructor';
+
+
+
 
 const Profile = () => {
 
@@ -121,6 +126,19 @@ const Profile = () => {
   // console.log(vehicleDetails);
 
   // user details
+
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+
 
   if(_.isEmpty(userDetails)) return <ProfileSkeleton />
 
@@ -236,7 +254,20 @@ const Profile = () => {
         <Grid item xs={12} sm={7} md={8} xl={9}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <MainCard title="Personal Details">
+              <MainCard 
+              title={
+                <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                  <Typography sx={{fontWeight:'bold'}}>Personal Details</Typography>
+                  <Button color='warning' onClick={handleClickOpen}>
+                    <MdEditSquare size={25} />
+                  </Button>
+                  <SimpleDialog
+                    open={open}
+                    onClose={handleClose}
+                  />
+                </Stack>
+              }
+              >
                 <List sx={{ py: 0 }}>
                   <ListItem divider={!matchDownMD}>
                     <Grid container spacing={3}>

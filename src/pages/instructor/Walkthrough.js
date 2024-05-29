@@ -55,7 +55,7 @@ const Walkthrough = () => {
     const instructor = useSelector((state)=> state.userSlice)
     const {created , contractstatus } = instructor.instructor
     // var contractstatus = 'pw-approved'
-    const dateOnly = created.split('T')[0];                    // instructor registered date
+    const dateOnly = created?.split('T')[0];                    // instructor registered date
  
     // -------------------contractstatus-------------------
     const handleBlur = ()=> {                               // instructor contract status - 1. '' , 2. pw-pending , 3. pw-review , 4.pw-approved

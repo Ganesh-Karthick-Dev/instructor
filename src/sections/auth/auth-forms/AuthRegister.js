@@ -690,7 +690,7 @@ const AuthRegister = () => {
                   <TableCell align="center">SNO</TableCell>
                   <TableCell align="center">DOC ID</TableCell>
                   <TableCell align="center">DOC NAME</TableCell>
-                  <TableCell align="center">ACTION</TableCell>
+                  <TableCell align="left">ACTION</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

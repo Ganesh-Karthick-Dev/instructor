@@ -245,22 +245,7 @@ const handleGetCourseDates = ()=> {
     setSelectedEvent(null);
   };
 
-  const handleDynamicColor = (data) => {
-    switch (data ? data : selectedCourse) {
-      case 'DUI':
-        return '#dc2626';
-      case 'Road Test':
-        return '#22c55e';
-      case 'Defensive':
-        return '#0f172a';
-      case 'Behind the Wheels':
-        return '#d97706';
-      case 'Drivers Education':
-        return '#c026d3';
-      default:
-        '#7e22ce';
-    }
-  };
+
 
   // event data
 
@@ -443,9 +428,9 @@ const handleGetCourseDates = ()=> {
     }
   ]);
 
-  eventData.forEach((event) => {
-    event.color = handleDynamicColor(event.title);
-  });
+  // eventData.forEach((event) => {
+  //   event.color = handleDynamicColor(event.title);
+  // });
 
   const [searchResults, setSearchResults] = useState([]);
 
@@ -488,21 +473,22 @@ const handleGetCourseDates = ()=> {
   };
 
   // Function to handle event selection
-  const handleEventSelect = (arg) => {
-    const data = arg.event._def;
-    const publicId = data.publicId;
 
-    // Toggle event color based on selected course
-    const updatedRows = searchResults.map((row) =>
-      row.id === parseInt(publicId)
-        ? {
-            ...row,
-            color: row.color === '#1d4ed8' ? handleDynamicColor(selectedCourse) : '#1d4ed8'
-          }
-        : row
-    );
-
-    setSearchResults(updatedRows);
+  const handleDynamicColor = (data) => {
+    switch (data ? data : selectedCourse) {
+      case 'DUI':
+        return '#dc2626';
+      case 'Road Test':
+        return '#22c55e';
+      case 'Defensive':
+        return '#0f172a';
+      case 'Behind the Wheels':
+        return '#d97706';
+      case 'Drivers Education':
+        return '#c026d3';
+      default:
+        '#7e22ce';
+    }
   };
 
   // Function to handle course selection
@@ -510,10 +496,77 @@ const handleGetCourseDates = ()=> {
   const [clickedCourse,setClickedCourse] = useState([])
 
   let Dates = clickedCourse.map((val)=>{
-    return val.details
+    return val
   })
+console.log("dates000000" , Dates)
+  const finalDataObject = [];
+  if(!_.isEmpty(Dates)){
+
+    const addOneDay = (dateString) => {
+      const date = new Date(dateString);
+      date.setDate(date.getDate() + 1);
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    const result = Dates.map((dateData,index) => {
+        const details = dateData.details
+         console.log("details" , details.length)
+        if(details.length === 1){
+         console.log("detailsssss" , details)
+          var detailsArray = details[0]
+          console.log("detailsstt" , details[0])
+          console.log("details[0]length" , details[0].length)
+          var enddetails = detailsArray[detailsArray.length-1]
+          console.log("enddetails" , enddetails)
+          if(detailsArray !== null){
+            var startdate = (detailsArray[0].date).split("T")[0];
+            var endDate = (enddetails.date).split("T")[0];   
+            var endDatePlusOne = addOneDay(endDate); 
+          
+            var newevent = {
+              addonid: dateData.addonid,
+              start: startdate,
+              end: endDatePlusOne,
+              slots: details,
+              color : '#1677ff',
+              id : index + 1
+            }
+            console.log("newevent" , newevent)
+            finalDataObject.push(newevent)
+          }
+          
+        }else{
+          details.map(detail => {
+            var startdate = (detail[0].date).split("T")[0];
+            var endDate = (detail[detail.length -1].date).split("T")[0];   
+            var endDatePlusOne = addOneDay(endDate); 
+          
+            var newevent = {
+              addonid: dateData.addonid,
+              start: startdate,
+              end: endDatePlusOne,
+              slots: details,
+              color : '#1677ff',
+              id : index + 1
+            }
+            finalDataObject.push(newevent)
+          })
+          
+        }
+      })    
+ 
+  }
+
+  console.log("finalDataObject7iiii" , finalDataObject)
 
   let finalDates = _.flatMapDeep(Dates)
+
+  // console.log(`final dates>>>>>>>>>`, finalDates);
+
+
 
 
   const handleCourseSelect = (event, value) => {
@@ -531,7 +584,7 @@ const handleGetCourseDates = ()=> {
       // }));
 
       let courseid = value.type
-      axios.post(`${baseUrl}/getcoursedates`,{
+      axios.post(`${baseUrl}/getcoursedatesfilter`,{
         courseid : courseid,      // 1.BTW , 2.DUI , 3.Defensive , 4.Drivers educations , 5.Road Test
         type : courseid,
         combo : 2 // 1-yes;2-no
@@ -543,6 +596,26 @@ const handleGetCourseDates = ()=> {
         console.log(`error in getting course dates`,error);
       })
 
+  };
+
+
+
+  const handleEventSelect = (arg) => {
+    console.log(`clicked event arg`,arg);
+    const data = arg.event._def;
+    const publicId = data.publicId;
+
+    // Toggle event color based on selected course
+    finalDataObject.forEach((row) =>
+      row.id === parseInt(publicId)
+        ? {
+            ...row,
+            color: row.color === '#1677ff' ? '#1677ff'  : '#0c0a09'
+          }
+        : row
+    );
+
+    // setSearchResults(updatedRows);
   };
 
 
@@ -647,7 +720,7 @@ const handleGetCourseDates = ()=> {
                 <Stack direction="row" gap={3} justifyContent={'start'} alignItems="center">
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1d4ed8', display: 'inline-block'}}></Box>
+                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', bgcolor: '#15803d', display: 'inline-block'}}></Box>
                 <Typography sx={{ width: 'fit-content' }}>Selected</Typography>
               </Stack>
             </Stack>
@@ -655,7 +728,7 @@ const handleGetCourseDates = ()=> {
             <Stack>
               <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
                 <Box
-                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: handleDynamicColor(), display: 'inline-block' }}
+                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1677ff', display: 'inline-block' }}
                 ></Box>
                 <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
               </Stack>
@@ -681,7 +754,7 @@ const handleGetCourseDates = ()=> {
 
             <FullCalendar
               selectable
-              events={finalDates}       // ( coursesState && adminApproval ) && searchResults
+              events={finalDataObject}       // ( coursesState && adminApproval ) && searchResults
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}
