@@ -294,6 +294,9 @@ const AuthRegister = () => {
       }
 
       toast.success('Register success');
+      setTimeout(()=>{
+        navigate('/login')
+      },2000)
     } catch (err) {
       toast.error(err.message);
     }

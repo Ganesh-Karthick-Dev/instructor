@@ -55,6 +55,8 @@ const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
 // ------------------------------------------------------------getting availability permission-------------------------------------
 const [availabilityPermission,setAvailabilityPermission] = useState([])
 
+// console.log(`availabilityPermission`,availabilityPermission);
+
 const [availability,setAvailability] = useState([])
 
 // console.log(`>>>>>>>>>>>>>>`,availabilityPermission);
@@ -83,10 +85,10 @@ const handleAvailabilityPermission = ()=> {
 // console.log(`availability`,availability);
 
 function filterAvPending(data) {
-  console.log(`vsdvolsd`,data);
+  // console.log(`vsdvolsd`,data);
   const result = data.reduce((acc, item) => {
       if (item.substatus === "av_pending") {
-          acc.push({ productname: item.productname, substatus: item.substatus, type : item.type });
+          acc.push({ productname: item.productname, substatus: item.substatus, type : item.type , availability : Number(item.availability) ,duration:item.duration , courseid : item.productid});
       }
       return acc;
   }, []);
@@ -103,6 +105,8 @@ function filterAvPending(data) {
 // -----------------------------------------------fetch course dropdown for the particular instructor--------------------------------------------
 // fetch course date to shown that course in calendar
 const [dropDownCourse,setDropDownCourse] = useState([])
+
+// console.log(`dropdown`,dropDownCourse);
 
 const handleGetCourseDates = ()=> {
   setDropDownCourse(availabilityPermission)
@@ -434,8 +438,6 @@ const handleGetCourseDates = ()=> {
 
   const [searchResults, setSearchResults] = useState([]);
 
-  const [submittedData,setSubmittedData] = useState([])
-
   const [selectedCourse, setSelectedCourse] = useState('DUI');
 
   const [filteredCourse, setFilteredCourse] = useState([]);
@@ -495,79 +497,138 @@ const handleGetCourseDates = ()=> {
 
   const [clickedCourse,setClickedCourse] = useState([])
 
-  let Dates = clickedCourse.map((val)=>{
-    return val
-  })
-console.log("dates000000" , Dates)
-  const finalDataObject = [];
-  if(!_.isEmpty(Dates)){
+  const details = clickedCourse?.map((data)=> data.details )
 
-    const addOneDay = (dateString) => {
-      const date = new Date(dateString);
-      date.setDate(date.getDate() + 1);
-      const year = date.getUTCFullYear();
-      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
-      const day = String(date.getUTCDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
+  
+  const flattenedArray = details.flat(1)
+  
+  const result = flattenedArray.map((innerArray , index) => {
+    const start = innerArray[0]?.date || null;  // Get date from the first object
+    const end = innerArray[innerArray.length - 1]?.date || null;  // Get date from the last object
+    const slot = index + 1 ;
+    
+    return { start, slot , end };
+  });
+  
+  // approach 2
 
-    const result = Dates.map((dateData,index) => {
-        const details = dateData.details
-         console.log("details" , details.length)
-        if(details.length === 1){
-         console.log("detailsssss" , details)
-          var detailsArray = details[0]
-          console.log("detailsstt" , details[0])
-          console.log("details[0]length" , details[0].length)
-          var enddetails = detailsArray[detailsArray.length-1]
-          console.log("enddetails" , enddetails)
-          if(detailsArray !== null){
-            var startdate = (detailsArray[0].date).split("T")[0];
-            var endDate = (enddetails.date).split("T")[0];   
-            var endDatePlusOne = addOneDay(endDate); 
+  const extractedData = clickedCourse?.map(item => ({
+    addonid: item.addonid,
+    productid: item.productid,
+    details: item.details || [] // Ensure details is not null, default to an empty array
+  }));
+  
+  const flattenedArray2 = extractedData.map(item => ({
+    addonid: item.addonid,
+    productid: item.productid,
+    details: item.details.map(detailArray => {
+      if (Array.isArray(detailArray) && detailArray.length > 0) {
+        const start = detailArray[0]?.date  // Use optional chaining to handle potential null date
+        const end = detailArray[detailArray.length - 1]?.date   // Use optional chaining to handle potential null date
+        return { start, end };
+      } else {
+        return { start: null, end: null }; // Return null if details array is empty or not an array
+      }
+    })
+  }));
+
+  const flattenedArray3 = flattenedArray2?.map(item => ({
+    addonid: item.addonid,
+    productid: item.productid,
+    ...item.details.map(detail => ({ start: detail.start, end: detail.end }))
+  }));
+
+  
+  const flattenedArray4 = flattenedArray3?.map((item , index) => ({
+    slot : index + 1,
+    addonid: item.addonid,
+    productid: item.productid,
+    start : item[0].start,
+    end : item[0].end
+  }));
+
+  let finalResult = flattenedArray4;
+
+  
+  
+  // console.log(`flattenedArray4`, flattenedArray4);
+  
+
+//   let Dates = clickedCourse.map((val)=>{
+//     return val
+//   })
+// console.log("dates000000" , Dates)
+//   const finalDataObject = [];
+//   if(!_.isEmpty(Dates)){
+
+//     const addOneDay = (dateString) => {
+//       const date = new Date(dateString);
+//       date.setDate(date.getDate() + 1);
+//       const year = date.getUTCFullYear();
+//       const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
+//       const day = String(date.getUTCDate()).padStart(2, '0');
+//       return `${year}-${month}-${day}`;
+//     }
+
+//     const result = Dates.map((dateData,index) => {
+//         const details = dateData.details
+//          console.log("details" , details.length)
+//         if(details.length === 1){
+//          console.log("detailsssss" , details)
+//           var detailsArray = details[0]
+//           console.log("detailsstt" , details[0])
+//           console.log("details[0]length" , details[0].length)
+//           var enddetails = detailsArray[detailsArray.length-1]
+//           console.log("enddetails" , enddetails)
+//           if(detailsArray !== null){
+//             var startdate = (detailsArray[0].date).split("T")[0];
+//             var endDate = (enddetails.date).split("T")[0];   
+//             var endDatePlusOne = addOneDay(endDate); 
           
-            var newevent = {
-              addonid: dateData.addonid,
-              start: startdate,
-              end: endDatePlusOne,
-              slots: details,
-              color : '#1677ff',
-              id : index + 1
-            }
-            console.log("newevent" , newevent)
-            finalDataObject.push(newevent)
-          }
+//             var newevent = {
+//               addonid: dateData.addonid,
+//               start: startdate,
+//               end: endDatePlusOne,
+//               slots: details,
+//               color : '#1677ff',
+//               id : index + 1
+//             }
+//             console.log("newevent" , newevent)
+//             finalDataObject.push(newevent)
+//           }
           
-        }else{
-          details.map(detail => {
-            var startdate = (detail[0].date).split("T")[0];
-            var endDate = (detail[detail.length -1].date).split("T")[0];   
-            var endDatePlusOne = addOneDay(endDate); 
+//         }else{
+//           details.map(detail => {
+//             var startdate = (detail[0].date).split("T")[0];
+//             var endDate = (detail[detail.length -1].date).split("T")[0];   
+//             var endDatePlusOne = addOneDay(endDate); 
           
-            var newevent = {
-              addonid: dateData.addonid,
-              start: startdate,
-              end: endDatePlusOne,
-              slots: details,
-              color : '#1677ff',
-              id : index + 1
-            }
-            finalDataObject.push(newevent)
-          })
+//             var newevent = {
+//               addonid: dateData.addonid,
+//               start: startdate,
+//               end: endDatePlusOne,
+//               slots: details,
+//               color : '#1677ff',
+//               id : index + 1
+//             }
+//             finalDataObject.push(newevent)
+//           })
           
-        }
-      })    
+//         }
+//       })    
  
-  }
+//   }
 
-  console.log("finalDataObject7iiii" , finalDataObject)
+//   console.log("finalDataObject7iiii" , finalDataObject)
 
-  let finalDates = _.flatMapDeep(Dates)
+//   let finalDates = _.flatMapDeep(Dates)
 
   // console.log(`final dates>>>>>>>>>`, finalDates);
 
 
-
+const [courseId,setCourseId] = useState(null)
+const [duration,setDuration] = useState(null)
+const [avail,setAvail] = useState(null)
 
   const handleCourseSelect = (event, value) => {
     // console.log(`event`,event);
@@ -582,6 +643,10 @@ console.log("dates000000" , Dates)
       //   substatus: value.substatus,
       //   type: value.type
       // }));
+
+      setCourseId(value.courseid)
+      setDuration(value.duration)
+      setAvail(Number(value.availability))
 
       let courseid = value.type
       axios.post(`${baseUrl}/getcoursedatesfilter`,{
@@ -600,28 +665,82 @@ console.log("dates000000" , Dates)
 
 
 
+  const [addAvailability, setAddAvailability] = useState([]);
+
+  console.log(`addAvailability`,addAvailability);
+
   const handleEventSelect = (arg) => {
-    console.log(`clicked event arg`,arg);
-    const data = arg.event._def;
-    const publicId = data.publicId;
+    const data = arg.event._def.extendedProps;
 
-    // Toggle event color based on selected course
-    finalDataObject.forEach((row) =>
-      row.id === parseInt(publicId)
-        ? {
-            ...row,
-            color: row.color === '#1677ff' ? '#1677ff'  : '#0c0a09'
-          }
-        : row
-    );
+    console.log(`clicked data >>>>>`,data);
 
-    // setSearchResults(updatedRows);
-  };
+    try {
+        axios.post(`${baseUrl}/getaddonschedules`, {
+            addonid: data.addonid,
+            courseid: data.productid
+        })
+        .then((val) => {
+          console.log(`values>>>>>>>`,val);
+            const newAvailability = {
+                slot: data.slot,
+                dates: val.data.response.map(date => ({
+                    date: date.date,
+                    start_time: date.starttime,
+                    end_time: date.endtime
+                }))
+            };
+
+            // Check if the slot already exists in addAvailability
+            const index = addAvailability.findIndex(item => item.slot === data.slot);
+            if (index === -1) {
+                // If not, add the new availability
+                setAddAvailability(prev => [...prev, newAvailability]);
+            } else {
+                // If yes, remove the availability from addAvailability
+                const updatedAvailability = [...addAvailability];
+                updatedAvailability.splice(index, 1);
+                setAddAvailability(updatedAvailability);
+            }
+        })
+        .catch((error) => {
+            console.log(`Error with getting particular getCourseData - `, error);
+        });
+    } catch (error) {
+        console.log(`error with getting particular getCourseData - `, error);
+    }
+};
+
+
+
+  // Toggle event color based on selected course
+  // searchResults.forEach((row) =>
+  //   row.id === parseInt(publicId)
+  //     ? {
+  //         ...row,
+  //         color: row.color === '#1677ff' ? '#1677ff'  : '#0c0a09'
+  //       }
+  //     : row
+  // );
+
+  // setSearchResults(updatedRows);
+
+
+  const [submittedData,setSubmittedData] = useState([])
 
 
 
   const handleSubmittedData = ()=>{
-    axios.post(`http://localhost:8000/availability`,submittedData)
+    axios.post(`${baseUrl}/addAvailability`,{
+      instructorid : partnerid,
+      availability : avail, //  1-monthly , 2-quarterly , 3-half yearly
+      duration : duration,
+      accessibility : 
+          {
+              courseid : courseId,
+              key : 2, // 1- btw, 2- others
+              slotdata : addAvailability
+            }
+    })
       .then(()=>{
         console.log(`data sent to server successfully`);
         toast.success(`submitted Successfully`)
@@ -635,6 +754,28 @@ console.log("dates000000" , Dates)
   // custom1
 
 
+
+
+  // for BTW date click 
+
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [data, setData] = useState(false);
+
+  const handleDateClick = (info) => {
+    console.log(`date clicked`,info);
+    setSelectedDate(info.dateStr);
+    setPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setPopupOpen(false);
+  };
+
+  const isDateSelectable = (arg) => {
+    // Allow date selection only if data is true
+    return data;
+  };
 
 
   if (loading) return <Loader />;
@@ -702,7 +843,7 @@ console.log("dates000000" , Dates)
         <Toaster />
         <Box sx={{ position: 'relative', marginTop: '40px' }}>
           {
-            !_.isEmpty(submittedData) && <Button onClick={handleSubmittedData} sx={{position:'fixed',right:'100px',top:'300px',color:'black',background:'gold',zIndex:"20",fontWeight:'bolder'}}>Submit - {submittedData.length} events </Button>
+            !_.isEmpty(addAvailability) && <Button onClick={handleSubmittedData} sx={{position:'fixed',right:'100px',top:'300px',color:'black',background:'gold',zIndex:"20",fontWeight:'bolder'}}>Submit - {addAvailability.length} events </Button>
         
           }
           <CalendarStyled>
@@ -753,8 +894,8 @@ console.log("dates000000" , Dates)
             </Toolbar>
 
             <FullCalendar
-              selectable
-              events={finalDataObject}       // ( coursesState && adminApproval ) && searchResults
+              selectable={data === true}
+              events={finalResult}       // ( coursesState && adminApproval ) && searchResults
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}
@@ -764,12 +905,15 @@ console.log("dates000000" , Dates)
               headerToolbar={false}
               allDayMaintainDuration
               eventResizableFromStart
+              dateClick={handleDateClick}
+              selectAllow={isDateSelectable}
               select={handleRangeSelect}
               eventDrop={handleEventUpdate}
               eventClick={handleEventSelect}
               eventResize={handleEventUpdate}
               height={matchDownSM ? 'auto' : 720}
               plugins={[dayGridPlugin, interactionPlugin]}
+              timeZone='UTC'
             />
           </CalendarStyled>
 

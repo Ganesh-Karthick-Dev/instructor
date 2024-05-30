@@ -81,6 +81,7 @@ const Profile = () => {
   const handleUserFetch = async (partnerid) => {
     try {
       let id = partnerid;
+      console.log(`super user id`,id);
       const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${id}`);
       let user = response.data;
       setUserDetails(user.data[0]);
