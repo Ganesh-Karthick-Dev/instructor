@@ -17,12 +17,28 @@ import {
   Typography,
   Divider,
   Badge,
-  IconButton
+  IconButton,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+
+// date pickers
+import { DatePicker, LocalizationProvider, MobileDateTimePicker, TimePicker } from '@mui/x-date-pickers';
+// import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 // react icons
-import { IoIosWarning } from "react-icons/io";
-import { FaCheckSquare } from "react-icons/fa";
+import { IoIosAddCircle, IoIosWarning } from 'react-icons/io';
+import { FaCheckSquare } from 'react-icons/fa';
 // react icons
 
 // Third-party
@@ -42,159 +58,152 @@ import { Toaster, toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { SettingOutlined } from '@ant-design/icons';
+import { IoMdAddCircle } from "react-icons/io";
+import { IoIosRemoveCircle } from "react-icons/io";
+
 
 // ==============================|| CALENDAR - MAIN ||============================== //
 
 const AvailabilityCalendar = () => {
+  const instructor = useSelector((state) => state.userSlice);
+  const { partnerid } = instructor.instructor;
+  const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
 
-const instructor = useSelector((state)=>state.userSlice)
-const {partnerid} = instructor.instructor
-const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+  // ------------------------------------------------------------getting availability permission-------------------------------------
+  const [availabilityPermission, setAvailabilityPermission] = useState([]);
 
+  // console.log(`availabilityPermission`,availabilityPermission);
 
-// ------------------------------------------------------------getting availability permission-------------------------------------
-const [availabilityPermission,setAvailabilityPermission] = useState([])
+  const [availability, setAvailability] = useState([]);
 
-// console.log(`availabilityPermission`,availabilityPermission);
+  // console.log(`>>>>>>>>>>>>>>`,availabilityPermission);
 
-const [availability,setAvailability] = useState([])
-
-// console.log(`>>>>>>>>>>>>>>`,availabilityPermission);
-
-useEffect(()=>{
-  handleAvailabilityPermission()
-},[])
-
-const handleAvailabilityPermission = ()=> {
-  try {
-    axios.get(`${baseUrl}/getAvailabilitypermission/${partnerid}`)
-    .then((val)=>{
-      if(val.data.status === false){
-         throw new Error('error in getting availability from admin - status - false')
-      }
-      else {
-        setAvailability(val.data.data)
-        filterAvPending(val.data.data)
-      }
-    })
-  } catch (error) {
-    console.log(`error in getting availability from admin`);
-  }
-}
-
-// console.log(`availability`,availability);
-
-function filterAvPending(data) {
-  // console.log(`vsdvolsd`,data);
-  const result = data.reduce((acc, item) => {
-      if (item.substatus === "av_pending") {
-          acc.push({ productname: item.productname, substatus: item.substatus, type : item.type , availability : Number(item.availability) ,duration:item.duration , courseid : item.productid});
-      }
-      return acc;
+  useEffect(() => {
+    handleAvailabilityPermission();
   }, []);
 
-  const allEmpty = data.every(item => item.substatus === "");
-  
-  return allEmpty ? setAvailabilityPermission([]) : setAvailabilityPermission(result);
-}
-// console.log(`avail message`,availabilityPermission);
-// ------------------------------------------------------------getting availability permission--------------------------------------------
+  const handleAvailabilityPermission = () => {
+    try {
+      axios.get(`${baseUrl}/getAvailabilitypermission/${partnerid}`).then((val) => {
+        if (val.data.status === false) {
+          throw new Error('error in getting availability from admin - status - false');
+        } else {
+          setAvailability(val.data.data);
+          filterAvPending(val.data.data);
+        }
+      });
+    } catch (error) {
+      console.log(`error in getting availability from admin`);
+    }
+  };
 
+  // console.log(`availability`,availability);
 
+  function filterAvPending(data) {
+    // console.log(`vsdvolsd`,data);
+    const result = data.reduce((acc, item) => {
+      if (item.substatus === 'av_pending') {
+        acc.push({
+          productname: item.productname,
+          substatus: item.substatus,
+          type: item.type,
+          availability: Number(item.availability),
+          duration: item.duration,
+          courseid: item.productid
+        });
+      }
+      return acc;
+    }, []);
 
-// -----------------------------------------------fetch course dropdown for the particular instructor--------------------------------------------
-// fetch course date to shown that course in calendar
-const [dropDownCourse,setDropDownCourse] = useState([])
+    const allEmpty = data.every((item) => item.substatus === '');
 
-// console.log(`dropdown`,dropDownCourse);
+    return allEmpty ? setAvailabilityPermission([]) : setAvailabilityPermission(result);
+  }
+  // console.log(`avail message`,availabilityPermission);
+  // ------------------------------------------------------------getting availability permission--------------------------------------------
 
-const handleGetCourseDates = ()=> {
-  setDropDownCourse(availabilityPermission)
-  toast.success(`course dates fetched successfully`)
-  // try {
+  // -----------------------------------------------fetch course dropdown for the particular instructor--------------------------------------------
+  // fetch course date to shown that course in calendar
+  const [dropDownCourse, setDropDownCourse] = useState([]);
 
-  //   // toast.promise(
-  //   //   axios.get(`${baseUrl}/getInstructorById/${partnerid}`)
-  //   //   .then((response) => {
-  //   //     if (response.data.status === false) {
-  //   //       throw new Error("Failed to get course dates");
-  //   //     } else {
-  //   //       // console.log(`courses - `,response.data.data[0].courses);
-  //   //       let instructorCourses = response.data.data[0].courses
-  //   //       setDropDownCourse(instructorCourses)
-  //   //       return "Course dates retrieved successfully";
-  //   //     }
-  //   //   }).catch((error) => {
-  //   //     console.error("Error fetching course dates:", error);
-  //   //     throw new Error("Failed to fetch course dates");
-  //   //   }),
-  //   //   {
-  //   //     loading: 'Fetching course dates...',
-  //   //     success: (response) => <b>{response}</b>, // Use response message here
-  //   //     error: (error) => <b>{error.message}</b>, // Use error message here
-  //   //   }
-  //   // );    
-  // } catch (error) {
-  //   console.log(error);
-  // }
-}
+  console.log(`dropdown`,dropDownCourse);
+
+  const handleGetCourseDates = () => {
+    setDropDownCourse(availabilityPermission);
+    toast.success(`course dates fetched successfully`);
+    // try {
+
+    //   // toast.promise(
+    //   //   axios.get(`${baseUrl}/getInstructorById/${partnerid}`)
+    //   //   .then((response) => {
+    //   //     if (response.data.status === false) {
+    //   //       throw new Error("Failed to get course dates");
+    //   //     } else {
+    //   //       // console.log(`courses - `,response.data.data[0].courses);
+    //   //       let instructorCourses = response.data.data[0].courses
+    //   //       setDropDownCourse(instructorCourses)
+    //   //       return "Course dates retrieved successfully";
+    //   //     }
+    //   //   }).catch((error) => {
+    //   //     console.error("Error fetching course dates:", error);
+    //   //     throw new Error("Failed to fetch course dates");
+    //   //   }),
+    //   //   {
+    //   //     loading: 'Fetching course dates...',
+    //   //     success: (response) => <b>{response}</b>, // Use response message here
+    //   //     error: (error) => <b>{error.message}</b>, // Use error message here
+    //   //   }
+    //   // );
+    // } catch (error) {
+    //   console.log(error);
+    // }
+  };
 
   // fetch course date to shown that course in calendar
-// --------------------------------------------fetch course dropdown for the particular instructor--------------------------------------------
+  // --------------------------------------------fetch course dropdown for the particular instructor--------------------------------------------
 
-
-
-
-
-  
   // admin approval
-  const [adminApproval,setAdminApproval] = useState(false)
+  const [adminApproval, setAdminApproval] = useState(false);
   // admin approval
 
+  //   // fetch course date to shown that course in calendar
+  // const [coursesState,setCoursesState] = useState(false)
 
-//   // fetch course date to shown that course in calendar
-// const [coursesState,setCoursesState] = useState(false)
+  // useEffect(()=>{
+  //   setCoursesState(false)
+  // },[])
+  // const handleGetCourseDates = ()=> {
+  //   try {
+  //     const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
 
-// useEffect(()=>{
-//   setCoursesState(false)
-// },[])
-// const handleGetCourseDates = ()=> {
-//   try {
-//     const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
-
-//     toast.promise(
-//       axios.post(`${baseUrl}/getInstructorById/14`, {
-//         courseid: 3,
-//         type: 3,
-//         combo: 2, // 1-yes;2-no
-//       }).then((response) => {
-//         if (!response.status) {
-//           throw new Error("Failed to get course dates");
-//         } else {
-//           // Handle successful response
-//           setCoursesState(true)
-//           return "Course dates retrieved successfully";
-//         }
-//       }).catch((error) => {
-//         console.error("Error fetching course dates:", error);
-//         throw new Error("Failed to fetch course dates");
-//       }),
-//       {
-//         loading: 'Fetching course dates...',
-//         success: (response) => <b>{response}</b>, // Use response message here
-//         error: (error) => <b>{error.message}</b>, // Use error message here
-//       }
-//     );    
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-//   // fetch course date to shown that course in calendar
-  
-
-
-
-
+  //     toast.promise(
+  //       axios.post(`${baseUrl}/getInstructorById/14`, {
+  //         courseid: 3,
+  //         type: 3,
+  //         combo: 2, // 1-yes;2-no
+  //       }).then((response) => {
+  //         if (!response.status) {
+  //           throw new Error("Failed to get course dates");
+  //         } else {
+  //           // Handle successful response
+  //           setCoursesState(true)
+  //           return "Course dates retrieved successfully";
+  //         }
+  //       }).catch((error) => {
+  //         console.error("Error fetching course dates:", error);
+  //         throw new Error("Failed to fetch course dates");
+  //       }),
+  //       {
+  //         loading: 'Fetching course dates...',
+  //         success: (response) => <b>{response}</b>, // Use response message here
+  //         error: (error) => <b>{error.message}</b>, // Use error message here
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+  //   // fetch course date to shown that course in calendar
 
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(true);
@@ -248,8 +257,6 @@ const handleGetCourseDates = ()=> {
     setIsModalOpen(false);
     setSelectedEvent(null);
   };
-
-
 
   // event data
 
@@ -442,7 +449,6 @@ const handleGetCourseDates = ()=> {
 
   const [filteredCourse, setFilteredCourse] = useState([]);
 
-
   // useEffect(() => {
   //   if(coursesState && adminApproval === true){
   //     setFilteredCourse(_.uniqBy(eventData, (e) => e.value));
@@ -452,14 +458,12 @@ const handleGetCourseDates = ()=> {
   //   }
   // }, [coursesState,adminApproval]);
 
- 
   // custom1
 
   useEffect(() => {
-    const filteredResults = searchResults.filter(val => val.color === '#1d4ed8');
+    const filteredResults = searchResults.filter((val) => val.color === '#1d4ed8');
     setSubmittedData(filteredResults);
   }, [searchResults]);
-
 
   useEffect(() => {
     // Initialize searchResults with DUI course data when component mounts
@@ -495,36 +499,35 @@ const handleGetCourseDates = ()=> {
 
   // Function to handle course selection
 
-  const [clickedCourse,setClickedCourse] = useState([])
+  const [clickedCourse, setClickedCourse] = useState([]);
 
-  const details = clickedCourse?.map((data)=> data.details )
+  const details = clickedCourse?.map((data) => data.details);
 
-  
-  const flattenedArray = details.flat(1)
-  
-  const result = flattenedArray.map((innerArray , index) => {
-    const start = innerArray[0]?.date || null;  // Get date from the first object
-    const end = innerArray[innerArray.length - 1]?.date || null;  // Get date from the last object
-    const slot = index + 1 ;
-    
-    return { start, slot , end };
+  const flattenedArray = details.flat(1);
+
+  const result = flattenedArray.map((innerArray, index) => {
+    const start = innerArray[0]?.date || null; // Get date from the first object
+    const end = innerArray[innerArray.length - 1]?.date || null; // Get date from the last object
+    const slot = index + 1;
+
+    return { start, slot, end };
   });
-  
+
   // approach 2
 
-  const extractedData = clickedCourse?.map(item => ({
+  const extractedData = clickedCourse?.map((item) => ({
     addonid: item.addonid,
     productid: item.productid,
     details: item.details || [] // Ensure details is not null, default to an empty array
   }));
-  
-  const flattenedArray2 = extractedData.map(item => ({
+
+  const flattenedArray2 = extractedData.map((item) => ({
     addonid: item.addonid,
     productid: item.productid,
-    details: item.details.map(detailArray => {
+    details: item.details.map((detailArray) => {
       if (Array.isArray(detailArray) && detailArray.length > 0) {
-        const start = detailArray[0]?.date  // Use optional chaining to handle potential null date
-        const end = detailArray[detailArray.length - 1]?.date   // Use optional chaining to handle potential null date
+        const start = detailArray[0]?.date; // Use optional chaining to handle potential null date
+        const end = detailArray[detailArray.length - 1]?.date; // Use optional chaining to handle potential null date
         return { start, end };
       } else {
         return { start: null, end: null }; // Return null if details array is empty or not an array
@@ -532,185 +535,178 @@ const handleGetCourseDates = ()=> {
     })
   }));
 
-  const flattenedArray3 = flattenedArray2?.map(item => ({
+  const flattenedArray3 = flattenedArray2?.map((item) => ({
     addonid: item.addonid,
     productid: item.productid,
-    ...item.details.map(detail => ({ start: detail.start, end: detail.end }))
+    ...item.details.map((detail) => ({ start: detail.start, end: detail.end }))
   }));
 
-  
-  const flattenedArray4 = flattenedArray3?.map((item , index) => ({
-    slot : index + 1,
+  const flattenedArray4 = flattenedArray3?.map((item, index) => ({
+    slot: index + 1,
     addonid: item.addonid,
     productid: item.productid,
-    start : item[0].start,
-    end : item[0].end
+    start: item[0].start,
+    end: item[0].end
   }));
 
   let finalResult = flattenedArray4;
 
-  
-  
   // console.log(`flattenedArray4`, flattenedArray4);
-  
 
-//   let Dates = clickedCourse.map((val)=>{
-//     return val
-//   })
-// console.log("dates000000" , Dates)
-//   const finalDataObject = [];
-//   if(!_.isEmpty(Dates)){
+  //   let Dates = clickedCourse.map((val)=>{
+  //     return val
+  //   })
+  // console.log("dates000000" , Dates)
+  //   const finalDataObject = [];
+  //   if(!_.isEmpty(Dates)){
 
-//     const addOneDay = (dateString) => {
-//       const date = new Date(dateString);
-//       date.setDate(date.getDate() + 1);
-//       const year = date.getUTCFullYear();
-//       const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
-//       const day = String(date.getUTCDate()).padStart(2, '0');
-//       return `${year}-${month}-${day}`;
-//     }
+  //     const addOneDay = (dateString) => {
+  //       const date = new Date(dateString);
+  //       date.setDate(date.getDate() + 1);
+  //       const year = date.getUTCFullYear();
+  //       const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
+  //       const day = String(date.getUTCDate()).padStart(2, '0');
+  //       return `${year}-${month}-${day}`;
+  //     }
 
-//     const result = Dates.map((dateData,index) => {
-//         const details = dateData.details
-//          console.log("details" , details.length)
-//         if(details.length === 1){
-//          console.log("detailsssss" , details)
-//           var detailsArray = details[0]
-//           console.log("detailsstt" , details[0])
-//           console.log("details[0]length" , details[0].length)
-//           var enddetails = detailsArray[detailsArray.length-1]
-//           console.log("enddetails" , enddetails)
-//           if(detailsArray !== null){
-//             var startdate = (detailsArray[0].date).split("T")[0];
-//             var endDate = (enddetails.date).split("T")[0];   
-//             var endDatePlusOne = addOneDay(endDate); 
-          
-//             var newevent = {
-//               addonid: dateData.addonid,
-//               start: startdate,
-//               end: endDatePlusOne,
-//               slots: details,
-//               color : '#1677ff',
-//               id : index + 1
-//             }
-//             console.log("newevent" , newevent)
-//             finalDataObject.push(newevent)
-//           }
-          
-//         }else{
-//           details.map(detail => {
-//             var startdate = (detail[0].date).split("T")[0];
-//             var endDate = (detail[detail.length -1].date).split("T")[0];   
-//             var endDatePlusOne = addOneDay(endDate); 
-          
-//             var newevent = {
-//               addonid: dateData.addonid,
-//               start: startdate,
-//               end: endDatePlusOne,
-//               slots: details,
-//               color : '#1677ff',
-//               id : index + 1
-//             }
-//             finalDataObject.push(newevent)
-//           })
-          
-//         }
-//       })    
- 
-//   }
+  //     const result = Dates.map((dateData,index) => {
+  //         const details = dateData.details
+  //          console.log("details" , details.length)
+  //         if(details.length === 1){
+  //          console.log("detailsssss" , details)
+  //           var detailsArray = details[0]
+  //           console.log("detailsstt" , details[0])
+  //           console.log("details[0]length" , details[0].length)
+  //           var enddetails = detailsArray[detailsArray.length-1]
+  //           console.log("enddetails" , enddetails)
+  //           if(detailsArray !== null){
+  //             var startdate = (detailsArray[0].date).split("T")[0];
+  //             var endDate = (enddetails.date).split("T")[0];
+  //             var endDatePlusOne = addOneDay(endDate);
 
-//   console.log("finalDataObject7iiii" , finalDataObject)
+  //             var newevent = {
+  //               addonid: dateData.addonid,
+  //               start: startdate,
+  //               end: endDatePlusOne,
+  //               slots: details,
+  //               color : '#1677ff',
+  //               id : index + 1
+  //             }
+  //             console.log("newevent" , newevent)
+  //             finalDataObject.push(newevent)
+  //           }
 
-//   let finalDates = _.flatMapDeep(Dates)
+  //         }else{
+  //           details.map(detail => {
+  //             var startdate = (detail[0].date).split("T")[0];
+  //             var endDate = (detail[detail.length -1].date).split("T")[0];
+  //             var endDatePlusOne = addOneDay(endDate);
+
+  //             var newevent = {
+  //               addonid: dateData.addonid,
+  //               start: startdate,
+  //               end: endDatePlusOne,
+  //               slots: details,
+  //               color : '#1677ff',
+  //               id : index + 1
+  //             }
+  //             finalDataObject.push(newevent)
+  //           })
+
+  //         }
+  //       })
+
+  //   }
+
+  //   console.log("finalDataObject7iiii" , finalDataObject)
+
+  //   let finalDates = _.flatMapDeep(Dates)
 
   // console.log(`final dates>>>>>>>>>`, finalDates);
 
-
-const [courseId,setCourseId] = useState(null)
-const [duration,setDuration] = useState(null)
-const [avail,setAvail] = useState(null)
+  const [courseId, setCourseId] = useState(null);
+  const [duration, setDuration] = useState(null);
+  const [avail, setAvail] = useState(null);
+  const [courseOthers,setCourseOthers] = useState('')
 
   const handleCourseSelect = (event, value) => {
     // console.log(`event`,event);
-    console.log(`value`,value);
+    console.log(`value`, value);
     // setSelectedCourse(value.title);
     // setSearchResults(globalSearch(eventData, value.title));
 
+    // setClickedCourse(prevState => ({
+    //   ...prevState,
+    //   productname: value.productname,
+    //   substatus: value.substatus,
+    //   type: value.type
+    // }));
 
-      // setClickedCourse(prevState => ({
-      //   ...prevState,
-      //   productname: value.productname,
-      //   substatus: value.substatus,
-      //   type: value.type
-      // }));
+    setCourseId(value.courseid);
+    setDuration(value.duration);
+    setAvail(Number(value.availability));
+    setCourseOthers(value.productname)
 
-      setCourseId(value.courseid)
-      setDuration(value.duration)
-      setAvail(Number(value.availability))
-
-      let courseid = value.type
-      axios.post(`${baseUrl}/getcoursedatesfilter`,{
-        courseid : courseid,      // 1.BTW , 2.DUI , 3.Defensive , 4.Drivers educations , 5.Road Test
-        type : courseid,
-        combo : 2 // 1-yes;2-no
+    let courseid = value.type;
+    axios
+      .post(`${baseUrl}/getcoursedatesfilter`, {
+        courseid: courseid, // 1.BTW , 2.DUI , 3.Defensive , 4.Drivers educations , 5.Road Test
+        type: courseid,
+        combo: 2 // 1-yes;2-no
       })
-      .then((val)=>{
-        setClickedCourse(val.data.response[0].dates)
+      .then((val) => {
+        setClickedCourse(val.data.response[0].dates);
       })
-      .catch((error)=>{
-        console.log(`error in getting course dates`,error);
-      })
-
+      .catch((error) => {
+        console.log(`error in getting course dates`, error);
+      });
   };
-
-
 
   const [addAvailability, setAddAvailability] = useState([]);
 
-  console.log(`addAvailability`,addAvailability);
+  console.log(`addAvailability`, addAvailability);
 
   const handleEventSelect = (arg) => {
     const data = arg.event._def.extendedProps;
 
-    console.log(`clicked data >>>>>`,data);
+    console.log(`clicked data >>>>>`, data);
 
     try {
-        axios.post(`${baseUrl}/getaddonschedules`, {
-            addonid: data.addonid,
-            courseid: data.productid
+      axios
+        .post(`${baseUrl}/getaddonschedules`, {
+          addonid: data.addonid,
+          courseid: data.productid
         })
         .then((val) => {
-          console.log(`values>>>>>>>`,val);
-            const newAvailability = {
-                slot: data.slot,
-                dates: val.data.response.map(date => ({
-                    date: date.date,
-                    start_time: date.starttime,
-                    end_time: date.endtime
-                }))
-            };
+          console.log(`values>>>>>>>`, val);
+          const newAvailability = {
+            slot: data.slot,
+            dates: val.data.response.map((date) => ({
+              date: date.date,
+              start_time: date.starttime,
+              end_time: date.endtime
+            }))
+          };
 
-            // Check if the slot already exists in addAvailability
-            const index = addAvailability.findIndex(item => item.slot === data.slot);
-            if (index === -1) {
-                // If not, add the new availability
-                setAddAvailability(prev => [...prev, newAvailability]);
-            } else {
-                // If yes, remove the availability from addAvailability
-                const updatedAvailability = [...addAvailability];
-                updatedAvailability.splice(index, 1);
-                setAddAvailability(updatedAvailability);
-            }
+          // Check if the slot already exists in addAvailability
+          const index = addAvailability.findIndex((item) => item.slot === data.slot);
+          if (index === -1) {
+            // If not, add the new availability
+            setAddAvailability((prev) => [...prev, newAvailability]);
+          } else {
+            // If yes, remove the availability from addAvailability
+            const updatedAvailability = [...addAvailability];
+            updatedAvailability.splice(index, 1);
+            setAddAvailability(updatedAvailability);
+          }
         })
         .catch((error) => {
-            console.log(`Error with getting particular getCourseData - `, error);
+          console.log(`Error with getting particular getCourseData - `, error);
         });
     } catch (error) {
-        console.log(`error with getting particular getCourseData - `, error);
+      console.log(`error with getting particular getCourseData - `, error);
     }
-};
-
-
+  };
 
   // Toggle event color based on selected course
   // searchResults.forEach((row) =>
@@ -724,46 +720,43 @@ const [avail,setAvail] = useState(null)
 
   // setSearchResults(updatedRows);
 
+  const [submittedData, setSubmittedData] = useState([]);
 
-  const [submittedData,setSubmittedData] = useState([])
-
-
-
-  const handleSubmittedData = ()=>{
-    axios.post(`${baseUrl}/addAvailability`,{
-      instructorid : partnerid,
-      availability : avail, //  1-monthly , 2-quarterly , 3-half yearly
-      duration : duration,
-      accessibility : 
-          {
-              courseid : courseId,
-              key : 2, // 1- btw, 2- others
-              slotdata : addAvailability
-            }
-    })
-      .then(()=>{
+  const handleSubmittedData = () => {
+    axios
+      .post(`${baseUrl}/addAvailability`, {
+        instructorid: partnerid,
+        availability: avail, //  1-monthly , 2-quarterly , 3-half yearly
+        duration: duration,
+        accessibility: {
+          courseid: courseId,
+          key: 2, // 1- btw, 2- others
+          slotdata: addAvailability
+        }
+      })
+      .then(() => {
         console.log(`data sent to server successfully`);
-        toast.success(`submitted Successfully`)
+        toast.success(`submitted Successfully`);
       })
-      .catch(()=>{
+      .catch(() => {
         console.log(`error while send submitted data to server`);
-        toast.error(`failed to submit`)
-      })
-  }
+        toast.error(`failed to submit`);
+      });
+  };
 
   // custom1
 
-
-
-
-  // for BTW date click 
+  // for BTW date click
 
   const [popupOpen, setPopupOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [data, setData] = useState(false);
 
-  const handleDateClick = (info) => {
-    console.log(`date clicked`,info);
+  const [btwData,setBtwData] = useState()
+
+  console.log(`clicked date`,selectedDate);
+
+  const handleClickOpen = (info) => {
     setSelectedDate(info.dateStr);
     setPopupOpen(true);
   };
@@ -778,6 +771,24 @@ const [avail,setAvail] = useState(null)
   };
 
 
+  // dynamic start time an dend time add / remove
+
+  const [rows, setRows] = useState([{ id: Date.now(), startTime: null, endTime: null }]);
+
+  const handleAddRow = () => {
+    setRows([...rows, { id: Date.now(), startTime: null, endTime: null }]);
+  };
+
+  const handleRemoveRow = (id) => {
+    setRows(rows.filter(row => row.id !== id));
+  };
+
+  const handleTimeChange = (id, timeType, newValue) => {
+    setRows(rows.map(row => 
+      row.id === id ? { ...row, [timeType]: newValue } : row
+    ));
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -785,67 +796,190 @@ const [avail,setAvail] = useState(null)
       <MainCard>
         <Grid item xs={12} sm={6} md={12}>
 
+          <Dialog open={popupOpen} onClose={handleClosePopup} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+            <DialogTitle id="alert-dialog-title">{selectedDate}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
 
-        <Stack direction={'row'} justifyContent={'end'} alignItems={'center'}>
- 
-                   
 
-              {
-                _.isEmpty(availabilityPermission) ? <Box sx={{background:'#ca8a04', color : 'white',padding:'20px',borderRadius:'5px',display:'flex',flexDirection:'row',gap:'15px ',alignItems:'start'}}>
-                <Box>
-                <IoIosWarning size={30} />
-                </Box>
-                <Typography sx={{width:'300px'}} >
-                  <span style={{fontWeight:'bold',fontSize:"20px",display:'block'}}>Under admin approval</span> Please wait for your account approval to feed your flexible availability
-                </Typography>
-              </Box>  :  
-              <Stack direction={'row'} gap={2} alignItems={'center'}>
-              <Box sx={{display:'flex',gap:'10px'}}>
-            <Button
-               sx={{bgcolor:'primary.custom1'}}
-              variant='contained'
-              disabled={availabilityPermission.length === 0}
-              onClick={handleGetCourseDates}
-              >
-                <AnimateButton type="rotate">
-                  <IconButton color="" sx={{color:'white'}} variant="dashed" shape="rounded">
-                    <SettingOutlined />
-                  </IconButton>
-              </AnimateButton>
-              Get Course Dates
+              {/* <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center">Start Time</TableCell>
+                    <TableCell align="center">End Time</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="center">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TimePicker label="12 : 00 PM" />
+                     </LocalizationProvider>
+                    </TableCell>
+                    <TableCell align="center">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TimePicker label="12 : 00 PM" />
+                    </LocalizationProvider>
+                    </TableCell>
+                    <TableCell align="center">
+                    <Button sx={{width:'100%'}}> <IoIosRemoveCircle style={{color:'red'}} size={30} /> </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+              </TableContainer>
+
+              <Button sx={{width:'100%'}}> <IoMdAddCircle size={30} /> </Button> */}
+
+<TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell align="center">Start Time</TableCell>
+            <TableCell align="center">End Time</TableCell>
+            <TableCell align="center">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell align="center">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker
+                    label="Start Time"
+                    value={row.startTime}
+                    onChange={(newValue) => handleTimeChange(row.id, 'startTime', newValue)}
+                  />
+                </LocalizationProvider>
+              </TableCell>
+              <TableCell align="center">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker
+                    label="End Time"
+                    value={row.endTime}
+                    onChange={(newValue) => handleTimeChange(row.id, 'endTime', newValue)}
+                  />
+                </LocalizationProvider>
+              </TableCell>
+              <TableCell align="center">
+                <Button onClick={() => handleRemoveRow(row.id)}>
+                  <IoIosRemoveCircle style={{ color: 'red' }} size={30} />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+          <TableRow>
+            <TableCell colSpan={3} align="center">
+              <Button color='primary' onClick={handleAddRow}>
+                <IoIosAddCircle style={{}} size={30} /> 
+                <Typography sx={{}}> Add new Time Slot </Typography>
               </Button>
-            {/* <Button sx={{bgcolor:'primary.custom1'}} disabled variant='contained'>View</Button> */}
-            </Box>
-            <Box sx={{background:'#15803d', color : 'white',padding:'20px',borderRadius:'5px',display:'flex',flexDirection:'row',gap:'15px ',alignItems:'start'}}>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button variant='contained' color='error' onClick={handleClosePopup}>Cancel</Button>
+              <Button variant='contained' color='success' onClick={handleClosePopup} autoFocus>
+                Add
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Stack direction={'row'} justifyContent={'end'} alignItems={'center'}>
+            {_.isEmpty(availabilityPermission) ? (
+              <Box
+                sx={{
+                  background: '#ca8a04',
+                  color: 'white',
+                  padding: '20px',
+                  borderRadius: '5px',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '15px ',
+                  alignItems: 'start'
+                }}
+              >
                 <Box>
-                <FaCheckSquare size={30} />
+                  <IoIosWarning size={30} />
                 </Box>
-                <Typography sx={{width:'300px',display:'flex',flexDirection:'column',gap:'10px'}} >
-                  <span style={{fontWeight:'bold',fontSize:'20px',lineHeight:'20px',display:'block'}}>Admin need approval for below Courses</span> 
-                  <ul>
-                    {
-                      availabilityPermission && availabilityPermission.map((val,index)=>{
-                        return <li key={index}>{val.productname}</li>
-                      })
-                    }
-                  </ul>
+                <Typography sx={{ width: '300px' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '20px', display: 'block' }}>Under admin approval</span> Please wait for your
+                  account approval to feed your flexible availability
                 </Typography>
               </Box>
+            ) : (
+              <Stack direction={'row'} gap={2} alignItems={'center'}>
+                <Box sx={{ display: 'flex', gap: '10px' }}>
+                  <Button
+                    sx={{ bgcolor: 'primary.custom1' }}
+                    variant="contained"
+                    disabled={availabilityPermission.length === 0}
+                    onClick={handleGetCourseDates}
+                  >
+                    <AnimateButton type="rotate">
+                      <IconButton color="" sx={{ color: 'white' }} variant="dashed" shape="rounded">
+                        <SettingOutlined />
+                      </IconButton>
+                    </AnimateButton>
+                    Get Course Dates
+                  </Button>
+                  {/* <Button sx={{bgcolor:'primary.custom1'}} disabled variant='contained'>View</Button> */}
+                </Box>
+                <Box
+                  sx={{
+                    background: '#15803d',
+                    color: 'white',
+                    padding: '20px',
+                    borderRadius: '5px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '15px ',
+                    alignItems: 'start'
+                  }}
+                >
+                  <Box>
+                    <FaCheckSquare size={30} />
+                  </Box>
+                  <Typography sx={{ width: '300px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '20px', lineHeight: '20px', display: 'block' }}>
+                      Admin need approval for below Courses
+                    </span>
+                    <ul>
+                      {availabilityPermission &&
+                        availabilityPermission.map((val, index) => {
+                          return <li key={index}>{val.productname}</li>;
+                        })}
+                    </ul>
+                  </Typography>
+                </Box>
               </Stack>
-              
-              }
-           
-
-        </Stack>
-          
-
+            )}
+          </Stack>
         </Grid>
         <Toaster />
         <Box sx={{ position: 'relative', marginTop: '40px' }}>
-          {
-            !_.isEmpty(addAvailability) && <Button onClick={handleSubmittedData} sx={{position:'fixed',right:'100px',top:'300px',color:'black',background:'gold',zIndex:"20",fontWeight:'bolder'}}>Submit - {addAvailability.length} events </Button>
-        
-          }
+          {!_.isEmpty(addAvailability) && (
+            <Button
+              onClick={handleSubmittedData}
+              sx={{
+                position: 'fixed',
+                right: '100px',
+                top: '300px',
+                color: 'black',
+                background: 'gold',
+                zIndex: '20',
+                fontWeight: 'bolder'
+              }}
+            >
+              Submit - {addAvailability.length} events{' '}
+            </Button>
+          )}
           <CalendarStyled>
             <Toolbar
               data={eventData}
@@ -857,25 +991,23 @@ const [avail,setAvail] = useState(null)
             >
               <Grid container gap={3} justifyContent={'center'} alignItems={'center'}>
                 <Grid item>
-
-                <Stack direction="row" gap={3} justifyContent={'start'} alignItems="center">
-            <Stack>
-              <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', bgcolor: '#15803d', display: 'inline-block'}}></Box>
-                <Typography sx={{ width: 'fit-content' }}>Selected</Typography>
-              </Stack>
-            </Stack>
-            <Divider orientation="vertical" flexItem />
-            <Stack>
-              <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
-                <Box
-                  sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1677ff', display: 'inline-block' }}
-                ></Box>
-                <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
-              </Stack>
-            </Stack>
-          </Stack>
-
+                  <Stack direction="row" gap={3} justifyContent={'start'} alignItems="center">
+                    <Stack>
+                      <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
+                        <Box sx={{ borderRadius: '50%', width: '30px', height: '30px', bgcolor: '#15803d', display: 'inline-block' }}></Box>
+                        <Typography sx={{ width: 'fit-content' }}>Selected</Typography>
+                      </Stack>
+                    </Stack>
+                    <Divider orientation="vertical" flexItem />
+                    <Stack>
+                      <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ width: 'fit-content' }}>
+                        <Box
+                          sx={{ borderRadius: '50%', width: '30px', height: '30px', background: '#1677ff', display: 'inline-block' }}
+                        ></Box>
+                        <Typography sx={{ width: 'fit-content' }}>{selectedCourse}</Typography>
+                      </Stack>
+                    </Stack>
+                  </Stack>
                 </Grid>
                 <Grid item>
                   <Autocomplete
@@ -895,7 +1027,7 @@ const [avail,setAvail] = useState(null)
 
             <FullCalendar
               selectable={data === true}
-              events={finalResult}       // ( coursesState && adminApproval ) && searchResults
+              events={finalResult} // ( coursesState && adminApproval ) && searchResults
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}
@@ -905,7 +1037,7 @@ const [avail,setAvail] = useState(null)
               headerToolbar={false}
               allDayMaintainDuration
               eventResizableFromStart
-              dateClick={handleDateClick}
+              dateClick={ courseOthers === 'Behind the Wheels' && handleClickOpen}
               selectAllow={isDateSelectable}
               select={handleRangeSelect}
               eventDrop={handleEventUpdate}
@@ -913,7 +1045,7 @@ const [avail,setAvail] = useState(null)
               eventResize={handleEventUpdate}
               height={matchDownSM ? 'auto' : 720}
               plugins={[dayGridPlugin, interactionPlugin]}
-              timeZone='UTC'
+              timeZone="UTC"
             />
           </CalendarStyled>
 
