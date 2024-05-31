@@ -629,9 +629,13 @@ const AvailabilityCalendar = () => {
   const [avail, setAvail] = useState(null);
   const [courseOthers,setCourseOthers] = useState('')
 
+
+  const [epicCourseSelection,setEpicCourseSelection] = useState('')
+
   const handleCourseSelect = (event, value) => {
     // console.log(`event`,event);
     console.log(`value`, value);
+    setEpicCourseSelection(value.productname)
     // setSelectedCourse(value.title);
     // setSearchResults(globalSearch(eventData, value.title));
 
@@ -663,6 +667,7 @@ const AvailabilityCalendar = () => {
   };
 
   const [addAvailability, setAddAvailability] = useState([]);
+
 
   console.log(`addAvailability`, addAvailability);
 
@@ -709,14 +714,6 @@ const AvailabilityCalendar = () => {
   };
 
   // Toggle event color based on selected course
-  // searchResults.forEach((row) =>
-  //   row.id === parseInt(publicId)
-  //     ? {
-  //         ...row,
-  //         color: row.color === '#1677ff' ? '#1677ff'  : '#0c0a09'
-  //       }
-  //     : row
-  // );
 
   // setSearchResults(updatedRows);
 
@@ -751,43 +748,195 @@ const AvailabilityCalendar = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [data, setData] = useState(false);
+  const [dateData, setDateData] = useState({});
 
-  const [btwData,setBtwData] = useState()
 
-  console.log(`clicked date`,selectedDate);
+  // transform data
 
+  const [transformedData, setTransformedData] = useState([]);
+
+  const [bwtCalendarData,setBwtCalendarData] = useState([])
+
+  console.log(`epic final data`,bwtCalendarData);
+
+  useEffect(() => {
+    const newData = transformData(dateData);
+    const newData2 = transformData2(dateData)
+    setTransformedData(newData);
+    setBwtCalendarData(newData2)
+  }, [dateData]);
+
+  const transformData2 = (originalData) => {
+    const transformedData = Object.entries(originalData).map(([date, data]) => {
+      return {
+        title : 'BWT',
+        value : 'BWT',
+        start : date,
+        color : '#15803d',
+        date,
+        slots: data?.slots ? data.slots.map(slot => ({
+          slot: slot?.slot,
+          start_time: slot?.start_time,
+          end_time: slot?.end_time
+        })) : []
+      };
+    });
+    return transformedData;
+  }
+
+
+  const transformData = (originalData) => {
+    const transformedData = Object.entries(originalData).map(([date, data]) => {
+      return {
+        date,
+        slots: data?.slots ? data.slots.map(slot => ({
+          slot: slot?.slot,
+          start_time: slot?.start_time,
+          end_time: slot?.end_time
+        })) : []
+      };
+    });
+    return transformedData;
+  };
+  
   const handleClickOpen = (info) => {
     setSelectedDate(info.dateStr);
     setPopupOpen(true);
   };
-
+  
   const handleClosePopup = () => {
     setPopupOpen(false);
   };
-
+  
   const isDateSelectable = (arg) => {
     // Allow date selection only if data is true
     return data;
   };
-
-
-  // dynamic start time an dend time add / remove
-
-  const [rows, setRows] = useState([{ id: Date.now(), startTime: null, endTime: null }]);
-
+  
   const handleAddRow = () => {
-    setRows([...rows, { id: Date.now(), startTime: null, endTime: null }]);
+    const newRow = { id: Date.now(), startTime: null, endTime: null };
+    setDateData(prevData => {
+      const updatedRows = prevData[selectedDate] ? [...prevData[selectedDate].rows, newRow] : [newRow];
+      return { ...prevData, [selectedDate]: { ...prevData[selectedDate], rows: updatedRows } };
+    });
   };
-
+  
   const handleRemoveRow = (id) => {
-    setRows(rows.filter(row => row.id !== id));
+    setDateData(prevData => {
+      const updatedRows = prevData[selectedDate].rows.filter(row => row.id !== id);
+      const updatedSlots = prevData[selectedDate].slots.filter(slot => {
+        return updatedRows.some(row => row.startTime === slot.start_time && row.endTime === slot.end_time);
+      });
+  
+      // If updatedRows or updatedSlots are empty, remove the date entry entirely
+      if (updatedRows.length === 0 && updatedSlots.length === 0) {
+        const { [selectedDate]: _, ...rest } = prevData;
+        return rest;
+      }
+  
+      return { 
+        ...prevData, 
+        [selectedDate]: { 
+          ...prevData[selectedDate], 
+          rows: updatedRows, 
+          slots: updatedSlots 
+        } 
+      };
+    });
+  };
+  
+  
+  const handleTimeChange = (id, timeType, newValue) => {
+    setDateData(prevData => {
+      const updatedRows = prevData[selectedDate].rows.map(row => 
+        row.id === id ? { ...row, [timeType]: newValue } : row
+      );
+      return { ...prevData, [selectedDate]: { ...prevData[selectedDate], rows: updatedRows } };
+    });
+    console.log(`Row with id ${id} updated with ${timeType}: ${newValue}`);
+    console.log('Updated rows state:', dateData[selectedDate].rows);
+  };
+  
+  function formatTimeWithAMPM(dateString) {
+    const date = new Date(dateString);
+    const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    return formattedTime;
+  }
+  
+  const generateSlotsData = () => {
+
+    setPopupOpen(false);
+
+    console.log('Generating slots data with rows:', dateData[selectedDate].rows);
+
+
+    const newSlots = dateData[selectedDate].rows.map((row, index) => {
+      return {
+        slot: index + 1,
+        start_time: row.startTime ? formatTimeWithAMPM(row.startTime) : null,
+        end_time: row.endTime ? formatTimeWithAMPM(row.endTime) : null,
+      };
+    });
+  
+    console.log('New slots being added:', newSlots);
+  
+    setDateData(prevData => {
+      const existingSlots = prevData[selectedDate]?.slots || [];
+      const uniqueNewSlots = newSlots.filter(newSlot => {
+        return !existingSlots.some(existingSlot => existingSlot.slot === newSlot.slot);
+      });
+      return { 
+        ...prevData, 
+        [selectedDate]: {
+          ...prevData[selectedDate],
+          slots: [...existingSlots, ...uniqueNewSlots]
+        } 
+      };
+    });
+    
+  };
+  
+  useEffect(() => {
+    if (dateData[selectedDate]?.slots?.length > 0) {
+      console.log('slotsData>>>>>', dateData[selectedDate].slots);
+    }
+  }, [dateData, selectedDate]);
+  
+  console.log(`dateData>>>>>`, dateData);
+
+
+
+// submit BWT Data
+
+  const handleSubmittedBWTData = () => {
+    axios
+      .post(`${baseUrl}/addAvailability`, {
+        instructorid: partnerid,
+        availability: avail, //  1-monthly , 2-quarterly , 3-half yearly
+        duration: duration,
+        accessibility: {
+          courseid: courseId,
+          key: 1, // 1- btw, 2- others
+          slotdata: transformedData
+        }
+      })
+      .then(() => {
+        console.log(`data sent to server successfully`);
+        toast.success(`submitted Successfully`);
+        setTransformedData([])
+      })
+      .catch(() => {
+        console.log(`error while send submitted data to server`);
+        toast.error(`failed to submit`);
+      });
   };
 
-  const handleTimeChange = (id, timeType, newValue) => {
-    setRows(rows.map(row => 
-      row.id === id ? { ...row, [timeType]: newValue } : row
-    ));
-  };
+
+
+
+
+
+
 
   if (loading) return <Loader />;
 
@@ -796,97 +945,64 @@ const AvailabilityCalendar = () => {
       <MainCard>
         <Grid item xs={12} sm={6} md={12}>
 
-          <Dialog open={popupOpen} onClose={handleClosePopup} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+                <Dialog open={popupOpen} onClose={handleClosePopup} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
             <DialogTitle id="alert-dialog-title">{selectedDate}</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-
-
-              {/* <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center">Start Time</TableCell>
-                    <TableCell align="center">End Time</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell align="center">
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TimePicker label="12 : 00 PM" />
-                     </LocalizationProvider>
-                    </TableCell>
-                    <TableCell align="center">
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TimePicker label="12 : 00 PM" />
-                    </LocalizationProvider>
-                    </TableCell>
-                    <TableCell align="center">
-                    <Button sx={{width:'100%'}}> <IoIosRemoveCircle style={{color:'red'}} size={30} /> </Button>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-              </TableContainer>
-
-              <Button sx={{width:'100%'}}> <IoMdAddCircle size={30} /> </Button> */}
-
-<TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center">Start Time</TableCell>
-            <TableCell align="center">End Time</TableCell>
-            <TableCell align="center">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell align="center">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <TimePicker
-                    label="Start Time"
-                    value={row.startTime}
-                    onChange={(newValue) => handleTimeChange(row.id, 'startTime', newValue)}
-                  />
-                </LocalizationProvider>
-              </TableCell>
-              <TableCell align="center">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <TimePicker
-                    label="End Time"
-                    value={row.endTime}
-                    onChange={(newValue) => handleTimeChange(row.id, 'endTime', newValue)}
-                  />
-                </LocalizationProvider>
-              </TableCell>
-              <TableCell align="center">
-                <Button onClick={() => handleRemoveRow(row.id)}>
-                  <IoIosRemoveCircle style={{ color: 'red' }} size={30} />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-          <TableRow>
-            <TableCell colSpan={3} align="center">
-              <Button color='primary' onClick={handleAddRow}>
-                <IoIosAddCircle style={{}} size={30} /> 
-                <Typography sx={{}}> Add new Time Slot </Typography>
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="center">Start Time</TableCell>
+                        <TableCell align="center">End Time</TableCell>
+                        <TableCell align="center">Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {dateData[selectedDate]?.rows.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell align="center">
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <TimePicker
+                                label="Start Time"
+                                value={row.startTime}
+                                onChange={(newValue) => handleTimeChange(row.id, 'startTime', newValue)}
+                              />
+                            </LocalizationProvider>
+                          </TableCell>
+                          <TableCell align="center">
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <TimePicker
+                                label="End Time"
+                                value={row.endTime}
+                                onChange={(newValue) => handleTimeChange(row.id, 'endTime', newValue)}
+                              />
+                            </LocalizationProvider>
+                          </TableCell>
+                          <TableCell align="center">
+                            <Button onClick={() => handleRemoveRow(row.id)}>
+                              <IoIosRemoveCircle style={{ color: 'red' }} size={30} />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow>
+                        <TableCell colSpan={3} align="center">
+                          <Button color='primary' onClick={handleAddRow}>
+                            <IoIosAddCircle style={{}} size={30} /> 
+                            <Typography sx={{}}> Add new Time Slot </Typography>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button variant='contained' color='error' onClick={handleClosePopup}>Cancel</Button>
-              <Button variant='contained' color='success' onClick={handleClosePopup} autoFocus>
-                Add
+              <Button variant='contained' color='success' onClick={generateSlotsData} autoFocus>
+                Update
               </Button>
             </DialogActions>
           </Dialog>
@@ -980,6 +1096,22 @@ const AvailabilityCalendar = () => {
               Submit - {addAvailability.length} events{' '}
             </Button>
           )}
+          {!_.isEmpty(transformedData) && (
+            <Button
+              onClick={handleSubmittedBWTData}
+              sx={{
+                position: 'fixed',
+                right: '100px',
+                top: '300px',
+                color: 'black',
+                background: 'gold',
+                zIndex: '20',
+                fontWeight: 'bolder'
+              }}
+            >
+              Submit - {transformedData.length} events{' '}
+            </Button>
+          )}
           <CalendarStyled>
             <Toolbar
               data={eventData}
@@ -1027,7 +1159,18 @@ const AvailabilityCalendar = () => {
 
             <FullCalendar
               selectable={data === true}
-              events={finalResult} // ( coursesState && adminApproval ) && searchResults
+              events={
+                (()=>{
+                  switch (epicCourseSelection) {
+                    case 'DUI':
+                        return finalResult
+                    case 'Behind the Wheels':
+                        return bwtCalendarData
+                    default: ''
+                      break;
+                  }
+                })()
+              } // finalResult , bwtCalendarData
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}

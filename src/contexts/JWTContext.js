@@ -107,6 +107,8 @@ export const JWTProvider = ({ children }) => {
 
 
       // setting up instructyo detais into store
+      // console.log(`instructor original details - `,response.data.data.partnerid);
+      localStorage.setItem('partnerid',response.data.data.partnerid)
       reduxDispatch(addInstructor(response.data.data))
       // setting up instructyo detais into store
 
