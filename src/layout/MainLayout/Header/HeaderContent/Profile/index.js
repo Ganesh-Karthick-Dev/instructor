@@ -2,7 +2,7 @@
 
 
 import PropTypes from 'prop-types';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 // material-ui
@@ -23,6 +23,7 @@ import useAuth from 'hooks/useAuth';
 // assets
 import avatar1 from 'assets/images/users/avatar-1.png';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
@@ -49,6 +50,42 @@ function a11yProps(index) {
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
 const Profile = () => {
+
+
+   // ----------- fetching instructor details process -------------
+
+   const [epicUser,setEpicUser] = useState(null)
+
+   const userId = JSON.parse(localStorage.getItem('partnerid'))
+
+   const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+
+   useEffect(()=>{
+     fetchInstructorDetails()
+   },[])
+
+   const fetchInstructorDetails = ()=> {
+     try {
+       axios.get(`${baseUrl}/getInstructorById/${userId}`)
+           .then((data)=>{
+             const res = data.data
+             if(res.status === false){
+               console.log(`/getInstructorById/ - error - API error`,res.message);
+             }
+             else{
+               setEpicUser(res.data[0])
+             }
+           })
+     } catch (error) {
+       console.log(`error in getting instructor details using - partner ID - `,error);
+     }
+   }
+
+   console.log(`epic user`,epicUser);
+
+   // ----------- fetching instructor details process -------------
+
+
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -65,6 +102,8 @@ const Profile = () => {
       console.error(err);
     }
   };
+
+  
 
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -107,8 +146,8 @@ const Profile = () => {
         onClick={handleToggle}
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
-          <Avatar alt="profile user" src={avatar1} size="xs" />
-          <Typography variant="subtitle1">{user}</Typography>
+          <Avatar alt="profile user" src={epicUser?.partnerimage} size="xs" />
+          <Typography variant="subtitle1">{`${epicUser?.firstname} ${epicUser?.lastname}`}</Typography>
         </Stack>
       </ButtonBase>
       <Popper
@@ -148,9 +187,9 @@ const Profile = () => {
                     <Grid container direction={'row'} justifyContent={'center'}  gap={2}>
                       <Grid item>
                         <Stack direction="row" spacing={1.25} alignItems="center">
-                          <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
+                          <Avatar alt="profile user" src={epicUser?.partnerimage} sx={{ width: 32, height: 32 }} />
                           <Stack>
-                            <Typography variant="h6">{user}</Typography>
+                            <Typography variant="h6">{epicUser?.primaryemail}</Typography>
                             {/* <Typography variant="body2" color="textSecondary">
                               UI/UX Designer
                             </Typography> */}

@@ -32,8 +32,8 @@ const AuthLogin = () => {
   const scriptedRef = useScriptRef();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
-      email: '5t6kyezfa6@tidissajiiu.com',  // Set the default value here
-      password : '3zranksotq' 
+      email: 'aakmoza@mailto.plus',  // Set the default value here
+      password : '9rlpgagawj' 
     }
   });
 

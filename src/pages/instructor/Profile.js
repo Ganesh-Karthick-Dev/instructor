@@ -47,8 +47,42 @@ const Profile = () => {
 
   // getting instructor details from redux store
   const instructor = useSelector((state)=> state.userSlice)
-  const {partnerid} = instructor.instructor
+  // const {partnerid} = instructor.instructor
   // getting instructor details from redux store
+
+
+
+
+  // ----------- fetching instructor details process -------------
+
+    const [epicUser,setEpicUser] = useState(null)
+
+    const userId = JSON.parse(localStorage.getItem('partnerid'))
+
+    const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+
+    useEffect(()=>{
+      fetchInstructorDetails()
+    },[])
+
+    const fetchInstructorDetails = ()=> {
+      try {
+        axios.get(`${baseUrl}/getInstructorById/${userId}`)
+            .then((data)=>{
+              const res = data.data
+              if(res.status === false){
+                console.log(`/getInstructorById/ - error - API error`,res.message);
+              }
+              else{
+                setEpicUser(res.data[0])
+              }
+            })
+      } catch (error) {
+        console.log(`error in getting instructor details using - partner ID - `,error);
+      }
+    }
+
+    // ----------- fetching instructor details process -------------
 
 
 
@@ -74,15 +108,15 @@ const Profile = () => {
   const [vehicleDetails, setVehicleDetails] = useState([]);
 
   useEffect(() => {
-    handleUserFetch(partnerid);
+    handleUserFetch();
     // setBranches(userDetails.branch)
   }, []);
 
-  const handleUserFetch = async (partnerid) => {
+  const handleUserFetch = async () => {
     try {
-      let id = partnerid;
-      console.log(`super user id`,id);
-      const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${id}`);
+      // let id = partnerid;
+      // console.log(`super user id`,id);
+      const response = await axios.get(`https://phpstack-977481-4409636.cloudwaysapps.com/api/v1/getInstructorById/${userId}`);
       let user = response.data;
       setUserDetails(user.data[0]);
       setBranches(user.data[0].branch);

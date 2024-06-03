@@ -59,6 +59,7 @@ import MainCard from 'components/MainCard';
 import { PiStudentFill } from 'react-icons/pi';
 import StudentAction from 'pages/instructor/StudentAction';
 import { NavLink } from 'react-router-dom';
+import axios from 'axios';
 // tooltip
 
 function TablePaginationActions(props) {
@@ -107,6 +108,39 @@ TablePaginationActions.propTypes = {
 };
 
 export default function CustomPaginationActionsTable() {
+
+
+      // ----------- fetching instructor details process -------------
+
+      const [epicUser,setEpicUser] = React.useState(null)
+
+      const userId = JSON.parse(localStorage.getItem('partnerid'))
+  
+      const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+  
+      React.useEffect(()=>{
+        fetchInstructorDetails()
+      },[])
+  
+      const fetchInstructorDetails = ()=> {
+        try {
+          axios.get(`${baseUrl}/getInstructorById/${userId}`)
+              .then((data)=>{
+                const res = data.data
+                if(res.status === false){
+                  console.log(`/getInstructorById/ - error - API error`,res.message);
+                }
+                else{
+                  setEpicUser(res.data[0])
+                }
+              })
+        } catch (error) {
+          console.log(`error in getting instructor details using - partner ID - `,error);
+        }
+      }
+  
+      // ----------- fetching instructor details process -------------
+
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -310,16 +344,7 @@ export default function CustomPaginationActionsTable() {
     setFilteredCourse(_.uniqBy(rows,(e)=> e.course))
   },[])
 
-  const handleCourseSelect = (event, value) => {
-    // If no courses are selected, reset the filtered data to the original rows
-    if (_.isEmpty(value)) {
-      setSelectedCourse(rows);
-    } else {
-      // Filter the rows based on the selected courses
-      const filteredRows = rows.filter(row => value.some(course => course.course === row.course));
-      setSelectedCourse(filteredRows);
-    }
-  };
+
   
 
   // global search
@@ -375,6 +400,40 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
  // date range picker
 
 
+
+
+//  fresh work with API integration
+
+const [students,setStudents] = React.useState([])
+
+
+console.log(`students data`,students);
+
+const handleCourseSelect = (event, value) => {
+
+  console.log(`seelcted course`,value);
+  // if (_.isEmpty(value)) {
+  //   setSelectedCourse(rows);
+  // } else {
+  //   // Filter the rows based on the selected courses
+  //   const filteredRows = rows.filter(row => value.some(course => course.course === row.course));
+  //   setSelectedCourse(filteredRows);
+  // }
+
+  axios.post(`${baseUrl}/getStudentListByInstructorID`,{
+      addonid : 1,
+      productid : value.productid,
+      partnerid : userId
+  })
+  .then((val)=>{
+    setStudents(val.data.response)
+  })
+
+
+};
+
+
+
   return (
     <>
     <MainCard>
@@ -396,7 +455,7 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
             onChange={handleSearch}
             startAdornment={<PiStudentFill size={40} />}
           />
-          <ButtonGroup color="secondary" aria-label="medium secondary button group">
+              {/* <ButtonGroup color="secondary" aria-label="medium secondary button group">
                 <Button
                   sx={{ 
                     height: 'fit-content',
@@ -433,13 +492,12 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
                 >
                   Ready to take Test
                 </Button>
-              </ButtonGroup>
+              </ButtonGroup> */}
 
               <Autocomplete
-                multiple
                 id="tags-outlined"
-                options={filteredCourse}
-                getOptionLabel={(option) => option.course }
+                options={epicUser?.courses}
+                getOptionLabel={(option) => option.productname }
                 onChange={handleCourseSelect}
                 filterSelectedOptions
                 renderInput={(params) => <TextField {...params} placeholder="Courses" />}
@@ -471,8 +529,8 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
           <TableHead>
             <TableRow>
             <TableCell align="center" sx={{ width: '2%' }}></TableCell>
-            <TableCell align="center" sx={{ width: '2%' }}>S.no</TableCell>
-            <TableCell align="center" sx={{ width: '10%' }}>Student Id</TableCell>
+            {/* <TableCell align="center" sx={{ width: '2%' }}>S.no</TableCell>
+            <TableCell align="center" sx={{ width: '10%' }}>Student Id</TableCell> */}
             <TableCell align="center" sx={{ width: '20%' }}>Student</TableCell>
             <TableCell align="center" sx={{ width: '20%' }}>Course</TableCell>
             <TableCell align="center" sx={{ width: '10%' }}>Class</TableCell>
@@ -483,24 +541,26 @@ const [dateRange, setDateRange] = React.useState([new Date(), new Date()]);
           </TableHead>
 
           <TableBody>
-            {(rowsPerPage > 0 ? selectedCourse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : selectedCourse).map((row, index) => (
+            {(rowsPerPage > 0 ? students.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : students).map((row, index) => (
               <TableRow key={index}>
                 <TableCell sx={{ width: '2%' }} align="center">
                   <Checkbox /*{...label}*/ onClick={()=>handleStudentSelect(row)}  />
                   </TableCell>
-                <TableCell align="center" sx={{ width: '2%' }} component="th" scope="row">
+                {/* <TableCell align="center" sx={{ width: '2%' }} component="th" scope="row">
                   {index + 1}
                 </TableCell>
-                <TableCell sx={{ width: '10%' }} align="center">{row.id}</TableCell>
+                <TableCell sx={{ width: '10%' }} align="center">{row.customerid}</TableCell> */}
+
                 <TableCell align="center">
-            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent:'center', alignItems: 'center', gap:'15px' }}>
-                <Avatar src={tempImg} alt="user-image" />
-                <Box sx={{display:'flex',flexDirection:'column',justifyContent:'start',alignItems:'start'}}>
-                <Typography>{row.name}</Typography>
-                <Typography>{row.email}</Typography>
-                </Box>
-            </Box>
-        </TableCell>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent:'center', alignItems: 'center', gap:'15px' }}>
+                    <Avatar src={tempImg} alt="user-image" />
+                    <Box sx={{display:'flex',flexDirection:'column',justifyContent:'start',alignItems:'start'}}>
+                    <Typography>{row?.studentDetails[0]?.firstname} {row?.studentDetails[0]?.lastname}</Typography>
+                    <Typography>{row?.studentDetails[0]?.email}</Typography>
+                    </Box>
+                  </Box>
+                </TableCell>
+
                 <TableCell align="center">
                   <Chip label={row.course} />
                 </TableCell>

@@ -60,14 +60,49 @@ import AnimateButton from 'components/@extended/AnimateButton';
 import { SettingOutlined } from '@ant-design/icons';
 import { IoMdAddCircle } from "react-icons/io";
 import { IoIosRemoveCircle } from "react-icons/io";
+import dayjs from 'dayjs';
+import AvailabilityValidationDialog from 'components/Instructor/AvailabilityValidationDialog';
 
 
 // ==============================|| CALENDAR - MAIN ||============================== //
 
 const AvailabilityCalendar = () => {
-  const instructor = useSelector((state) => state.userSlice);
-  const { partnerid } = instructor.instructor;
+
+
+
+  // ----------- fetching instructor details process -------------
+
+  const [epicUser,setEpicUser] = useState(null)
+
+  const userId = JSON.parse(localStorage.getItem('partnerid'))
+
   const baseUrl = `https://phpstack-977481-4409636.cloudwaysapps.com/api/v1`;
+
+  useEffect(()=>{
+    fetchInstructorDetails()
+    handleAvailabilityPermission();
+  },[])
+
+  const fetchInstructorDetails = ()=> {
+    try {
+      axios.get(`${baseUrl}/getInstructorById/${userId}`)
+          .then((data)=>{
+            const res = data.data
+            if(res.status === false){
+              console.log(`/getInstructorById/ - error - API error`,res.message);
+            }
+            else{
+              setEpicUser(res.data[0])
+            }
+          })
+    } catch (error) {
+      console.log(`error in getting instructor details using - partner ID - `,error);
+    }
+  }
+
+  // ----------- fetching instructor details process -------------
+
+
 
   // ------------------------------------------------------------getting availability permission-------------------------------------
   const [availabilityPermission, setAvailabilityPermission] = useState([]);
@@ -76,19 +111,20 @@ const AvailabilityCalendar = () => {
 
   const [availability, setAvailability] = useState([]);
 
-  // console.log(`>>>>>>>>>>>>>>`,availabilityPermission);
+  console.log(`>>>>>>>>>>>>>>`,availabilityPermission);
 
-  useEffect(() => {
-    handleAvailabilityPermission();
-  }, []);
+  // useEffect(() => {
+  //   handleAvailabilityPermission();
+  // }, []);
 
   const handleAvailabilityPermission = () => {
     try {
-      axios.get(`${baseUrl}/getAvailabilitypermission/${partnerid}`).then((val) => {
+      axios.get(`${baseUrl}/getAvailabilitypermission/${userId}`).then((val) => {
         if (val.data.status === false) {
           throw new Error('error in getting availability from admin - status - false');
         } else {
           setAvailability(val.data.data);
+          console.log(`permission >>>`,val.data.data);
           filterAvPending(val.data.data);
         }
       });
@@ -109,7 +145,9 @@ const AvailabilityCalendar = () => {
           type: item.type,
           availability: Number(item.availability),
           duration: item.duration,
-          courseid: item.productid
+          courseid: item.productid,
+          fromDate : item.fromdate,
+          toDate : item.todate
         });
       }
       return acc;
@@ -551,6 +589,20 @@ const AvailabilityCalendar = () => {
 
   let finalResult = flattenedArray4;
 
+
+
+  //  ------------------------------------- DUI color changing purpose ---------------------------------------------
+  const modifiedData = finalResult.map((item , index) => {
+    return { ...item, color: '#1677ff', id : index + 1 };
+  });
+
+  console.log(`modifiedData >>>`,modifiedData);
+
+  const [originalData,setOriginalData] = useState(modifiedData)
+  //  ------------------------------------- DUI color changing purpose ---------------------------------------------
+
+
+
   // console.log(`flattenedArray4`, flattenedArray4);
 
   //   let Dates = clickedCourse.map((val)=>{
@@ -628,9 +680,12 @@ const AvailabilityCalendar = () => {
   const [duration, setDuration] = useState(null);
   const [avail, setAvail] = useState(null);
   const [courseOthers,setCourseOthers] = useState('')
-
+  const [fromDate,setFromDate] = useState('')
+  const [toDate,setTodate] = useState('')
 
   const [epicCourseSelection,setEpicCourseSelection] = useState('')
+
+  console.log(`fromDate`,fromDate);
 
   const handleCourseSelect = (event, value) => {
     // console.log(`event`,event);
@@ -646,10 +701,17 @@ const AvailabilityCalendar = () => {
     //   type: value.type
     // }));
 
+    const fromDateDataString = value.fromDate
+    var fromDateData = fromDateDataString.split('T')[0]
+    const toDateDataString = value.toDate
+    var toDateData = toDateDataString.split('T')[0]
+
     setCourseId(value.courseid);
     setDuration(value.duration);
     setAvail(Number(value.availability));
     setCourseOthers(value.productname)
+    setFromDate(fromDateData)
+    setTodate(toDateData)
 
     let courseid = value.type;
     axios
@@ -671,10 +733,33 @@ const AvailabilityCalendar = () => {
 
   console.log(`addAvailability`, addAvailability);
 
+
   const handleEventSelect = (arg) => {
+
+    console.log(`skdvbhskdvjsvjsdv`,arg);
     const data = arg.event._def.extendedProps;
 
     console.log(`clicked data >>>>>`, data);
+
+    //  for DUI color cahnges
+    const clickedEvent = arg.event;
+
+    const updatedModifiedData = modifiedData.map(event => {
+      if (event.id === arg.event.publicId) {
+        // If the event is clicked, toggle its color
+        return {
+          ...event,
+          color: event.color === '#1677ff' ? '#15803d' : '#1677ff' // Toggle between original and green color
+        };
+      } else {
+        return event; // Return the event as is if it's not the clicked event
+      }
+    });
+    
+    // Now update the state with the updatedModifiedData
+    setOriginalData(updatedModifiedData); // Assuming you have a state variable to store modifiedData
+    //  for DUI color cahnges
+
 
     try {
       axios
@@ -720,25 +805,30 @@ const AvailabilityCalendar = () => {
   const [submittedData, setSubmittedData] = useState([]);
 
   const handleSubmittedData = () => {
-    axios
-      .post(`${baseUrl}/addAvailability`, {
-        instructorid: partnerid,
-        availability: avail, //  1-monthly , 2-quarterly , 3-half yearly
-        duration: duration,
-        accessibility: {
-          courseid: courseId,
-          key: 2, // 1- btw, 2- others
-          slotdata: addAvailability
-        }
-      })
-      .then(() => {
-        console.log(`data sent to server successfully`);
-        toast.success(`submitted Successfully`);
-      })
-      .catch(() => {
-        console.log(`error while send submitted data to server`);
-        toast.error(`failed to submit`);
-      });
+    if(addAvailability.length >= 3){
+      axios
+        .post(`${baseUrl}/addAvailability`, {
+          instructorid: epicUser?.partnerid,
+          availability: 3, //  1-monthly , 2-quarterly , 3-half yearly
+          duration: duration,
+          accessibility: {
+            courseid: courseId,
+            key: 2, // 1- btw, 2- others
+            slotdata: addAvailability
+          }
+        })
+        .then(() => {
+          console.log(`data sent to server successfully`);
+          toast.success(`submitted Successfully`);
+        })
+        .catch(() => {
+          console.log(`error while send submitted data to server`);
+          toast.error(`failed to submit`);
+        });
+    }
+    else{
+      setValidationError(true)
+    }
   };
 
   // custom1
@@ -757,7 +847,7 @@ const AvailabilityCalendar = () => {
 
   const [bwtCalendarData,setBwtCalendarData] = useState([])
 
-  console.log(`epic final data`,bwtCalendarData);
+  console.log(`epic final data`,transformedData);
 
   useEffect(() => {
     const newData = transformData(dateData);
@@ -892,9 +982,9 @@ const AvailabilityCalendar = () => {
           slots: [...existingSlots, ...uniqueNewSlots]
         } 
       };
-    });
-    
+    });   
   };
+
   
   useEffect(() => {
     if (dateData[selectedDate]?.slots?.length > 0) {
@@ -908,32 +998,82 @@ const AvailabilityCalendar = () => {
 
 // submit BWT Data
 
+
+function validateEntries(data) {
+  // Define an object to keep track of months
+  const months = {};
+
+  // Iterate through each entry
+  Object.keys(data).forEach(key => {
+      // Extract the month from the key
+      const month = key.slice(5, 7); // Extract the characters from index 5 to 6 (exclusive)
+
+      // Add the month to the months object
+      months[month] = true;
+  });
+
+  // Get the current month
+  const currentMonth = new Date().getMonth() + 1;
+
+  // Check if there is at least one entry for each of the next three months
+  for (let i = 1; i <= 3; i++) {
+      const nextMonth = (currentMonth + i) % 12 || 12;
+      if (!months[nextMonth]) {
+          console.error("You need at least one entry for each of the next three months.");
+          return false;
+      }
+  }
+
+  // If all validations pass, return true
+  return true;
+}
+
+
+  // availability validation error
+  const [validationError,setValidationError] = useState(null)
+  // availability validation error
+
+
   const handleSubmittedBWTData = () => {
-    axios
-      .post(`${baseUrl}/addAvailability`, {
-        instructorid: partnerid,
-        availability: avail, //  1-monthly , 2-quarterly , 3-half yearly
-        duration: duration,
-        accessibility: {
-          courseid: courseId,
-          key: 1, // 1- btw, 2- others
-          slotdata: transformedData
-        }
-      })
-      .then(() => {
-        console.log(`data sent to server successfully`);
-        toast.success(`submitted Successfully`);
-        setTransformedData([])
-      })
-      .catch(() => {
-        console.log(`error while send submitted data to server`);
-        toast.error(`failed to submit`);
-      });
+
+    // const isValid = validateEntries(transformedData)
+
+    // console.log(`isValid`,isValid);
+
+    if(transformedData.length >= 3){
+      axios
+        .post(`${baseUrl}/addAvailability`, {
+          instructorid: Number(epicUser?.partnerid),
+          availability: 3, //  1-monthly , 2-quarterly , 3-half yearly
+          duration: duration,
+          accessibility: {
+            courseid: courseId,
+            key: 1, // 1- btw, 2- others
+            slotdata: transformedData
+          }
+        })
+        .then(() => {
+          console.log(`data sent to server successfully`);
+          toast.success(`submitted Successfully`);
+          // setTransformedData(null)
+        })
+        .catch(() => {
+          console.log(`error while send submitted data to server`);
+          toast.error(`failed to submit`);
+        });
+    }
+    else {
+      setValidationError(true)
+    }
+
   };
 
 
 
 
+  // Define the minimum and maximum times
+  const minmumTime = dayjs().set('hour', 7).startOf('hour');
+  const maximumTime = dayjs().set('hour', 21).startOf('hour');
 
 
 
@@ -945,7 +1085,7 @@ const AvailabilityCalendar = () => {
       <MainCard>
         <Grid item xs={12} sm={6} md={12}>
 
-                <Dialog open={popupOpen} onClose={handleClosePopup} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+              <Dialog open={popupOpen} onClose={handleClosePopup} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
             <DialogTitle id="alert-dialog-title">{selectedDate}</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
@@ -967,6 +1107,8 @@ const AvailabilityCalendar = () => {
                                 label="Start Time"
                                 value={row.startTime}
                                 onChange={(newValue) => handleTimeChange(row.id, 'startTime', newValue)}
+                                minTime={minmumTime}
+                                maxTime={maximumTime}
                               />
                             </LocalizationProvider>
                           </TableCell>
@@ -976,6 +1118,8 @@ const AvailabilityCalendar = () => {
                                 label="End Time"
                                 value={row.endTime}
                                 onChange={(newValue) => handleTimeChange(row.id, 'endTime', newValue)}
+                                minTime={minmumTime}
+                                maxTime={maximumTime}
                               />
                             </LocalizationProvider>
                           </TableCell>
@@ -1000,7 +1144,7 @@ const AvailabilityCalendar = () => {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button variant='contained' color='error' onClick={handleClosePopup}>Cancel</Button>
+              <Button variant='contained' color='error' onClick={handleClosePopup}>Close</Button>
               <Button variant='contained' color='success' onClick={generateSlotsData} autoFocus>
                 Update
               </Button>
@@ -1069,11 +1213,14 @@ const AvailabilityCalendar = () => {
                     <ul>
                       {availabilityPermission &&
                         availabilityPermission.map((val, index) => {
-                          return <li key={index}>{val.productname}</li>;
+                          return <li key={index}>{`${val.productname} - ( ${val.duration} month )`}</li>;
                         })}
                     </ul>
                   </Typography>
                 </Box>
+
+                <AvailabilityValidationDialog value={validationError} course={epicCourseSelection} duration={duration} from={fromDate} to={toDate} />
+
               </Stack>
             )}
           </Stack>
@@ -1163,7 +1310,7 @@ const AvailabilityCalendar = () => {
                 (()=>{
                   switch (epicCourseSelection) {
                     case 'DUI':
-                        return finalResult
+                        return modifiedData             // finalResult
                     case 'Behind the Wheels':
                         return bwtCalendarData
                     default: ''

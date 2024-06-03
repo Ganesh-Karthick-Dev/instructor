@@ -34,6 +34,7 @@ import useAuth from 'hooks/useAuth';
 import useScriptRef from 'hooks/useScriptRef';
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { FaUpload } from "react-icons/fa6";
 
 import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -54,6 +55,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import { Toast } from 'primereact/toast';
 import { FileUpload } from 'primereact/fileupload';
 import { FormatOverlineSharp, Margin } from '@mui/icons-material';
+import UploadImage from 'components/Instructor/UploadImage';
 // prime react
 
 const AuthRegister = () => {
@@ -62,7 +64,10 @@ const AuthRegister = () => {
   // for date pickers
   const [selectedDate, setSelectedDate] = useState(dayjs('2000-08-18'));
   const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
+    setFormValues({
+      ...formValues ,
+      dob : newDate.format('YYYY-MM-DD')
+    })
     console.log('Selected Date:', newDate.format('YYYY-MM-DD'));
   };
   // for date pickers
@@ -78,8 +83,8 @@ const AuthRegister = () => {
     lastname: '',
     email: '',
     mobile: '',
-    dob: selectedDate,
-    gender: 'Male',
+    dob: '',
+    gender: '',
     address: '',
     city: '',
     state: '',
@@ -87,7 +92,7 @@ const AuthRegister = () => {
     zipcode: null,
     servicelocation: '',
     zones: [],
-    profileimage: 'https://webnox.blr1.digitaloceanspaces.com/driving_school/user.png',
+    profileimage: null,
     courseshandled: [],
     documents: [
       {
@@ -95,10 +100,11 @@ const AuthRegister = () => {
         doc: 'https://webnox.blr1.digitaloceanspaces.com/driving_school/double%20quotes%20to%20single%20quotes.PNG'
       }
     ],
-    status: 'Active',
+    status: '',
     roleid: 3,
     configid: 1,
-    authmode: 1
+    authmode: 1,
+    check : null
   });
   const [formErrors, setFormErrors] = useState({});
 
@@ -172,6 +178,8 @@ const AuthRegister = () => {
   const [coursesApi, setCoursesApi] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
 
+  console.log(`coursesApi`,coursesApi);
+
   console.log(`formvalues`, formValues);
 
   console.log('courses', selectedCourses);
@@ -209,6 +217,34 @@ const AuthRegister = () => {
   // ----------------------- status -------------------
 
 
+  // ----------------------- checkbox-------------------
+
+  const handleCheckBoxChange = (event) => {
+    setFormValues({
+      ...formValues ,
+      check : event.target.checked
+    })
+  };
+  // ----------------------- checkbox--------------------
+
+
+  // ---------- profile upload --------------------------
+
+  
+  const handleProfileImageChange = (fileData) => {
+    const file = fileData.files[0];
+    console.log(`>>>>> image `,file);
+    setFormValues({
+          ...formValues,
+          profileimage: file, // Update profileimage with the uploaded file
+        });
+  };
+
+
+  // ---------- profile upload --------------------------
+
+
+
 
 
   // form input handlers
@@ -231,7 +267,7 @@ const AuthRegister = () => {
       .max(255)
       .required()
       .label('Email'),
-    mobile: Joi.number().required().label('Mobile'),
+    mobile: Joi.number().min(4).required().label('Mobile'),
     dob: Joi.required().label('Date of Birth'),
     gender: Joi.string().required().label('Gender'),
     address: Joi.string().required().label('Address'),
@@ -241,13 +277,16 @@ const AuthRegister = () => {
     zipcode: Joi.number().required().label('Postal Code'),
     servicelocation: Joi.number().required().label('Service Location'),
     zones: Joi.array().items(Joi.number()).required().label('Zones'),
-    courseshandled: Joi.array().items(Joi.number()).required().label('Courses'),
+    courseshandled: Joi.array().min(1).required().label('Courses'),
     status: Joi.string().required().label('Status'),
-    profileimage: Joi.string().required().label('profileimage'),
+    profileimage: Joi.object().required().label('profileimage').default({}),
     documents: Joi.optional(),
     roleid: Joi.optional(),
     configid: Joi.optional(),
-    authmode: Joi.optional()
+    authmode: Joi.optional(),
+    check : Joi.boolean().required().messages({
+      'any.required': 'Agree terms and conditons to proceed'
+    })
   });
 
   const handleSubmit = async (e) => {
@@ -259,6 +298,9 @@ const AuthRegister = () => {
       return toast.error(error.details[0].message); // Use error.details[0].message to display the validation error message
     }
     try {
+
+      const imagelink = await UploadImage({srcData : formValues.profileimage})
+
       const response = await axios.post(`${baseUrl}/addInstructor`, {
         firstname: formValues.firstname,
         lastname: formValues.lastname,
@@ -273,7 +315,7 @@ const AuthRegister = () => {
         zipcode: Number(formValues.zipcode),
         servicelocation: Number(formValues.servicelocation),
         zones: formValues.zones,
-        profileimage: 'https://www.biowritingservice.com/wp-content/themes/tuborg/images/Executive%20Bio%20Sample%20Photo.png',
+        profileimage: imagelink,
         courseshandled: [1, 2],
         documents: [
           {
@@ -299,6 +341,8 @@ const AuthRegister = () => {
       },2000)
     } catch (err) {
       toast.error(err.message);
+
+      console.log('error',error)
     }
   };
 
@@ -331,11 +375,18 @@ const AuthRegister = () => {
   // api for document table
 
   // file upload works
-  const toastsmg = useRef(null);
+  // const handleProfileImageChange = async (fileData) => {
+  //   console.log(`>>>>>>>>>>>>>>`,fileData.target.files); // Log the uploaded files
+  //   const uploadedFile = fileData.target.files[0]; // Assuming only one file is uploaded
+  //   console.log(`uploadedFile`,uploadedFile); // Log the uploaded file
+  //   setFormValues({
+  //     ...formValues,
+  //     profileimage: uploadedFile, // Update profileimage with the uploaded file
+  //   });
+  // };
 
-  const onUpload = () => {
-    toast.current.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
-  };
+
+  
   // file upload works
 
 
@@ -447,7 +498,7 @@ const AuthRegister = () => {
                   }
                 }} //react-international-phone-input-container
               >
-                <PhoneInput defaultCountry="ua" value={formValues.mobile} onChange={handlePhoneChange} placeholder="Mobile Number" />
+                <PhoneInput defaultCountry="us" value={formValues.mobile} onChange={handlePhoneChange} placeholder="Mobile Number" />
               </Box>
               {/* <OutlinedInput
                 fullWidth
@@ -670,17 +721,15 @@ const AuthRegister = () => {
             {/*profile picture*/}
             <Stack spacing={1}>
               <InputLabel>Profile image</InputLabel>
-
-              <Toast style={{ background: 'grey' }} ref={toastsmg}></Toast>
               <FileUpload
-                style={{ width: 'fit-content', background:'#093467',color:'white',padding:'10px',borderRadius:'5px' }}
-                mode="basic"
-                name="demo[]"
-                url="/api/upload"
-                accept="image/*"
-                maxFileSize={1000000}
-                onUpload={onUpload}
-              />
+              style={{background:'#093467',color:'white',width:'fit-content',padding:'10px'}}
+                  mode="basic"
+                  name="demo[]"
+                  accept="image/*"
+                  maxFileSize={1000000}
+                  customUpload
+                  uploadHandler={handleProfileImageChange}
+                />
             </Stack>
           </Grid>
 
@@ -703,15 +752,14 @@ const AuthRegister = () => {
                     <TableCell align="center">{row.apptypeid}</TableCell>
                     <TableCell align="center">{row.typename}</TableCell>
                     <TableCell align="center">
-                    <Toast style={{ background: 'grey' }} ref={toastsmg}></Toast>
                     <FileUpload
-                      style={{ width: 'fit-content', background:'#093467',color:'white',padding:'10px',borderRadius:'5px' }}
+                      style={{background:'#093467',color:'white',width:'fit-content',padding:'10px'}}
                       mode="basic"
                       name="demo[]"
-                      url="/api/upload"
                       accept="image/*"
                       maxFileSize={1000000}
-                      onUpload={onUpload}
+                      customUpload
+                      uploadHandler={handleProfileImageChange}
                     />
                     </TableCell>
                   </TableRow>
@@ -720,7 +768,11 @@ const AuthRegister = () => {
             </Table>
           </TableContainer>
 
-          <Grid item xs={12}>
+          <Grid sx={{display:'flex',flexDirection:'row',gap:'10px',alignItems:'center'}} item xs={12}>
+            <Checkbox
+              checked={formValues.check}
+              onChange={handleCheckBoxChange}
+             />
             <Typography variant="body2">
               By Signing up, you agree to our &nbsp;
               <Link variant="subtitle2" component={RouterLink} to="#">
